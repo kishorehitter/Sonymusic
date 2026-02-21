@@ -1,0 +1,411 @@
+{% extends "sonyApp/layouts/base.html" %}
+{% load custom_filters %}
+{% load static %}
+
+{% block title %}{{ channel.name }} - Videos{% endblock title %}
+
+{% block content %}
+
+
+<div class="row g-0 ">
+   
+        {% include 'sonyApp/inc/navbar.html' %}
+        
+
+    
+    <div class="col-12 main-content ms-lg-auto px-0">
+        
+        <!-- Channel Header -->
+        <div class="channel-header bg-dark py-4 mt-5">
+            <div class="container-fluid px-4">
+                <div class="row align-items-center">
+                    <div class="col-12">
+                        <div class="d-flex align-items-center justify-content-center gap-3">
+                            {% if channel.thumbnail_url %}
+                            <img src="{{ channel.thumbnail_url }}" alt="{{ channel.name }}" class="channel-avatar rounded-circle" style="width: 80px; height: 80px; object-fit: cover;">
+                            {% else %}
+                            <div class="channel-avatar-placeholder rounded-circle d-flex align-items-center justify-content-center" style="width: 80px; height: 80px; background: linear-gradient(135deg, #ff1744, #d50000);">
+                                <i class="bi bi-music-note-beamed text-white" style="font-size: 2rem;"></i>
+                            </div>
+                            {% endif %}
+                            <div>
+                                <h1 class="h3 text-white mb-1 fw-bold">{{ channel.name }}</h1>
+                                <div class="text-light small">
+                                    <i class="bi bi-collection-play me-1"></i>
+                                    
+                                    <!-- ✅ Show correct total based on category -->
+                                    {% if category == 'all' %}
+                                        {{ total_videos|add:total_shorts }} videos
+                                    {% elif category == 'videos' %}
+                                        {{ total_videos }} videos
+                                    {% elif category == 'shorts' %}
+                                        {{ total_shorts }} shorts
+                                    {% endif %}
+                                    
+                                    {% if channel.subscriber_count %}
+                                        <span class="mx-2">•</span>
+                                        <i class="bi bi-people me-1"></i>
+                                        {{ channel.subscriber_count|short_number }} subscribers
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+        
+                </div>
+                
+                <!-- {% if channel.description %}
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <p class="text-light mb-0 small text-center">{{ channel.description }}</p>
+                    </div>
+                </div>
+                {% endif %} -->
+            </div>
+        </div>
+
+        <!-- Category Tabs -->
+<div class="container-fluid px-0 py-3">
+    <div class="category-tabs mb-4">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div class="d-flex gap-2">
+                <a href="?category=all&sort={{ sort_by }}&page=1" 
+                   class="category-btn {% if category == 'all' %}active{% endif %}" style="color: white; text-decoration: underline; text-underline-offset: 4px;">
+                    <i class="bi bi-collection-play me-1"></i>
+                    All Videos
+                    <span class="badge bg-secondary ms-1">{{ total_videos|add:total_shorts }}</span>
+                </a>
+                <a href="?category=videos&sort={{ sort_by }}&page=1" 
+                   class="category-btn {% if category == 'videos' %}active{% endif %}" style="color: white; text-decoration: underline; text-underline-offset: 4px;">
+                    <i class="bi bi-play-circle me-1"></i>
+                    Videos
+                    <span class="badge bg-secondary ms-1">{{ total_videos }}</span>
+                </a>
+                <a href="?category=shorts&sort={{ sort_by }}&page=1" 
+                   class="category-btn {% if category == 'shorts' %}active{% endif %}"style="color: white; text-decoration: underline; text-underline-offset: 4px;">
+                    <i class="bi bi-film me-1"></i>
+                    Shorts
+                    <span class="badge bg-secondary ms-1">{{ total_shorts }}</span>
+                </a>
+            </div>
+            
+            <div class="d-flex gap-2">
+                <div class="dropdown">
+                    <button class="sort-btn rounded-2 px-2 dropdown-toggle" type="button" 
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-sort-down me-1"></i>
+                        {% if sort_by == 'recent' %}Recent First{% else %}Most Viewed{% endif %}
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="dropdown-item" 
+                               href="?category={{ category }}&sort=recent&page=1">
+                                Recent First
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" 
+                               href="?category={{ category }}&sort=popular&page=1">
+                                Most Viewed
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Active Filters Display -->
+        <div class="mt-3">
+            {% if category != 'all' %}
+            <span class="badge bg-info me-2">
+                {% if category == 'videos' %}Videos Only{% else %}Shorts Only{% endif %}
+            </span>
+            {% endif %}
+            <span class="badge bg-dark">
+                {% if sort_by == 'recent' %}Sorted: Recent{% else %}Sorted: Popular{% endif %}
+            </span>
+        </div>
+    </div>
+
+           
+            <!-- Video Grid Section -->
+            {% if videos %}
+            <div class="row mx-0">
+                {% for video in videos %}
+                <div class="col-6 col-sm-6 col-md-4 col-lg-3 px-1">
+                    <div class="video-card h-100">
+                        <a href="{% url 'video_player' channel.channel_id video.youtube_video_id %}" class="text-decoration-none">
+                            
+                            <!-- Video Thumbnail -->
+                            <div class="video-thumbnail-wrapper position-relative">
+                                <img src="{{ video.thumbnail_url }}" 
+                                     alt="{{ video.title }}" 
+                                     class="video-thumbnail w-100 rounded-2"
+                                     loading="lazy"
+                                     onerror="this.src='{% static 'images/placeholder-video.jpg' %}'">
+                                
+                                <!-- Play Overlay -->
+                                <div class="play-overlay">
+                                    <i class="bi bi-play-circle-fill text-white" style="font-size: 3rem; opacity: 0.9;"></i>
+                                </div>
+                                
+                                <!-- Duration Badge (if available) -->
+                                {% if video.duration %}
+                                <div class="duration-badge">
+                                    {{ video.duration }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Video Info -->
+                            <div class="video-info mt-2">
+                                <h5 class="video-title text-white mb-1">{{ video.title|truncatechars:60 }}</h5>
+                                <div class="video-meta text-light small">
+                                    <div>
+                                        <i class="bi bi-calendar3 me-1"></i>
+                                        {{ video.published_at|date:"M d, Y" }}
+                                    </div>
+                                    {% if video.view_count %}
+                                    <div class="mt-1">
+                                        <i class="bi bi-eye me-1"></i>
+                                        {{ video.view_count|floatformat:0 }} views
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+             <!-- Video Count -->
+    <div class="mt-4 text-center">
+        <h5 class="text-secondary">
+            Showing {{ page_obj.start_index }} - {{ page_obj.end_index }} of {{ page_obj.paginator.count }} videos
+        </h5>
+    </div>
+
+            <!-- Pagination - FIXED to use page_obj -->
+            {% if page_obj.has_other_pages %}
+            <nav aria-label="Video pagination" class="mt-1">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1&category={{ category }}&sort={{ sort_by }}" 
+                           aria-label="First">
+                            <i class="bi bi-chevron-bar-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" 
+                           href="?page={{ page_obj.previous_page_number }}&category={{ category }}&sort={{ sort_by }}" 
+                           aria-label="Previous">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" 
+                               href="?page={{ num }}&category={{ category }}&sort={{ sort_by }}">{{ num }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" 
+                           href="?page={{ page_obj.next_page_number }}&category={{ category }}&sort={{ sort_by }}" 
+                           aria-label="Next">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" 
+                           href="?page={{ page_obj.paginator.num_pages }}&category={{ category }}&sort={{ sort_by }}" 
+                           aria-label="Last">
+                            <i class="bi bi-chevron-bar-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+                
+                <p class="text-center text-light small mt-2">
+                    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                </p>
+            </nav>
+            {% endif %}
+
+            {% else %}
+            <!-- No Videos Found -->
+            <div class="text-center py-5">
+                <i class="bi bi-camera-video text-light" style="font-size: 4rem;"></i>
+                <h4 class="text-white mt-3">No Videos Found</h4>
+                <p class="text-light">
+                    {% if category == 'videos' %}
+                        No regular videos available in this channel.
+                    {% elif category == 'shorts' %}
+                        No shorts available in this channel.
+                    {% else %}
+                        No videos available in this channel.
+                    {% endif %}
+                </p>
+                <a href="?category=all&sort=recent" class="btn btn-outline-danger mt-3">
+                    <i class="bi bi-arrow-clockwise me-2"></i> Show All Videos
+                </a>
+            </div>
+            {% endif %}
+
+        </div>
+
+    </div>
+</div>
+
+{% include 'sonyApp/inc/footer.html' %}
+
+<style>
+    /* Channel Header */
+    .channel-header {
+        background: linear-gradient(135deg, #1a1a1a, #0a0a0a);
+        border-bottom: 1px solid #2a2a2a;
+    }
+
+    /* Video Card Styles */
+    .video-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        cursor: pointer;
+    }
+
+    .video-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .video-thumbnail-wrapper {
+        aspect-ratio: 16 / 9;
+        overflow: hidden;
+        background: #1a1a1a;
+        border-radius: 8px;
+    }
+
+    .video-thumbnail {
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .video-card:hover .video-thumbnail {
+        transform: scale(1.05);
+    }
+
+    /* Play Overlay */
+    .play-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.3);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .video-card:hover .play-overlay {
+        opacity: 1;
+    }
+
+    /* Duration Badge */
+    .duration-badge {
+        position: absolute;
+        bottom: 8px;
+        right: 8px;
+        background: rgba(0, 0, 0, 0.8);
+        color: white;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    /* Video Info */
+    .video-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .video-meta {
+        font-size: 0.8rem;
+    }
+
+    /* Pagination Styling */
+    .pagination {
+        gap: 5px;
+    }
+
+    .page-link {
+        background: #1a1a1a;
+        border: 1px solid #2a2a2a;
+        color: #b3b3b3;
+        padding: 0.5rem 0.75rem;
+        border-radius: 6px;
+        transition: all 0.3s ease;
+    }
+
+    .page-link:hover {
+        background: #ff1744;
+        border-color: #ff1744;
+        color: white;
+    }
+
+    .page-item.active .page-link {
+        background: #ff1744;
+        border-color: #ff1744;
+        color: white;
+    }
+
+    .page-item.disabled .page-link {
+        background: #0a0a0a;
+        border-color: #1a1a1a;
+        color: #4a4a4a;
+    }
+
+    /* Responsive */
+    @media (max-width: 767px) {
+        .channel-header .h3 {
+            font-size: 1.25rem;
+        }
+
+        .channel-avatar,
+        .channel-avatar-placeholder {
+            width: 60px !important;
+            height: 60px !important;
+        }
+
+        .video-title {
+            font-size: 0.75rem;
+        }
+
+        .pagination {
+            font-size: 0.875rem;
+        }
+
+        .page-link {
+            padding: 0.375rem 0.5rem;
+        }
+    }
+</style>
+
+{% endblock content %}

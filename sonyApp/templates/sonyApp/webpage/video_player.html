@@ -1,0 +1,2022 @@
+{% extends 'sonyApp/layouts/base.html' %}
+{% load static %}
+
+{% block title %}{{ current_video.title }} - {{ channel.name }}{% endblock title %}
+
+{% block content %}
+<div class="row g-0">
+    {% include 'sonyApp/inc/navbar.html' %}
+    <div class="col-12 main-content ms-lg-auto px-0 mt-2 pt-5">
+
+        <div class="container-fluid mx-0 mt-sm-1 mt-md-0 p-0">
+            <div class="text-center m-0 p-0">
+
+                {% if current_video.youtube_video_id and current_video.youtube_video_id|length == 11 %}
+
+                    <!-- ═══════════════════════════════════════
+                         YOUTUBE VIDEO PLAYER
+                    ═══════════════════════════════════════ -->
+                    <div class="vp-wrapper" id="vp-wrapper">
+
+                        <!-- YouTube iframe target -->
+                        <div id="player" data-video-id="{{ current_video.youtube_video_id }}"></div>
+
+                        <!-- Black cover shown before first play -->
+                        <div class="vp-cover" id="vp-cover"></div>
+
+                        <!-- Click shield (intercepts clicks on iframe) -->
+                        <div class="vp-shield" id="vp-shield"></div>
+
+                        <!-- Double-tap zones - hidden on mobile -->
+                        <div class="vp-tap-zones" id="vp-tap-zones">
+                            <div class="vp-tap-left" id="vp-tap-left">
+                                <div class="vp-tap-feedback">
+                                    <svg viewBox="0 0 24 24" fill="white" width="32" height="32">
+                                        <path d="M11.99 5V1l-5 5 5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6h-2c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/>
+                                    </svg>
+                                    <span>-10s</span>
+                                </div>
+                            </div>
+                            <div class="vp-tap-right" id="vp-tap-right">
+                                <div class="vp-tap-feedback">
+                                    <svg viewBox="0 0 24 24" fill="white" width="32" height="32">
+                                        <path d="M12.01 19V23l5-5-5-5v4c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6h2c0-4.42-3.58-8-8-8s-8 3.58-8 8 3.58 8 8 8z"/>
+                                    </svg>
+                                    <span>+10s</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Big center play button -->
+                        <div class="vp-big-play" id="vp-big-play">
+                            <div class="vp-big-play-ring">
+                                <svg viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M8 5v14l11-7z"/>
+                                </svg>
+                            </div>
+                        </div>
+
+                        <!-- Spinner -->
+                        <div class="vp-spinner" id="vp-spinner">
+                            <div class="vp-spin-ring"></div>
+                        </div>
+
+                        <!-- Error overlay -->
+                        <div class="vp-error" id="vp-error">
+                            <div class="vp-error-inner">
+                                <div class="vp-err-circle">
+                                    <div class="vp-err-bar"></div>
+                                </div>
+                                <h4>Can't play this video here</h4>
+                                <p id="vp-error-msg">{{ channel.name }} has restricted embedding for this video.</p>
+                                <a href="https://www.youtube.com/watch?v={{ current_video.youtube_video_id }}"
+                                   target="_blank" rel="noopener" class="vp-error-btn">
+                                    <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+                                        <path d="M21.8 8s-.2-1.4-.8-2c-.8-.8-1.6-.8-2-.9C16.4 5 12 5 12 5s-4.4 0-7 .1c-.4.1-1.2.1-2 .9-.6.6-.8 2-.8 2S2 9.6 2 11.2v1.5c0 1.6.2 3.2.2 3.2s.2 1.4.8 2c.8.8 1.8.7 2.2.8C6.4 19 12 19 12 19s4.4 0 7-.2c.4-.1 1.2-.1 2-.9.6-.6.8-2 .8-2s.2-1.6.2-3.2v-1.5C22 9.6 21.8 8 21.8 8zM9.7 14.5V9l5.4 2.8-5.4 2.7z"/>
+                                    </svg>
+                                    Watch on YouTube
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Controls -->
+                        <div class="vp-controls pb-0" id="vp-controls">
+                            <div class="vp-prog-wrap" id="vp-prog-wrap">
+                                <div class="vp-prog-bg">
+                                    <div class="vp-prog-fill" id="vp-prog-fill"></div>
+                                    <div class="vp-prog-thumb" id="vp-prog-thumb"></div>
+                                </div>
+                            </div>
+
+                            <div class="vp-ctrl-row pb-0 pb-md-1">
+                                <button class="vp-btn" id="vp-playpause" aria-label="Play/Pause">
+                                    <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                                    <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                                </button>
+
+                                <span class="vp-time" id="vp-time">0:00 / 0:00</span>
+
+                                <div class="vp-vol-group" id="vp-vol-group">
+                                    <button class="vp-btn" id="vp-mute" aria-label="Mute">
+                                        <svg class="icon-vol-up" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
+                                        <svg class="icon-vol-mute" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+                                    </button>
+                                    <div class="vp-vol-slider" id="vp-vol-slider">
+                                        <div class="vp-vol-track" id="vp-vol-track">
+                                            <div class="vp-vol-fill" id="vp-vol-fill" style="width:100%"></div>
+                                            <div class="vp-vol-thumb" id="vp-vol-thumb" style="left:100%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div style="flex:1"></div>
+
+                                <div class="vp-quality-wrap" id="vp-quality-wrap">
+                                    <button class="vp-btn vp-quality-btn" id="vp-quality-btn" aria-label="Quality">
+                                        <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                                        <span id="vp-quality-label">Auto</span>
+                                    </button>
+                                    <div class="vp-quality-menu" id="vp-quality-menu">
+                                        <div class="vp-q-opt" data-q="hd1080"><span>1080p</span><span class="vp-q-check" id="qc-hd1080">✓</span></div>
+                                        <div class="vp-q-opt" data-q="hd720"><span>720p</span><span class="vp-q-check" id="qc-hd720">✓</span></div>
+                                        <div class="vp-q-opt" data-q="large"><span>480p</span><span class="vp-q-check" id="qc-large">✓</span></div>
+                                        <div class="vp-q-opt" data-q="medium"><span>360p</span><span class="vp-q-check" id="qc-medium">✓</span></div>
+                                        <div class="vp-q-opt" data-q="small"><span>240p</span><span class="vp-q-check" id="qc-small">✓</span></div>
+                                    </div>
+                                </div>
+
+                                <button class="vp-btn" id="vp-fs" aria-label="Fullscreen">
+                                    <svg class="icon-fs-enter" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+                                    <svg class="icon-fs-exit" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Custom End Screen -->
+                        <div class="vp-end-screen" id="vp-end-screen">
+                            <div class="vp-end-content">
+                                <div class="vp-end-grid" id="vp-end-grid"></div>
+                                <!-- Mobile navigation arrows -->
+                                <div class="vp-mobile-nav" id="vp-mobile-nav">
+                                    <button class="vp-nav-btn prev" id="vp-nav-prev" aria-label="Previous videos">
+                                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+                                    </button>
+                                    <button class="vp-nav-btn next" id="vp-nav-next" aria-label="Next videos">
+                                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div><!-- /vp-wrapper -->
+
+                {% else %}
+                    <div class="vp-wrapper d-flex align-items-center justify-content-center bg-dark">
+                        <div class="text-center p-4">
+                            <i class="bi bi-exclamation-triangle text-warning fs-1 mb-3"></i>
+                            <h4 class="text-white">Video Unavailable</h4>
+                            <p class="text-secondary">Invalid or missing YouTube video ID</p>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Video Info -->
+            <div class="container-fluid py-3">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="vp-info-card">
+                            <h4 class="vp-info-title">{{ current_video.title }}</h4>
+                            <div class="vp-info-meta">
+                                <span>
+                                    <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
+                                    {{ channel.name }}
+                                </span>
+                                <span>
+                                    <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg>
+                                    {{ current_video.published_at|date:"F d, Y" }}
+                                </span>
+                                {% if current_video.view_count %}
+                                <span>
+                                    <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                                    {{ current_video.view_count|floatformat:0 }} views
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="vp-divider">
+
+        <!-- Related Videos -->
+        <div class="container-fluid px-0 mx-0 my-2">
+            <div class="row mx-0 p-0">
+                <h3 class="vp-section-title">More from {{ channel.name }}</h3>
+                {% if streaming %}
+                    {% for video in streaming %}
+                    <div class="col-6 col-sm-4 col-md-3 col-lg-3 px-1 mb-3">
+                        <div class="vid-card">
+                            <a href="{% url 'video_player' channel.channel_id video.youtube_video_id %}" class="text-decoration-none">
+                                <div class="vid-thumb-wrap">
+                                    <img src="{{ video.thumbnail_url }}"
+                                         alt="{{ video.title }}"
+                                         class="vid-thumb"
+                                         loading="lazy"
+                                         onerror="this.src='{% static 'images/placeholder-video.jpg' %}'">
+                                    <div class="vid-play-overlay">
+                                        <svg viewBox="0 0 24 24" fill="white" width="28" height="28"><path d="M8 5v14l11-7z"/></svg>
+                                    </div>
+                                    {% if video.duration %}
+                                    <div class="vid-duration">{{ video.duration }}</div>
+                                    {% endif %}
+                                    {% if video.is_short %}
+                                    <div class="vid-short-badge">Short</div>
+                                    {% endif %}
+                                </div>
+                                <div class="vid-info">
+                                    <p class="vid-title">{{ video.title|truncatechars:50 }}</p>
+                                    <p class="vid-date">{{ video.published_at|date:"M d, Y" }}</p>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-12 text-center py-4">
+                        <p class="text-secondary">No other videos available.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% include 'sonyApp/inc/footer.html' %}
+    </div>
+</div>
+
+<!-- Streaming data for JavaScript -->
+<script id="streaming-data" type="application/json">
+{{ streaming_json|safe }}
+</script>
+
+<!-- CSRF Token for AJAX requests -->
+{% csrf_token %}
+
+<style>
+/* ============================================
+   PLAYER WRAPPER
+============================================ */
+.vp-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 1120px;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    margin: 0 auto;
+    overflow: hidden;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+@media (max-width: 767px) {
+    .vp-wrapper {
+        width: 100vw;
+        margin-left: calc(-50vw + 50%);
+        margin-right: calc(-50vw + 50%);
+        max-width: 100vw;
+    }
+}
+
+/* YouTube iframe */
+.vp-wrapper iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+/* ============================================
+   LAYER STACK
+============================================ */
+.vp-cover {
+    position: absolute;
+    inset: 0;
+    background: #000;
+    z-index: 2;
+    transition: opacity .3s ease;
+}
+
+.vp-cover.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.vp-shield {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    cursor: pointer;
+}
+
+/* ============================================
+   TAP ZONES - Desktop only
+============================================ */
+.vp-tap-zones {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    display: flex;
+}
+
+.vp-tap-left, .vp-tap-right {
+    flex: 1;
+    pointer-events: all;
+    position: relative;
+    cursor: pointer;
+}
+
+.vp-tap-left {
+    clip-path: inset(0 35% 0 0);
+}
+
+.vp-tap-right {
+    clip-path: inset(0 0 0 35%);
+}
+
+.vp-tap-feedback {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 50%;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    pointer-events: none;
+}
+
+.vp-tap-left.active .vp-tap-feedback,
+.vp-tap-right.active .vp-tap-feedback {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+}
+
+/* ============================================
+   BIG PLAY BUTTON
+============================================ */
+.vp-big-play {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 4;
+    pointer-events: none;
+    transition: opacity .25s ease;
+}
+
+.vp-big-play.hidden {
+    opacity: 0;
+}
+
+.vp-big-play-ring {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: rgba(0,0,0,.55);
+    border: 2px solid rgba(255,255,255,.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    backdrop-filter: blur(4px);
+}
+
+.vp-big-play-ring svg {
+    width: 32px;
+    height: 32px;
+    margin-left: 4px;
+}
+
+@media (max-width: 767px) {
+    .vp-big-play-ring {
+        width: 56px;
+        height: 56px;
+    }
+    .vp-big-play-ring svg {
+        width: 24px;
+        height: 24px;
+    }
+}
+
+/* ============================================
+   SPINNER
+============================================ */
+.vp-spinner {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 4;
+    pointer-events: none;
+}
+
+.vp-spinner.show {
+    display: flex;
+}
+
+.vp-spin-ring {
+    width: 48px;
+    height: 48px;
+    border: 3px solid rgba(255,255,255,.15);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: vpSpin .75s linear infinite;
+}
+
+@keyframes vpSpin {
+    to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   ERROR OVERLAY
+============================================ */
+.vp-error {
+    position: absolute;
+    inset: 0;
+    background: #000;
+    z-index: 5;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.vp-error.show {
+    display: flex;
+}
+
+.vp-error-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 14px;
+    max-width: 420px;
+}
+
+.vp-err-circle {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 4px;
+}
+
+.vp-err-bar {
+    width: 2px;
+    height: 22px;
+    background: rgba(255,255,255,.55);
+    border-radius: 2px;
+}
+
+.vp-error-inner h4 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+}
+
+.vp-error-inner p {
+    font-size: 13.5px;
+    color: rgba(255,255,255,.55);
+    margin: 0;
+    line-height: 1.55;
+}
+
+.vp-error-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 28px;
+    background: #FF0000;
+    color: #fff;
+    border-radius: 28px;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    margin-top: 4px;
+    transition: background .15s;
+}
+
+.vp-error-btn:hover {
+    background: #cc0000;
+}
+
+/* ============================================
+   CONTROLS
+============================================ */
+.vp-controls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 6;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity .25s ease, transform .25s ease;
+    pointer-events: none;
+    background: linear-gradient(
+        to top,
+        rgba(0,0,0,.85) 0%,
+        rgba(0,0,0,.5) 55%,
+        transparent 100%
+    );
+    padding: 0px 12px 12px;
+}
+
+.vp-wrapper:hover .vp-controls,
+.vp-controls.force-show {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+/* Progress bar */
+.vp-prog-wrap {
+    width: 100%;
+    padding: 8px 0 6px;
+    cursor: pointer;
+}
+
+.vp-prog-bg {
+    position: relative;
+    height: 4px;
+    background: rgba(255,255,255,.3);
+    border-radius: 2px;
+    overflow: visible;
+    transition: height .15s ease;
+}
+
+.vp-prog-wrap:active .vp-prog-bg {
+    height: 6px;
+}
+
+.vp-prog-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 0%;
+    background: white;
+    border-radius: 2px;
+    pointer-events: none;
+}
+
+.vp-prog-thumb {
+    position: absolute;
+    top: 50%;
+    left: 0%;
+    width: 14px;
+    height: 14px;
+    background: white;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .15s ease;
+}
+
+.vp-prog-wrap:active .vp-prog-thumb {
+    opacity: 1;
+}
+
+/* Control row */
+.vp-ctrl-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 2px 8px;
+}
+
+/* Buttons */
+.vp-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    color: #fff;
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    cursor: pointer;
+    flex-shrink: 0;
+    padding: 0;
+    transition: background .15s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.vp-btn:active {
+    background: rgba(255,255,255,.2);
+}
+
+.vp-btn svg {
+    width: 22px;
+    height: 22px;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
+}
+
+/* Time */
+.vp-time {
+    font-size: 13px;
+    font-family: 'Courier New', monospace;
+    color: #fff;
+    white-space: nowrap;
+    padding: 0 6px;
+    flex-shrink: 0;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
+
+/* Volume */
+.vp-vol-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.vp-vol-slider {
+    width: 0;
+    overflow: hidden;
+    transition: width .25s ease;
+}
+
+.vp-vol-group:hover .vp-vol-slider {
+    width: 72px;
+}
+
+.vp-vol-track {
+    position: relative;
+    width: 72px;
+    padding: 10px 0;
+    cursor: pointer;
+}
+
+.vp-vol-fill {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    height: 4px;
+    background: #fff;
+    border-radius: 2px;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.vp-vol-thumb {
+    position: absolute;
+    top: 50%;
+    width: 12px;
+    height: 12px;
+    background: #fff;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    opacity: 0;
+}
+
+.vp-vol-track:active .vp-vol-thumb {
+    opacity: 1;
+}
+
+.vp-vol-track::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 5%;
+    right: 0;
+    height: 4px;
+    background: rgba(255,255,255,.3);
+    border-radius: 2px;
+    transform: translateY(-50%);
+}
+
+/* Quality menu */
+.vp-quality-wrap {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.vp-quality-btn {
+    width: auto;
+    gap: 5px;
+    padding: 0 10px;
+}
+
+.vp-quality-btn span {
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.vp-quality-menu {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    right: 0;
+    background: rgba(28, 28, 28, 0.98);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 8px;
+    padding: 6px 0;
+    min-width: 120px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.8);
+    z-index: 20;
+    margin-bottom: 8px;
+}
+
+.vp-quality-menu.show {
+    display: block;
+}
+
+.vp-q-opt {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    font-size: 13px;
+    color: rgba(255,255,255,.8);
+    cursor: pointer;
+    transition: background .12s;
+}
+
+.vp-q-opt:active {
+    background: rgba(255,255,255,.1);
+    color: #fff;
+}
+
+.vp-q-check {
+    color: #fff;
+    opacity: 0;
+    font-size: 13px;
+}
+
+.vp-q-check.active {
+    opacity: 1;
+}
+
+/* ============================================
+   END SCREEN
+============================================ */
+.vp-end-screen {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(10px);
+    z-index: 10;
+    display: none;
+    overflow: hidden;
+}
+
+.vp-end-screen.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.vp-end-content {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+    padding: 20px;
+}
+
+.vp-end-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 0 auto;
+}
+
+.vp-end-video-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid transparent;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.vp-end-video-card:active {
+    transform: scale(0.98);
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.vp-end-video-card img {
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    display: block;
+    pointer-events: none;
+}
+
+.vp-end-video-title {
+    color: white;
+    padding: 12px;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Mobile navigation */
+.vp-mobile-nav {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    transform: translateY(-50%);
+    justify-content: space-between;
+    padding: 0 10px;
+    pointer-events: none;
+}
+
+.vp-nav-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    pointer-events: auto;
+    transition: all 0.2s;
+    -webkit-tap-highlight-color: transparent;
+    padding: 0;
+}
+
+.vp-nav-btn:active {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(0.95);
+}
+
+.vp-nav-btn svg {
+    width: 28px;
+    height: 28px;
+}
+
+/* ============================================
+   MOBILE STYLES
+============================================ */
+@media (max-width: 767px) {
+    /* Hide double-tap zones on mobile */
+    .vp-tap-zones {
+        display: none !important;
+    }
+    
+    /* Make shield clickable for play/pause */
+    .vp-shield {
+        pointer-events: all;
+    }
+    
+    /* Show all controls on mobile */
+    .vp-vol-group,
+    #vp-fs {
+        display: flex !important;
+    }
+    
+    /* Adjust volume slider for mobile */
+    .vp-vol-group:hover .vp-vol-slider {
+        width: 60px;
+    }
+    
+    .vp-vol-track {
+        width: 60px;
+    }
+    
+    /* Make buttons bigger on mobile */
+    .vp-btn {
+        width: 44px;
+        height: 44px;
+    }
+    
+    .vp-btn svg {
+        width: 24px;
+        height: 24px;
+    }
+    
+    /* Mobile end screen with horizontal scroll */
+    .vp-end-screen {
+        overflow: hidden;
+    }
+    
+    .vp-end-content {
+        padding: 16px 0;
+        position: relative;
+        overflow: visible;
+    }
+    
+    .vp-end-grid {
+        display: flex;
+        flex-direction: row;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scroll-snap-type: x mandatory;
+        gap: 12px;
+        padding: 0 16px 20px;
+        margin: 0;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    
+    .vp-end-grid::-webkit-scrollbar {
+        display: none;
+    }
+    
+    .vp-end-video-card {
+        flex: 0 0 100vw;
+        max-width: 100vw;
+        scroll-snap-align: start;
+        margin-right: 0;
+    }
+    
+    /* Show mobile navigation */
+    .vp-mobile-nav {
+        display: flex;
+    }
+    
+    /* Adjust controls padding */
+    .vp-controls {
+        padding: 0 8px 8px;
+    }
+    
+    .vp-ctrl-row {
+        gap: 0px;
+    }
+    
+    .vp-time {
+        font-size: 12px;
+    }
+    
+    /* Quality menu position on mobile - FIXED */
+    .vp-quality-wrap {
+        position: relative;
+    }
+    
+    .vp-quality-menu {
+        position: fixed;
+        bottom: 40px;
+        right: 10px;
+        left: auto;
+        top: auto;
+        width: 120px;
+        max-width: 90vw;
+        margin: 0;
+        z-index: 100;
+        background: rgba(28, 28, 28, 0.98);
+        border: 1px solid rgba(255,255,255,.2);
+        border-radius: 12px;
+        padding: 2px 0;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+    
+    .vp-quality-menu.show {
+        display: block;
+        animation: fadeIn 0.2s ease;
+    }
+    
+    .vp-q-opt {
+        padding: 4px 10px;
+        font-size: 14px;
+        min-height: 30px;
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    .vp-q-opt:active {
+        background: rgba(255,255,255,0.15);
+    }
+    
+    .vp-q-check {
+        font-size: 16px;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+}
+
+/* Tablet: 2×3 grid */
+@media (min-width: 768px) and (max-width: 991px) {
+    .vp-end-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+}
+
+/* ============================================
+   VIDEO INFO
+============================================ */
+.vp-info-card {
+    background: rgba(255,255,255,.03);
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 12px;
+    padding: 18px 20px;
+}
+
+.vp-info-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 10px;
+    line-height: 1.35;
+}
+
+.vp-info-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    font-size: 12px;
+    color: rgba(255,255,255,.4);
+}
+
+.vp-info-meta span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.vp-divider {
+    border-color: rgba(255,255,255,.07);
+    margin: 0 0 16px;
+}
+
+.vp-section-title {
+    text-align: center;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    font-family: serif;
+    letter-spacing: .03em;
+}
+
+/* ============================================
+   RELATED VIDEOS
+============================================ */
+.vid-card {
+    transition: transform .25s ease;
+    cursor: pointer;
+}
+
+.vid-card:active {
+    transform: scale(0.98);
+}
+
+.vid-thumb-wrap {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: 8px;
+    background: #111;
+}
+
+.vid-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform .3s ease;
+    pointer-events: none;
+}
+
+.vid-play-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,.3);
+    opacity: 0;
+    transition: opacity .25s ease;
+    pointer-events: none;
+}
+
+.vid-card:active .vid-play-overlay {
+    opacity: 1;
+}
+
+.vid-duration {
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+    background: rgba(0,0,0,.8);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 5px;
+    border-radius: 4px;
+}
+
+.vid-short-badge {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    background: linear-gradient(135deg, #ff1744, #d50000);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+.vid-info {
+    padding: 6px 2px 0;
+}
+
+.vid-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255,255,255,.85);
+    margin: 0 0 3px;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.vid-date {
+    font-size: 10.5px;
+    color: rgba(255,255,255,.3);
+    margin: 0;
+}
+
+/* ============================================
+   FULLSCREEN
+============================================ */
+.vp-wrapper:fullscreen,
+.vp-wrapper:-webkit-full-screen {
+    width: 100vw !important;
+    height: 100vh !important;
+    max-width: 100vw !important;
+    margin: 0 !important;
+}
+
+.vp-wrapper:fullscreen .vp-controls {
+    padding: 0px 20px 20px;
+}
+
+.vp-wrapper:fullscreen .vp-btn svg {
+    width: 28px;
+    height: 28px;
+}
+</style>
+
+{% endblock content %}
+
+{% block scripts %}
+{{ block.super }}
+<script>
+(function () {
+'use strict';
+
+/* Load YouTube API */
+var tag = document.createElement('script');
+tag.src = 'https://www.youtube.com/iframe_api';
+document.head.appendChild(tag);
+
+/* State */
+var player = null;
+var ready = false;
+var muted = false;
+var vol = 1;
+var progDrag = false;
+var activityTimer = null;
+var progressTimer = null;
+var streamingVideos = [];
+var unembeddableVideos = [];
+var skipTimer = null;
+var isEmbedError = false;
+var controlsVisible = false;
+var isMobile = window.innerWidth <= 767;
+var currentScrollIndex = 0;
+
+/* DOM shortcuts */
+function $$(id) { return document.getElementById(id); }
+var wrapper = $$('vp-wrapper');
+var cover = $$('vp-cover');
+var shield = $$('vp-shield');
+var bigPlay = $$('vp-big-play');
+var spinner = $$('vp-spinner');
+var errorEl = $$('vp-error');
+var controls = $$('vp-controls');
+var progFill = $$('vp-prog-fill');
+var progThumb = $$('vp-prog-thumb');
+var progWrap = $$('vp-prog-wrap');
+var timeEl = $$('vp-time');
+var volFill = $$('vp-vol-fill');
+var volThumb = $$('vp-vol-thumb');
+var volTrack = $$('vp-vol-track');
+var ppBtn = $$('vp-playpause');
+var muteBtn = $$('vp-mute');
+var qualMenu = $$('vp-quality-menu');
+var qualBtn = $$('vp-quality-btn');
+var fsBtn = $$('vp-fs');
+var tapLeft = $$('vp-tap-left');
+var tapRight = $$('vp-tap-right');
+var endScreen = $$('vp-end-screen');
+var endGrid = $$('vp-end-grid');
+var navPrev = $$('vp-nav-prev');
+var navNext = $$('vp-nav-next');
+
+/* ============================================
+   YOUTUBE API
+============================================ */
+window.onYouTubeIframeAPIReady = function () {
+    var el = $$('player');
+    if (!el) return;
+    var vid = el.getAttribute('data-video-id');
+    if (!vid || vid.length !== 11) return;
+
+    player = new YT.Player('player', {
+        height: '100%',
+        width: '100%',
+        videoId: vid,
+        playerVars: {
+            autoplay: 0,
+            controls: 0,
+            modestbranding: 1,
+            rel: 0,
+            iv_load_policy: 3,
+            enablejsapi: 1,
+            disablekb: 1,
+            fs: 0,
+            playsinline: 1,
+            cc_load_policy: 0
+        },
+        events: {
+            onReady: onReady,
+            onStateChange: onStateChange,
+            onError: onError
+        }
+    });
+};
+
+function onReady(e) {
+    ready = true;
+    showBigPlay();
+    var dur = player.getDuration();
+    if (timeEl) timeEl.textContent = '0:00 / ' + fmt(dur);
+    initVolSlider();
+    initProgressBar();
+}
+
+function onStateChange(e) {
+    var S = YT.PlayerState;
+
+    if (e.data === S.PLAYING) {
+        if (cover) cover.classList.add('hidden');
+        hideBigPlay();
+        hideSpinner();
+        setPP(true);
+        startProgress();
+        hideEndScreen();
+        isEmbedError = false;
+        showControls(true);
+        resetActivityTimer();
+
+    } else if (e.data === S.PAUSED) {
+        showBigPlay();
+        hideSpinner();
+        setPP(false);
+        stopProgress();
+        showControls(true);
+
+    } else if (e.data === S.ENDED) {
+        showBigPlay();
+        hideSpinner();
+        setPP(false);
+        stopProgress();
+        showControls(true);
+        showEndScreen();
+
+    } else if (e.data === S.BUFFERING) {
+        if (!isEmbedError) {
+            hideBigPlay();
+            showSpinner();
+        }
+    } else if (e.data === S.CUED) {
+        hideSpinner();
+        showBigPlay();
+    }
+}
+
+function onError(e) {
+    hideSpinner();
+    hideBigPlay();
+    console.log('Player error:', e.data);
+
+    if (e.data === 101 || e.data === 150) {
+        isEmbedError = true;
+        
+        // Mark video as unembeddable
+        var vid = $$('player');
+        if (vid) {
+            var videoId = vid.getAttribute('data-video-id');
+            if (videoId && !unembeddableVideos.includes(videoId)) {
+                unembeddableVideos.push(videoId);
+                
+                // Send to server
+                fetch('/api/video/flag-unembeddable/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCsrf()
+                    },
+                    body: JSON.stringify({ youtube_video_id: videoId })
+                }).catch(function() {});
+            }
+        }
+        
+        autoSkipToNext();
+    } else {
+        var msgEl = $$('vp-error-msg');
+        if (msgEl) {
+            if (e.data === 100) {
+                msgEl.textContent = 'This video is private or has been removed.';
+            } else {
+                msgEl.textContent = 'This video cannot be played here.';
+            }
+        }
+        
+        if (errorEl) errorEl.classList.add('show');
+        if (controls) controls.style.display = 'none';
+    }
+}
+
+/* ============================================
+   AUTO SKIP TO NEXT
+============================================ */
+function autoSkipToNext() {
+    var availableVideos = streamingVideos.filter(function(video) {
+        return !unembeddableVideos.includes(video.youtube_video_id);
+    });
+    
+    if (availableVideos.length === 0) {
+        if (errorEl) errorEl.classList.add('show');
+        if (controls) controls.style.display = 'none';
+        return;
+    }
+
+    if (cover) cover.classList.remove('hidden');
+    hideBigPlay();
+    showSpinner();
+    
+    if (errorEl) errorEl.classList.remove('show');
+    if (controls) controls.style.display = 'none';
+    
+    setTimeout(function() {
+        var next = availableVideos[0];
+        var channelId = '{{ channel.channel_id }}';
+        window.location.href = '/channel/' + channelId + '/video/' + next.youtube_video_id + '/';
+    }, 2000);
+}
+
+/* ============================================
+   PLAY/PAUSE
+============================================ */
+function togglePlay(e) {
+    if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    
+    if (!ready || !player || isEmbedError) return;
+    
+    var state = player.getPlayerState();
+    if (state === YT.PlayerState.PLAYING) {
+        player.pauseVideo();
+    } else {
+        hideBigPlay();
+        showSpinner();
+        player.playVideo();
+    }
+}
+
+/* Shield click handler */
+if (shield) {
+    shield.addEventListener('click', function(e) {
+        togglePlay(e);
+    });
+}
+
+/* Play/pause button */
+if (ppBtn) {
+    ppBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        togglePlay(e);
+    });
+}
+
+/* ============================================
+   CONTROLS VISIBILITY - FIXED
+============================================ */
+function showControls(force = false) {
+    if (!controls || isEmbedError) return;
+    
+    controls.classList.add('force-show');
+    controlsVisible = true;
+    
+    if (activityTimer) {
+        clearTimeout(activityTimer);
+        activityTimer = null;
+    }
+    
+    if (force) return;
+    
+    if (player && player.getPlayerState() === YT.PlayerState.PLAYING) {
+        activityTimer = setTimeout(function() {
+            controls.classList.remove('force-show');
+            controlsVisible = false;
+            activityTimer = null;
+        }, 2000);
+    }
+}
+
+function hideControls() {
+    if (!controls) return;
+    controls.classList.remove('force-show');
+    controlsVisible = false;
+    if (activityTimer) {
+        clearTimeout(activityTimer);
+        activityTimer = null;
+    }
+}
+
+function resetActivityTimer() {
+    if (!controls || isEmbedError) return;
+    
+    controls.classList.add('force-show');
+    controlsVisible = true;
+    
+    if (activityTimer) {
+        clearTimeout(activityTimer);
+        activityTimer = null;
+    }
+    
+    if (player && player.getPlayerState() === YT.PlayerState.PLAYING) {
+        activityTimer = setTimeout(function() {
+            controls.classList.remove('force-show');
+            controlsVisible = false;
+            activityTimer = null;
+        }, 2000);
+    }
+}
+
+/* Desktop mouse events */
+if (wrapper && !isMobile) {
+    wrapper.addEventListener('mousemove', function() {
+        if (ready && player && player.getPlayerState() === YT.PlayerState.PLAYING) {
+            resetActivityTimer();
+        }
+    });
+    
+    wrapper.addEventListener('click', function(e) {
+        if (e.target.closest('.vp-btn') || e.target.closest('.vp-quality-menu')) {
+            return;
+        }
+        if (ready && player && player.getPlayerState() === YT.PlayerState.PLAYING) {
+            resetActivityTimer();
+        }
+    });
+    
+    wrapper.addEventListener('mouseleave', function() {
+        if (player && player.getPlayerState() === YT.PlayerState.PLAYING) {
+            hideControls();
+        }
+    });
+}
+
+/* Keep controls visible when interacting */
+if (controls) {
+    controls.addEventListener('mouseenter', function() {
+        if (activityTimer) {
+            clearTimeout(activityTimer);
+            activityTimer = null;
+        }
+    });
+    
+    controls.addEventListener('mouseleave', function() {
+        if (player && player.getPlayerState() === YT.PlayerState.PLAYING) {
+            resetActivityTimer();
+        }
+    });
+}
+
+/* Mobile touch events */
+if (wrapper && isMobile) {
+    wrapper.addEventListener('touchstart', function(e) {
+        if (e.target.closest('.vp-controls') || e.target.closest('.vp-end-screen')) {
+            return;
+        }
+        
+        if (controlsVisible) {
+            hideControls();
+        } else {
+            showControls(true);
+            resetActivityTimer();
+        }
+    }, { passive: true });
+}
+
+if (controls) {
+    controls.addEventListener('touchstart', function(e) {
+        e.stopPropagation();
+        if (activityTimer) {
+            clearTimeout(activityTimer);
+            activityTimer = null;
+        }
+    }, { passive: true });
+}
+
+/* ============================================
+   MUTE
+============================================ */
+if (muteBtn) {
+    muteBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        if (!ready || !player) return;
+        
+        if (muted || vol === 0) {
+            vol = 0.7;
+            player.setVolume(70);
+            muted = false;
+        } else {
+            muted = true;
+            player.setVolume(0);
+        }
+        updateVolUI(muted ? 0 : vol);
+        resetActivityTimer();
+    });
+}
+
+/* ============================================
+   QUALITY - FIXED FOR MOBILE
+============================================ */
+if (qualBtn) {
+    qualBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        if (qualMenu) {
+            if (qualMenu.classList.contains('show')) {
+                qualMenu.classList.remove('show');
+            } else {
+                document.querySelectorAll('.vp-quality-menu.show').forEach(function(menu) {
+                    menu.classList.remove('show');
+                });
+                qualMenu.classList.add('show');
+            }
+        }
+        resetActivityTimer();
+    });
+}
+
+// Close quality menu when clicking outside
+document.addEventListener('click', function(e) {
+    if (qualMenu && qualMenu.classList.contains('show')) {
+        var wrap = $$('vp-quality-wrap');
+        if (!wrap || !wrap.contains(e.target)) {
+            qualMenu.classList.remove('show');
+        }
+    }
+});
+
+// Prevent quality menu from closing when clicking inside
+if (qualMenu) {
+    qualMenu.addEventListener('click', function(e) {
+        e.stopPropagation();
+    });
+}
+
+// Handle quality selection
+document.querySelectorAll('.vp-q-opt').forEach(function(opt) {
+    opt.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        var q = this.dataset.q;
+        if (!ready || !player) return;
+        
+        player.setPlaybackQuality(q);
+        updateQualityLabel(q);
+        
+        if (qualMenu) {
+            qualMenu.classList.remove('show');
+        }
+        
+        resetActivityTimer();
+    });
+});
+
+// Close quality menu on scroll (mobile)
+if (isMobile) {
+    window.addEventListener('scroll', function() {
+        if (qualMenu && qualMenu.classList.contains('show')) {
+            qualMenu.classList.remove('show');
+        }
+    }, { passive: true });
+}
+
+/* ============================================
+   FULLSCREEN
+============================================ */
+if (fsBtn) {
+    fsBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        var w = $$('vp-wrapper');
+        if (!w) return;
+        
+        if (!document.fullscreenElement) {
+            if (w.requestFullscreen) {
+                w.requestFullscreen();
+            } else if (w.webkitRequestFullscreen) {
+                w.webkitRequestFullscreen();
+            }
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            }
+        }
+        resetActivityTimer();
+    });
+}
+
+document.addEventListener('fullscreenchange', updateFSIcon);
+document.addEventListener('webkitfullscreenchange', updateFSIcon);
+
+function updateFSIcon() {
+    var inFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
+    if (!fsBtn) return;
+    var enterIcon = fsBtn.querySelector('.icon-fs-enter');
+    var exitIcon = fsBtn.querySelector('.icon-fs-exit');
+    if (enterIcon) enterIcon.style.display = inFS ? 'none' : '';
+    if (exitIcon) exitIcon.style.display = inFS ? '' : 'none';
+}
+
+/* ============================================
+   PROGRESS BAR
+============================================ */
+function initProgressBar() {
+    if (!progWrap) return;
+    
+    progWrap.addEventListener('mousedown', function(e) {
+        progDrag = true;
+        seekFromEvent(e);
+    });
+    
+    document.addEventListener('mousemove', function(e) {
+        if (!progDrag) return;
+        seekFromEvent(e);
+    });
+    
+    document.addEventListener('mouseup', function() {
+        progDrag = false;
+        resetActivityTimer();
+    });
+    
+    progWrap.addEventListener('touchstart', function(e) {
+        progDrag = true;
+        seekFromTouch(e);
+    }, { passive: false });
+    
+    document.addEventListener('touchmove', function(e) {
+        if (progDrag) {
+            e.preventDefault();
+            seekFromTouch(e);
+        }
+    }, { passive: false });
+    
+    document.addEventListener('touchend', function() {
+        progDrag = false;
+        resetActivityTimer();
+    });
+}
+
+function seekFromEvent(e) {
+    if (!ready || !player) return;
+    e.preventDefault();
+    var rect = progWrap.getBoundingClientRect();
+    var clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+    var pct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    var t = player.getDuration() * pct;
+    player.seekTo(t, true);
+}
+
+function seekFromTouch(e) {
+    seekFromEvent(e.touches[0]);
+}
+
+function startProgress() {
+    stopProgress();
+    progressTimer = setInterval(function() {
+        if (!ready || !player) return;
+        try {
+            var t = player.getCurrentTime();
+            var dur = player.getDuration();
+            var pct = dur ? t / dur : 0;
+            setProgUI(pct);
+            if (timeEl) timeEl.textContent = fmt(t) + ' / ' + fmt(dur);
+        } catch (e) {}
+    }, 200);
+}
+
+function stopProgress() {
+    if (progressTimer) {
+        clearInterval(progressTimer);
+        progressTimer = null;
+    }
+}
+
+function setProgUI(pct) {
+    var p = (pct * 100).toFixed(2) + '%';
+    if (progFill) progFill.style.width = p;
+    if (progThumb) progThumb.style.left = p;
+}
+
+/* ============================================
+   VOLUME
+============================================ */
+function initVolSlider() {
+    if (!volTrack) return;
+    
+    volTrack.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        applyVol(e);
+        resetActivityTimer();
+    });
+    
+    volTrack.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        applyVol(e);
+        resetActivityTimer();
+    }, { passive: false });
+}
+
+function applyVol(e) {
+    if (!ready || !player) return;
+    var rect = volTrack.getBoundingClientRect();
+    var clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+    var v = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    vol = v;
+    muted = (v === 0);
+    player.setVolume(v * 100);
+    updateVolUI(v);
+}
+
+function updateVolUI(v) {
+    var p = (v * 100).toFixed(1) + '%';
+    if (volFill) volFill.style.width = p;
+    if (volThumb) volThumb.style.left = p;
+    if (!muteBtn) return;
+    var upIcon = muteBtn.querySelector('.icon-vol-up');
+    var muteIcon = muteBtn.querySelector('.icon-vol-mute');
+    if (upIcon) upIcon.style.display = (v > 0) ? '' : 'none';
+    if (muteIcon) muteIcon.style.display = (v > 0) ? 'none' : '';
+}
+
+/* ============================================
+   DOUBLE TAP
+============================================ */
+var lastTapLeft = 0;
+var lastTapRight = 0;
+
+if (tapLeft) {
+    tapLeft.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!ready || !player || isEmbedError || isMobile) return;
+        
+        var now = Date.now();
+        if (now - lastTapLeft < 300) {
+            var current = player.getCurrentTime();
+            player.seekTo(Math.max(0, current - 10), true);
+            
+            tapLeft.classList.add('active');
+            setTimeout(function() {
+                tapLeft.classList.remove('active');
+            }, 300);
+            
+            resetActivityTimer();
+            lastTapLeft = 0;
+        } else {
+            lastTapLeft = now;
+        }
+    });
+}
+
+if (tapRight) {
+    tapRight.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!ready || !player || isEmbedError || isMobile) return;
+        
+        var now = Date.now();
+        if (now - lastTapRight < 300) {
+            var current = player.getCurrentTime();
+            var duration = player.getDuration();
+            player.seekTo(Math.min(duration, current + 10), true);
+            
+            tapRight.classList.add('active');
+            setTimeout(function() {
+                tapRight.classList.remove('active');
+            }, 300);
+            
+            resetActivityTimer();
+            lastTapRight = 0;
+        } else {
+            lastTapRight = now;
+        }
+    });
+}
+
+/* ============================================
+   END SCREEN
+============================================ */
+function showEndScreen() {
+    if (!endScreen || !endGrid || !streamingVideos || streamingVideos.length === 0) {
+        return;
+    }
+    
+    var availableVideos = streamingVideos.filter(function(video) {
+        return !unembeddableVideos.includes(video.youtube_video_id);
+    });
+    
+    if (availableVideos.length === 0) {
+        return;
+    }
+    
+    endGrid.innerHTML = '';
+    
+    var channelId = '{{ channel.channel_id }}';
+    availableVideos.slice(0, 6).forEach(function(video, index) {
+        var card = document.createElement('a');
+        card.className = 'vp-end-video-card';
+        card.href = '/channel/' + channelId + '/video/' + video.youtube_video_id + '/';
+        card.dataset.index = index;
+        
+        card.addEventListener('touchstart', function(e) {
+            e.stopPropagation();
+        }, { passive: true });
+        
+        card.innerHTML = 
+            '<img src="' + video.thumbnail_url + '" alt="' + video.title + '" loading="lazy">' +
+            '<div class="vp-end-video-title">' + video.title + '</div>';
+        
+        endGrid.appendChild(card);
+    });
+    
+    endScreen.classList.add('show');
+    currentScrollIndex = 0;
+    
+    if (isMobile && endGrid) {
+        endGrid.scrollLeft = 0;
+    }
+    
+    if (controls) {
+        controls.style.opacity = '0';
+    }
+}
+
+function hideEndScreen() {
+    if (endScreen) {
+        endScreen.classList.remove('show');
+    }
+}
+
+/* Mobile navigation */
+if (navPrev && navNext) {
+    navPrev.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!endGrid) return;
+        
+        var cardWidth = endGrid.querySelector('.vp-end-video-card')?.offsetWidth + 12 || 0;
+        if (cardWidth > 0) {
+            currentScrollIndex = Math.max(0, currentScrollIndex - 1);
+            endGrid.scrollTo({
+                left: currentScrollIndex * cardWidth,
+                behavior: 'smooth'
+            });
+        }
+    });
+    
+    navNext.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!endGrid) return;
+        
+        var cardWidth = endGrid.querySelector('.vp-end-video-card')?.offsetWidth + 12 || 0;
+        var maxIndex = streamingVideos.length - 1;
+        if (cardWidth > 0) {
+            currentScrollIndex = Math.min(maxIndex, currentScrollIndex + 1);
+            endGrid.scrollTo({
+                left: currentScrollIndex * cardWidth,
+                behavior: 'smooth'
+            });
+        }
+    });
+}
+
+/* ============================================
+   HELPERS
+============================================ */
+function showBigPlay() { if (bigPlay) bigPlay.classList.remove('hidden'); }
+function hideBigPlay() { if (bigPlay) bigPlay.classList.add('hidden'); }
+function showSpinner() { if (spinner) spinner.classList.add('show'); }
+function hideSpinner() { if (spinner) spinner.classList.remove('show'); }
+
+function setPP(playing) {
+    if (!ppBtn) return;
+    var playIcon = ppBtn.querySelector('.icon-play');
+    var pauseIcon = ppBtn.querySelector('.icon-pause');
+    if (playIcon) playIcon.style.display = playing ? 'none' : '';
+    if (pauseIcon) pauseIcon.style.display = playing ? '' : 'none';
+}
+
+function fmt(s) {
+    s = Math.floor(s || 0);
+    var m = Math.floor(s / 60);
+    var sec = s % 60;
+    return m + ':' + (sec < 10 ? '0' : '') + sec;
+}
+
+function updateQualityLabel(q) {
+    var label = $$('vp-quality-label');
+    if (!label) return;
+    
+    var labels = {
+        highres: '4K', hd1080: '1080p', hd720: '720p',
+        large: '480p', medium: '360p', small: '240p', tiny: '144p', auto: 'Auto'
+    };
+    label.textContent = labels[q] || q;
+    
+    document.querySelectorAll('.vp-q-check').forEach(function(el) {
+        el.classList.remove('active');
+    });
+    
+    var chk = $$('qc-' + q);
+    if (chk) chk.classList.add('active');
+}
+
+function getCsrf() {
+    var el = document.querySelector('[name=csrfmiddlewaretoken]');
+    if (el) return el.value;
+    var m = document.cookie.match(/csrftoken=([^;]+)/);
+    return m ? m[1] : '';
+}
+
+function loadStreamingData() {
+    var dataEl = $$('streaming-data');
+    if (dataEl) {
+        try {
+            streamingVideos = JSON.parse(dataEl.textContent);
+            console.log('Loaded', streamingVideos.length, 'related videos');
+        } catch (e) {
+            console.error('Failed to parse streaming data');
+        }
+    }
+}
+
+/* Handle resize */
+window.addEventListener('resize', function() {
+    isMobile = window.innerWidth <= 767;
+});
+
+/* Initialize */
+loadStreamingData();
+
+})();
+</script>
+{% endblock scripts %}

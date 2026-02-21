@@ -1,0 +1,24 @@
+# Virtual Environment
+.venv/
+env/
+
+# Environment variables
+.env
+client_secrets.json
+
+# Django
+db.sqlite3
+staticfiles/
+media/
+
+# Python
+__pycache__/
+*.py[cod]
+*.log
+
+# VS Code
+.vscode/
+
+# Mac
+.DS_Store
+data.json

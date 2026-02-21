@@ -1,0 +1,947 @@
+<!-- sonyApp/inc/menu.html -->
+
+<!-- ═══════════════════════════════════════════════ NAV ═══ -->
+<nav class="container-fluid navbar navbar-expand-lg navbar-dark fixed-top custom-navbar py-0">
+    <div class="container-fluid bg-black position-relative px-4">
+        <a class="navbar-brand logo" href="{% url 'home' %}">
+            <svg width="200" height="50" viewBox="0 0 1454 340" xmlns="http://www.w3.org/2000/svg">
+                <g fill="#F90000">
+                    <circle cx="157" cy="17" r="11"/><circle cx="187" cy="17" r="11"/><circle cx="217" cy="17" r="11"/>
+                    <circle cx="96" cy="47" r="11"/><circle cx="126" cy="47" r="11"/><circle cx="157" cy="47" r="11"/><circle cx="187" cy="47" r="11"/><circle cx="217" cy="47" r="11"/><circle cx="247" cy="47" r="11"/><circle cx="277" cy="47" r="11"/>
+                    <circle cx="66" cy="77" r="11"/><circle cx="96" cy="77" r="11"/><circle cx="126" cy="77" r="11"/><circle cx="157" cy="77" r="11"/><circle cx="187" cy="77" r="11"/><circle cx="217" cy="77" r="11"/><circle cx="247" cy="77" r="11"/><circle cx="277" cy="77" r="11"/><circle cx="307" cy="77" r="11"/>
+                    <circle cx="66" cy="107" r="11"/><circle cx="96" cy="107" r="11"/><circle cx="126" cy="107" r="11"/><circle cx="157" cy="107" r="11"/><circle cx="187" cy="107" r="11"/><circle cx="217" cy="107" r="11"/><circle cx="247" cy="107" r="11"/><circle cx="277" cy="107" r="11"/><circle cx="307" cy="107" r="11"/>
+                    <circle cx="36" cy="137" r="11"/><circle cx="66" cy="137" r="11"/><circle cx="96" cy="137" r="11"/><circle cx="126" cy="137" r="11"/><circle cx="157" cy="137" r="11"/><circle cx="187" cy="137" r="11"/><circle cx="217" cy="137" r="11"/><circle cx="247" cy="137" r="11"/><circle cx="277" cy="137" r="11"/><circle cx="307" cy="137" r="11"/><circle cx="337" cy="137" r="11"/>
+                    <circle cx="36" cy="167" r="11"/><circle cx="66" cy="167" r="11"/><circle cx="96" cy="167" r="11"/><circle cx="126" cy="167" r="11"/><circle cx="157" cy="167" r="11"/><circle cx="187" cy="167" r="11"/><circle cx="217" cy="167" r="11"/><circle cx="247" cy="167" r="11"/><circle cx="277" cy="167" r="11"/><circle cx="307" cy="167" r="11"/><circle cx="337" cy="167" r="11"/>
+                    <circle cx="66" cy="197" r="11"/><circle cx="96" cy="197" r="11"/><circle cx="126" cy="197" r="11"/><circle cx="157" cy="197" r="11"/><circle cx="187" cy="197" r="11"/><circle cx="217" cy="197" r="11"/><circle cx="247" cy="197" r="11"/><circle cx="277" cy="197" r="11"/><circle cx="307" cy="197" r="11"/>
+                    <circle cx="66" cy="227" r="11"/><circle cx="96" cy="227" r="11"/><circle cx="126" cy="227" r="11"/><circle cx="157" cy="227" r="11"/><circle cx="187" cy="227" r="11"/><circle cx="217" cy="227" r="11"/><circle cx="247" cy="227" r="11"/><circle cx="277" cy="227" r="11"/><circle cx="307" cy="227" r="11"/>
+                    <circle cx="96" cy="257" r="11"/><circle cx="126" cy="257" r="11"/><circle cx="157" cy="257" r="11"/><circle cx="187" cy="257" r="11"/><circle cx="217" cy="257" r="11"/><circle cx="247" cy="257" r="11"/><circle cx="277" cy="257" r="11"/>
+                    <circle cx="157" cy="287" r="11"/><circle cx="187" cy="287" r="11"/><circle cx="217" cy="287" r="11"/>
+                </g>
+                <text x="410" y="200" font-family="Arial Black, sans-serif" font-size="130" font-weight="900" fill="#FFFFFF" letter-spacing="5">SONY MUSIC</text>
+            </svg>
+        </a>
+
+        <button class="navbar-toggler p-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto gap-5 align-items-lg-center">
+
+                <li class="nav-item dropdown" id="channelsNavItem">
+                    <a class="nav-link mt-4 mt-md-0 dropdown-toggle" href="#" id="channelsDropdown"
+                       role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Channels
+                    </a>
+                    <ul class="dropdown-menu sny-dropdown position-absolute" id="channelsDropdownMenu">
+                        <li class="sny-dd-loading">
+                            <span class="sny-spinner"></span>
+                            Loading channels…
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="nav-item"><a class="nav-link" href="#genres">Genres</a></li>
+                <li class="nav-item mb-4 mb-md-0 "><a class="nav-link" href="https://www.sonymusic.com/">Contact</a></li>
+
+                
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="sny-overlay" id="snyOverlay">
+    <div class="sny-modal" id="snyModal">
+
+        <button class="sny-x top-0 end-0 fs-5 bg-danger" id="snyClose" aria-label="Close">&#x2715;</button>
+
+        <!-- Skeleton -->
+        <div id="snySkeleton" class="sny-sk-wrap">
+            <div class="sny-sk-avatar"></div>
+            <div class="sny-sk-lines">
+                <div class="sny-sk-line" style="width:55%"></div>
+                <div class="sny-sk-line" style="width:38%;margin-top:8px;opacity:.5"></div>
+                <div class="sny-sk-line" style="width:70%;margin-top:20px;height:10px;opacity:.3"></div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div id="snyContent" style="display:none">
+
+            <!-- Avatar + name + subscribe -->
+            <div class="sny-head">
+                <div class="sny-avatar">
+                    <img id="snyAvatarImg" src="" alt=""
+                         onerror="this.style.display='none';document.getElementById('snyAvatarFb').style.display='flex'">
+                    <div class="sny-avatar-fb" id="snyAvatarFb"></div>
+                </div>
+                <div class="sny-meta">
+                    <div class="sny-ch-name" id="snyCHName"></div>
+                    <div class="sny-ch-handle" id="snyCHHandle"></div>
+                    <div class="sny-ch-stats" id="snyCHStats"></div>
+                </div>
+                <button class="sny-sub-btn" id="snySubBtn" onclick="launchSubscribe()">Subscribe</button>
+            </div>
+
+            <div class="sny-sep"></div>
+
+            <!-- Description -->
+            <p class="sny-desc" id="snyCHDesc"></p>
+            <button class="sny-more" id="snyMoreBtn" onclick="snyToggleDesc()" style="display:none">more</button>
+
+            <!-- Countdown card -->
+            <div class="sny-cd-card" id="snyCountdown" style="display:none">
+                <div class="sny-cd-row">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="#FF0000" style="flex-shrink:0"><path d="M21.8 8s-.2-1.4-.8-2c-.8-.8-1.6-.8-2-.9C16.4 5 12 5 12 5s-4.4 0-7 .1c-.4.1-1.2.1-2 .9-.6.6-.8 2-.8 2S2 9.6 2 11.2v1.5c0 1.6.2 3.2.2 3.2s.2 1.4.8 2c.8.8 1.8.7 2.2.8C6.4 19 12 19 12 19s4.4 0 7-.2c.4-.1 1.2-.1 2-.9.6-.6.8-2 .8-2s.2-1.6.2-3.2v-1.5C22 9.6 21.8 8 21.8 8zM9.7 14.5V9l5.4 2.8-5.4 2.7z"/></svg>
+                    <span class="sny-cd-label">YouTube opened &middot; closes in <strong><span id="snySeconds">10</span>s</strong></span>
+                </div>
+                <div class="sny-cd-bar-wrap"><div class="sny-cd-bar" id="snyCDBar"></div></div>
+                <div class="sny-cd-btns">
+                    <button class="sny-cd-btn" onclick="snyForceClose()">Close now</button>
+                    <button class="sny-cd-btn sny-cd-btn--ghost" onclick="snyReopen()">Reopen</button>
+                </div>
+            </div>
+
+            <!-- Ask card -->
+            <div class="sny-ask-card" id="snyAskCard" style="display:none">
+                <div class="sny-ask-row">
+                    <div class="sny-ask-icon">?</div>
+                    <div class="sny-ask-text">
+                        <strong id="snyAskTitle">Did you subscribe?</strong>
+                        <span id="snyAskSub">Let us know so we remember next time.</span>
+                    </div>
+                </div>
+                <div class="sny-ask-btns">
+                    <button class="sny-ask-yes" onclick="snyAnswerYes()">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                        Yes, subscribed
+                    </button>
+                    <button class="sny-ask-no" onclick="snyAnswerNo()">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                        No, skipped
+                    </button>
+                </div>
+            </div>
+
+        </div><!-- /snyContent -->
+    </div>
+</div>
+
+<style>
+
+.custom-navbar {
+    background:          rgba(8,8,8,.97);
+    backdrop-filter:     blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-bottom:       1px solid rgba(255,255,255,.07);
+    height:              64px;
+}
+.navbar-brand svg {
+    display: block;
+}
+.nav-link {
+    font-size:       12.5px;
+    font-weight:     500;
+    letter-spacing:  .09em;
+    text-transform:  uppercase;
+    color:           rgba(255,255,255,.6) !important;
+    transition:      color .2s;
+  
+    
+}
+.nav-link:hover {
+    color: #fff !important;
+    border:        1px solid rgba(249,0,0,.5);
+    border-radius: 20px;
+}
+
+
+
+/* ════════════════════════════════════════
+   CHANNELS DROPDOWN
+════════════════════════════════════════ */
+.sny-dropdown {
+    background:   #111 !important;
+    border:       1px solid rgba(255,255,255,.1) !important;
+    border-radius: 10px !important;
+    padding:      6px 0 !important;
+    min-width:    240px;
+    box-shadow:   0 20px 50px rgba(0,0,0,.8) !important;
+}
+.sny-dd-loading {
+    display:     flex;
+    align-items: center;
+    gap:         10px;
+    padding:     14px 18px;
+    font-size:   13px;
+    color:       rgba(255,255,255,.4);
+}
+.sny-spinner {
+    width:         16px;
+    height:        16px;
+    border:        2px solid rgba(255,255,255,.1);
+    border-top-color: #F90000;
+    border-radius: 50%;
+    animation:     spin .7s linear infinite;
+    flex-shrink:   0;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.sny-ch-row {
+    display:     flex;
+    align-items: center;
+    gap:         12px;
+    padding:     9px 16px;
+    cursor:      pointer;
+    transition:  background .12s, padding-left .12s;
+    border:      none;
+    background:  none;
+    width:       100%;
+    text-align:  left;
+}
+.sny-ch-row:hover {
+    background:   rgba(249,0,0,.08);
+    padding-left: 20px;
+}
+.sny-ch-row:hover .sny-row-dot {
+    opacity: 1;
+}
+.sny-row-dot {
+    width:         6px;
+    height:        6px;
+    border-radius: 50%;
+    background:    #F90000;
+    flex-shrink:   0;
+    opacity:       0;
+    transition:    opacity .12s;
+}
+.sny-row-thumb {
+    width:         38px;
+    height:        38px;
+    border-radius: 50%;
+    object-fit:    cover;
+    background:    #222;
+    flex-shrink:   0;
+}
+.sny-row-info {
+    flex:      1;
+    min-width: 0;
+}
+.sny-row-name {
+    font-size:     13px;
+    font-weight:   600;
+    color:         rgba(255,255,255,.85);
+    white-space:   nowrap;
+    overflow:      hidden;
+    text-overflow: ellipsis;
+}
+.sny-row-subs {
+    font-size:  11px;
+    color:      rgba(255,255,255,.35);
+    margin-top: 2px;
+}
+.sny-row-badge {
+    font-size:      10px;
+    font-weight:    700;
+    letter-spacing: .04em;
+    color:          #4ade80;
+    background:     rgba(34,197,94,.1);
+    border:         1px solid rgba(34,197,94,.28);
+    border-radius:  8px;
+    padding:        2px 7px;
+    flex-shrink:    0;
+}
+.sny-user-item {
+    color:     rgba(255,255,255,.7) !important;
+    font-size: 13px !important;
+}
+.sny-user-item:hover {
+    color:      #fff !important;
+    background: rgba(255,255,255,.06) !important;
+}
+
+
+/* ════════════════════════════════════════
+   OVERLAY
+════════════════════════════════════════ */
+.sny-overlay {
+    display:          none;
+    position:         fixed;
+    inset:            0;
+    background:       rgba(0,0,0,.78);
+    backdrop-filter:  blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index:          9999;
+    align-items:      center;
+    justify-content:  center;
+    padding:          20px;
+}
+.sny-overlay.open {
+    display: flex;
+}
+
+
+/* ════════════════════════════════════════
+   MODAL
+════════════════════════════════════════ */
+.sny-modal {
+    position:      relative;
+    width:         100%;
+    max-width:     460px;
+    background:    #141414;
+    border-radius: 18px;
+    border:        1px solid rgba(255,255,255,.08);
+    box-shadow:    0 30px 80px rgba(0,0,0,.9);
+    padding:       24px;
+    animation:     snyIn .22s cubic-bezier(.22,1,.36,1);
+}
+@media (max-width: 520px) {
+    .sny-modal {
+        padding:       18px 14px;
+        border-radius: 14px;
+    }
+}
+@keyframes snyIn {
+    from { opacity: 0; transform: scale(.94) translateY(12px); }
+    to   { opacity: 1; transform: scale(1)   translateY(0);    }
+}
+
+/* Close button */
+.sny-x {
+    position:      absolute;
+    top:           12px;
+    right:         12px;
+    width:         28px;
+    height:        28px;
+    background:    rgba(255,255,255,.06);
+    border:        1px solid rgba(255,255,255,.1);
+    border-radius: 50%;
+    color:         rgba(255,255,255,.5);
+    font-size:     12px;
+    cursor:        pointer;
+    display:       flex;
+    align-items:   center;
+    justify-content: center;
+    transition:    background .15s, color .15s;
+}
+.sny-x:hover {
+    background:   rgba(249,0,0,.35);
+    color:        #fff;
+    border-color: transparent;
+}
+
+
+/* ════════════════════════════════════════
+   SKELETON
+════════════════════════════════════════ */
+.sny-sk-wrap {
+    display:     flex;
+    align-items: center;
+    gap:         16px;
+    padding:     4px 0;
+}
+.sny-sk-avatar {
+    width:         56px;
+    height:        56px;
+    border-radius: 50%;
+    flex-shrink:   0;
+    background:    linear-gradient(90deg, #1e1e1e 25%, #2a2a2a 50%, #1e1e1e 75%);
+    background-size: 200% 100%;
+    animation:     shimmer 1.3s infinite;
+}
+.sny-sk-lines {
+    flex: 1;
+}
+.sny-sk-line {
+    height:          13px;
+    border-radius:   6px;
+    background:      linear-gradient(90deg, #1e1e1e 25%, #2a2a2a 50%, #1e1e1e 75%);
+    background-size: 200% 100%;
+    animation:       shimmer 1.3s infinite;
+}
+@keyframes shimmer {
+    0%   { background-position: -200% 0; }
+    100% { background-position:  200% 0; }
+}
+
+
+/* ════════════════════════════════════════
+   HEAD ROW  (avatar + meta + subscribe)
+════════════════════════════════════════ */
+.sny-head {
+    display:     flex;
+    align-items: center;
+    gap:         14px;
+}
+.sny-avatar {
+    width:         56px;
+    height:        56px;
+    border-radius: 50%;
+    overflow:      hidden;
+    background:    #222;
+    flex-shrink:   0;
+}
+.sny-avatar img {
+    width:       100%;
+    height:      100%;
+    object-fit:  cover;
+    display:     block;
+}
+.sny-avatar-fb {
+    display:         none;
+    width:           100%;
+    height:          100%;
+    align-items:     center;
+    justify-content: center;
+    font-size:       20px;
+    font-weight:     800;
+    background:      linear-gradient(135deg, #3a0000, #1c0000);
+    color:           #fff;
+}
+.sny-meta {
+    flex:      1;
+    min-width: 0;
+}
+.sny-ch-name {
+    font-size:     16px;
+    font-weight:   800;
+    color:         #fff;
+    display:       flex;
+    align-items:   center;
+    gap:           5px;
+    white-space:   nowrap;
+    overflow:      hidden;
+    text-overflow: ellipsis;
+}
+.sny-verified {
+    width:           15px;
+    height:          15px;
+    border-radius:   50%;
+    flex-shrink:     0;
+    background:      rgba(255,255,255,.85);
+    display:         inline-flex;
+    align-items:     center;
+    justify-content: center;
+}
+.sny-verified svg {
+    width:  9px;
+    height: 9px;
+}
+.sny-ch-handle {
+    font-size:  11.5px;
+    color:      rgba(255,255,255,.32);
+    margin-top: 2px;
+}
+.sny-ch-stats {
+    font-size:  11px;
+    color:      rgba(255,255,255,.22);
+    margin-top: 2px;
+}
+
+
+/* ════════════════════════════════════════
+   SUBSCRIBE BUTTON
+════════════════════════════════════════ */
+.sny-sub-btn {
+    height:        34px;
+    padding:       0 16px;
+    border-radius: 17px;
+    border:        none;
+    background:    #fff;
+    color:         #0f0f0f;
+    font-size:     13px;
+    font-weight:   700;
+    cursor:        pointer;
+    flex-shrink:   0;
+    transition:    background .15s, transform .1s;
+    white-space:   nowrap;
+}
+.sny-sub-btn:hover {
+    background: #e8e8e8;
+    transform:  scale(1.04);
+}
+.sny-sub-btn.is-subscribed {
+    background: rgba(34,197,94,.12);
+    color:      #4ade80;
+    border:     1px solid rgba(34,197,94,.3);
+}
+.sny-sub-btn.is-subscribed:hover {
+    background: rgba(34,197,94,.2);
+    transform:  none;
+}
+.sny-sub-btn.is-waiting {
+    background: rgba(255,255,255,.06);
+    color:      rgba(255,255,255,.35);
+    border:     1px solid rgba(255,255,255,.1);
+    cursor:     default;
+    transform:  none !important;
+}
+
+
+/* ════════════════════════════════════════
+   SEPARATOR + DESCRIPTION
+════════════════════════════════════════ */
+.sny-sep {
+    height:     1px;
+    background: rgba(255,255,255,.06);
+    margin:     18px 0 14px;
+}
+.sny-desc {
+    font-size:   12.5px;
+    line-height: 1.75;
+    color:       rgba(255,255,255,.42);
+    white-space: pre-line;
+    margin:      0;
+}
+.sny-more {
+    font-size:   12px;
+    color:       rgba(255,255,255,.3);
+    cursor:      pointer;
+    background:  none;
+    border:      none;
+    padding:     4px 0 0;
+    font-family: inherit;
+    transition:  color .15s;
+}
+.sny-more:hover {
+    color: rgba(255,255,255,.7);
+}
+
+
+/* ════════════════════════════════════════
+   COUNTDOWN CARD
+════════════════════════════════════════ */
+.sny-cd-card {
+    margin-top:    16px;
+    background:    rgba(255,255,255,.03);
+    border:        1px solid rgba(255,255,255,.07);
+    border-radius: 12px;
+    padding:       14px 16px;
+}
+.sny-cd-row {
+    display:       flex;
+    align-items:   center;
+    gap:           8px;
+    margin-bottom: 10px;
+}
+.sny-cd-label {
+    font-size: 12.5px;
+    color:     rgba(255,255,255,.6);
+}
+.sny-cd-bar-wrap {
+    height:        2px;
+    background:    rgba(255,255,255,.08);
+    border-radius: 2px;
+    overflow:      hidden;
+    margin-bottom: 12px;
+}
+.sny-cd-bar {
+    height:        100%;
+    background:    #F90000;
+    border-radius: 2px;
+    width:         100%;
+    transition:    width 1s linear;
+}
+.sny-cd-btns {
+    display: flex;
+    gap:     8px;
+}
+.sny-cd-btn {
+    height:        28px;
+    padding:       0 14px;
+    border-radius: 14px;
+    border:        1px solid rgba(255,255,255,.12);
+    background:    rgba(249,0,0,.1);
+    color:         rgba(255,255,255,.7);
+    font-size:     12px;
+    cursor:        pointer;
+    font-family:   inherit;
+    transition:    background .15s, color .15s;
+}
+.sny-cd-btn:hover {
+    background:   rgba(249,0,0,.2);
+    color:        #fff;
+    border-color: rgba(249,0,0,.3);
+}
+.sny-cd-btn--ghost {
+    background: none;
+}
+.sny-cd-btn--ghost:hover {
+    background:   rgba(255,255,255,.06);
+    border-color: rgba(255,255,255,.15);
+}
+
+
+/* ════════════════════════════════════════
+   ASK CARD
+════════════════════════════════════════ */
+.sny-ask-card {
+    margin-top:    16px;
+    background:    rgba(255,255,255,.03);
+    border:        1px solid rgba(255,255,255,.07);
+    border-radius: 12px;
+    padding:       14px 16px;
+    animation:     snyUp .2s ease;
+}
+@keyframes snyUp {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0);   }
+}
+.sny-ask-row {
+    display:       flex;
+    align-items:   center;
+    gap:           10px;
+    margin-bottom: 12px;
+}
+.sny-ask-icon {
+    width:           28px;
+    height:          28px;
+    flex-shrink:     0;
+    background:      rgba(249,0,0,.1);
+    border:          1px solid rgba(249,0,0,.2);
+    border-radius:   50%;
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+    font-size:       13px;
+    font-weight:     700;
+    color:           #F90000;
+}
+.sny-ask-text {
+    flex:           1;
+    display:        flex;
+    flex-direction: column;
+    gap:            2px;
+}
+.sny-ask-text strong {
+    font-size:   13px;
+    font-weight: 700;
+    color:       rgba(255,255,255,.88);
+}
+.sny-ask-text span {
+    font-size: 11.5px;
+    color:     rgba(255,255,255,.33);
+}
+.sny-ask-btns {
+    display: flex;
+    gap:     8px;
+}
+.sny-ask-yes,
+.sny-ask-no {
+    flex:            1;
+    height:          32px;
+    border-radius:   16px;
+    border:          1px solid;
+    font-size:       12px;
+    font-weight:     600;
+    font-family:     inherit;
+    cursor:          pointer;
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+    gap:             5px;
+    transition:      background .15s, transform .1s;
+}
+.sny-ask-yes {
+    background:   rgba(34,197,94,.1);
+    border-color: rgba(34,197,94,.28);
+    color:        #4ade80;
+}
+.sny-ask-yes:hover {
+    background: rgba(34,197,94,.18);
+    transform:  scale(1.02);
+}
+.sny-ask-no {
+    background:   rgba(255,255,255,.04);
+    border-color: rgba(255,255,255,.1);
+    color:        rgba(255,255,255,.45);
+}
+.sny-ask-no:hover {
+    background: rgba(255,255,255,.08);
+    color:      #fff;
+}
+
+
+/* ════════════════════════════════════════
+   MOBILE SHEET
+════════════════════════════════════════ */
+.sny-mobile-sheet {
+    display:         flex;
+    flex-direction:  column;
+    align-items:     center;
+    text-align:      center;
+    gap:             10px;
+}
+.sny-ms-icon {
+    width:           46px;
+    height:          46px;
+    border-radius:   50%;
+    background:      rgba(255,0,0,.08);
+    border:          1px solid rgba(255,0,0,.2);
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+}
+.sny-ms-title {
+    font-size:   14px;
+    font-weight: 700;
+    color:       rgba(255,255,255,.88);
+    margin:      0;
+}
+.sny-ms-msg {
+    font-size:   12.5px;
+    color:       rgba(255,255,255,.4);
+    line-height: 1.6;
+    margin:      0;
+}
+.sny-ms-btn {
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+    width:           100%;
+    height:          40px;
+    background:      #FF0000;
+    color:           #fff;
+    font-size:       13px;
+    font-weight:     700;
+    border-radius:   20px;
+    text-decoration: none;
+    transition:      background .15s;
+}
+.sny-ms-btn:hover {
+    background: #d90000;
+    color:      #fff;
+}
+
+</style>
+
+<script>
+(function () {
+'use strict';
+
+var _activeCh = null;
+var _ytPopup  = null;
+var _killAt   = 0;
+var _ticker   = null;
+var _cdSecs   = 10;
+var _descFull = false;
+
+var POPUP_SECS = 10;
+var DESC_TRIM  = 160;
+var LS_SUB     = 'sny_sub_state';
+
+function el(id) { return document.getElementById(id); }
+function lsGet()       { try { return JSON.parse(localStorage.getItem(LS_SUB)||'{}'); } catch(e){ return {}; } }
+function lsSet(id,val) { try { var d=lsGet(); d[id]=val; localStorage.setItem(LS_SUB,JSON.stringify(d)); } catch(e){} }
+function lsRead(id)    { var d=lsGet(); return (id in d)?d[id]:null; }
+
+/* 1. BUILD DROPDOWN */
+function buildDropdown(channels) {
+    var menu = el('channelsDropdownMenu');
+    if (!menu) return;
+    if (!channels || !channels.length) { menu.innerHTML = '<li class="sny-dd-loading">No channels found.</li>'; return; }
+    var html = '';
+    channels.forEach(function(ch, idx) {
+        var safe  = escHtml(ch.name);
+        var chId  = ch.youtube_channel_id || ch.id || String(idx);
+        var badge = lsRead(chId) === true ? '<span class="sny-row-badge">Subscribed</span>' : '';
+        html += '<li><button class="sny-ch-row" id="sny-row-'+idx+'" onclick="window._snyOpen('+idx+')">'
+             + '<span class="sny-row-dot"></span>'
+             + '<img class="sny-row-thumb" src="'+(ch.thumbnail_url||'')+'" alt="'+safe+'" onerror="this.style.visibility=\'hidden\'">'
+             + '<div class="sny-row-info"><div class="sny-row-name">'+safe+'</div>'
+             + '<div class="sny-row-subs">'+fmtNum(ch.subscriber_count)+' subscribers</div></div>'
+             + badge+'</button></li>';
+    });
+    menu.innerHTML = html;
+}
+
+/* 2. FETCH */
+var _CHANNELS = [];
+document.addEventListener('DOMContentLoaded', function() {
+    fetch('/api/channels/dropdown/')
+        .then(function(r){ if(!r.ok) throw 0; return r.json(); })
+        .then(function(d){ _CHANNELS = d.channels||[]; buildDropdown(_CHANNELS); })
+        .catch(function(){ var m=el('channelsDropdownMenu'); if(m) m.innerHTML='<li class="sny-dd-loading" style="color:#f66">Failed to load.</li>'; });
+});
+
+/* 3. OPEN MODAL */
+window._snyOpen = function(idx) {
+    var ch = _CHANNELS[idx]; if (!ch) return;
+    _activeCh = ch; _descFull = false;
+    tickerStop(); popupKill();
+    el('snyCountdown').style.display = 'none';
+    el('snyAskCard').style.display   = 'none';
+    setSubBtn(lsRead(ch.youtube_channel_id || ch.id || String(idx)));
+    el('snyOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    el('snySkeleton').style.display = 'flex';
+    el('snyContent').style.display  = 'none';
+    setTimeout(function() { fillModal(ch); el('snySkeleton').style.display='none'; el('snyContent').style.display='block'; }, 280);
+};
+
+function fillModal(ch) {
+    var img = el('snyAvatarImg'), fb = el('snyAvatarFb');
+    if (ch.thumbnail_url) { img.src=ch.thumbnail_url; img.alt=ch.name; img.style.display='block'; fb.style.display='none'; }
+    else { img.style.display='none'; fb.textContent=(ch.name||'?')[0].toUpperCase(); fb.style.display='flex'; }
+    el('snyCHName').innerHTML = escHtml(ch.name)
+        + '<span class="sny-verified" title="Verified"><svg viewBox="0 0 24 24" fill="#0f0f0f"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></span>';
+    el('snyCHHandle').textContent = ch.handle || '';
+    el('snyCHStats').textContent  = [fmtNum(ch.subscriber_count)+' subscribers', ch.video_count?fmtNum(ch.video_count)+' videos':''].filter(Boolean).join(' · ');
+    renderDesc(ch.description || '');
+}
+
+/* 4. SUB BUTTON */
+function setSubBtn(state) {
+    var btn = el('snySubBtn');
+    btn.className='sny-sub-btn'; btn.onclick=launchSubscribe; btn.title='';
+    if (state===true) { btn.innerHTML='&#x2714; Subscribed'; btn.classList.add('is-subscribed'); btn.title='Click to update'; }
+    else { btn.innerHTML='Subscribe'; }
+}
+function setSubBtnWaiting() {
+    var btn = el('snySubBtn');
+    btn.className='sny-sub-btn is-waiting'; btn.innerHTML='YouTube is open&#8230;'; btn.onclick=null;
+}
+
+/* 5. LAUNCH */
+window.launchSubscribe = function() {
+    if (!_activeCh) return;
+    el('snyAskCard').style.display = 'none';
+    var base = _activeCh.youtube_url || ('https://www.youtube.com/channel/'+_activeCh.youtube_channel_id);
+    var url  = base + (base.indexOf('?')>=0?'&':'?') + 'sub_confirmation=1';
+
+    if (/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 768) {
+        showMobileSheet(url); return;
+    }
+    var pw=500, ph=320;
+    _ytPopup = window.open(url, 'sny_yt',
+        'width='+pw+',height='+ph+',left='+Math.round(screen.width/2-pw/2)+',top='+Math.round(screen.height/2-ph/2)+',toolbar=no,menubar=no,scrollbars=yes,resizable=no');
+    if (!_ytPopup || _ytPopup.closed) { _ytPopup=null; window.open(url,'_blank'); }
+
+    _killAt = Date.now() + POPUP_SECS*1000; _cdSecs = POPUP_SECS;
+    el('snyCountdown').style.display = 'block';
+    updateCDUI(); setSubBtnWaiting();
+    tickerStop(); _ticker = setInterval(onTick, 500);
+};
+
+function onTick() {
+    var now = Date.now();
+    if (now >= _killAt) { tickerStop(); popupKill(); onPopupDone(); return; }
+    if (_ytPopup && _ytPopup.closed) { tickerStop(); _ytPopup=null; onPopupDone(); return; }
+    var s = Math.ceil((_killAt-now)/1000);
+    if (s !== _cdSecs) { _cdSecs=s; updateCDUI(); }
+}
+function updateCDUI() {
+    var e=el('snySeconds'), b=el('snyCDBar');
+    if(e) e.textContent = _cdSecs;
+    if(b) b.style.width = ((_cdSecs/POPUP_SECS)*100)+'%';
+}
+function onPopupDone() { el('snyCountdown').style.display='none'; showAskCard(); }
+function tickerStop() { if(_ticker){clearInterval(_ticker);_ticker=null;} }
+function popupKill() { if(_ytPopup&&!_ytPopup.closed){try{_ytPopup.close();}catch(e){}} _ytPopup=null; }
+window.addEventListener('beforeunload', popupKill);
+
+window.snyForceClose = function() { tickerStop(); popupKill(); el('snyCountdown').style.display='none'; showAskCard(); };
+window.snyReopen = function() { tickerStop(); popupKill(); if(_activeCh) launchSubscribe(); };
+
+/* 6. ASK CARD */
+function showAskCard() {
+    var chId = _activeCh?(_activeCh.youtube_channel_id||_activeCh.id||''):'';
+    var prev = lsRead(chId);
+    el('snyAskTitle').textContent = prev===true?'Did you unsubscribe?':'Did you subscribe?';
+    el('snyAskSub').textContent   = prev===true?'Update your status below.':'Let us know so we remember.';
+    el('snyAskCard').style.display = 'block';
+    setSubBtn(prev);
+}
+window.snyAnswerYes = function() {
+    if(!_activeCh) return;
+    var chId = _activeCh.youtube_channel_id||_activeCh.id||'';
+    lsSet(chId,true); el('snyAskCard').style.display='none';
+    setSubBtn(true); refreshBadge(chId,true); showToast('Subscribed to '+_activeCh.name);
+};
+window.snyAnswerNo = function() {
+    if(!_activeCh) return;
+    var chId = _activeCh.youtube_channel_id||_activeCh.id||'';
+    lsSet(chId,false); el('snyAskCard').style.display='none';
+    setSubBtn(false); refreshBadge(chId,false);
+};
+function refreshBadge(chId, sub) {
+    _CHANNELS.forEach(function(ch,idx){
+        var rowId = ch.youtube_channel_id||ch.id||String(idx);
+        if(rowId!==chId) return;
+        var row = el('sny-row-'+idx); if(!row) return;
+        var badge = row.querySelector('.sny-row-badge');
+        if(sub){ if(!badge){badge=document.createElement('span');badge.className='sny-row-badge';row.appendChild(badge);} badge.textContent='Subscribed'; }
+        else { if(badge) badge.remove(); }
+    });
+}
+
+/* MOBILE SHEET */
+function showMobileSheet(url) {
+    var cd = el('snyCountdown'); cd.style.display='block';
+    cd.innerHTML = '<div class="sny-mobile-sheet">'
+        +'<div class="sny-ms-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="#FF0000"><path d="M21.8 8s-.2-1.4-.8-2c-.8-.8-1.6-.8-2-.9C16.4 5 12 5 12 5s-4.4 0-7 .1c-.4.1-1.2.1-2 .9-.6.6-.8 2-.8 2S2 9.6 2 11.2v1.5c0 1.6.2 3.2.2 3.2s.2 1.4.8 2c.8.8 1.8.7 2.2.8C6.4 19 12 19 12 19s4.4 0 7-.2c.4-.1 1.2-.1 2-.9.6-.6.8-2 .8-2s.2-1.6.2-3.2v-1.5C22 9.6 21.8 8 21.8 8zM9.7 14.5V9l5.4 2.8-5.4 2.7z"/></svg></div>'
+        +'<p class="sny-ms-title">Subscribe on YouTube</p>'
+        +'<p class="sny-ms-msg">Tap below, subscribe, then come back and let us know!</p>'
+        +'<a class="sny-ms-btn" href="'+url+'" target="_blank" rel="noopener" onclick="setTimeout(function(){document.getElementById(\'snyCountdown\').style.display=\'none\';showAskCard();},2500)">Open YouTube to Subscribe</a>'
+        +'</div>';
+}
+
+/* TOAST */
+function showToast(msg) {
+    var t=document.getElementById('snyToast');
+    if(!t){ t=document.createElement('div'); t.id='snyToast';
+        t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(16px);background:#111;color:#4ade80;border:1px solid rgba(74,222,128,.25);border-radius:20px;padding:9px 20px;font-size:13px;font-weight:600;z-index:99999;opacity:0;transition:opacity .22s,transform .22s;white-space:nowrap;pointer-events:none;font-family:inherit;';
+        document.body.appendChild(t); }
+    t.textContent=msg;
+    requestAnimationFrame(function(){t.style.opacity='1';t.style.transform='translateX(-50%) translateY(0)';});
+    clearTimeout(t._h); t._h=setTimeout(function(){t.style.opacity='0';t.style.transform='translateX(-50%) translateY(16px)';},2500);
+}
+
+/* CLOSE MODAL */
+function closeModal() {
+    tickerStop(); popupKill();
+    el('snyOverlay').classList.remove('open');
+    document.body.style.overflow='';
+    el('snyAskCard').style.display='none';
+    el('snyCountdown').style.display='none';
+}
+el('snyClose').addEventListener('click', closeModal);
+el('snyOverlay').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeModal(); });
+
+/* DESCRIPTION */
+function renderDesc(text) {
+    var d=el('snyCHDesc'), m=el('snyMoreBtn'), need=text.length>DESC_TRIM;
+    d.textContent=(need&&!_descFull)?text.slice(0,DESC_TRIM)+'&#8230;':text;
+    m.style.display=need?'inline':'none'; m.textContent=_descFull?'Show less':'&#8230;more';
+}
+window.snyToggleDesc = function() { _descFull=!_descFull; renderDesc(_activeCh?(_activeCh.description||''):''); };
+
+/* HELPERS */
+function fmtNum(n){if(!n)return'0';n=parseInt(n,10);if(n>=1e9)return(n/1e9).toFixed(1)+'B';if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return(n/1e3).toFixed(1)+'K';return String(n);}
+function escHtml(s){return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const navbarToggler = document.querySelector('.navbar-toggler');
+    const navbarCollapse = document.getElementById('navbarNav');
+    
+    if (navbarToggler && navbarCollapse) {
+        const menuIcon = navbarToggler.querySelector('.navbar-toggler-icon');
+        
+        navbarCollapse.addEventListener('show.bs.collapse', function() {
+            navbarToggler.classList.add('active');
+            menuIcon.style.backgroundImage = "url(\"data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fff'%3e%3cpath d='M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8 2.146 2.854Z'/%3e%3c/svg%3e\")";
+        });
+        
+        navbarCollapse.addEventListener('hide.bs.collapse', function() {
+            navbarToggler.classList.remove('active');
+            menuIcon.style.backgroundImage = "url(\"data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.75%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e\")";
+        });
+    }
+});
+
+
+})();
+</script>

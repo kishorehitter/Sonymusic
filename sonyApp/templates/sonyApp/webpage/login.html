@@ -1,0 +1,16 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login - Your Site</title>
+</head>
+<body>
+    <h1>Login to Access Premium Channels</h1>
+    
+    <a href="{% url 'social:begin' 'google-oauth2' %}">
+        <button>Sign in with Google</button>
+    </a>
+    
+    <p>You'll need to login and subscribe to channels to access exclusive content.</p>
+</body>
+</html>

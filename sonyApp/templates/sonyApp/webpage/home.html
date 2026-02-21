@@ -1,0 +1,396 @@
+{% extends "sonyApp/layouts/base.html" %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}Home - Sony Music India{% endblock %}
+
+{% block content %}
+{% include 'sonyApp/inc/menu.html' %}
+
+<!-- Hero Section with Carousel Background and SVG Overlay -->
+<section class="hero-wrapper pt-5">
+    
+    <!-- ✅ LATEST UPDATES TICKER -->
+
+    {% if latest_updates %}
+    <!-- Premium Latest Updates Ticker -->
+    <div class="premium-ticker-wrapper mt-3">
+        <div class="ticker-container">
+            <!-- Label -->
+            <div class="ticker-label">
+                <i class="bi bi-lightning-fill text-warning me-2"></i>
+                <span>LATEST</span>
+            </div>
+            
+            <!-- Scrolling Content -->
+            <div class="ticker-content">
+                <div class="ticker-track">
+                    <!-- Show only first 3 updates, repeated 4 times for smooth infinite loop -->
+                    {% for update in latest_updates|slice:":3" %}
+                    <div class="ticker-item" onclick="window.location.href='{% url 'video_player' update.channel.channel_id update.youtube_video_id %}'">
+                        <span class="ticker-dot"></span>
+                        <span class="ticker-text">
+                            <strong>{{ update.channel.name }}</strong> • {{ update.title|truncatechars:60 }}
+                        </span>
+                        <span class="ticker-date">{{ update.published_at|timesince }} ago</span>
+                    </div>
+                    {% endfor %}
+                    
+                    <!-- Repeat 1 -->
+                    {% for update in latest_updates|slice:":3" %}
+                    <div class="ticker-item" onclick="window.location.href='{% url 'video_player' update.channel.channel_id update.youtube_video_id %}'">
+                        <span class="ticker-dot"></span>
+                        <span class="ticker-text">
+                            <strong>{{ update.channel.name }}</strong> • {{ update.title|truncatechars:60 }}
+                        </span>
+                        <span class="ticker-date">{{ update.published_at|timesince }} ago</span>
+                    </div>
+                    {% endfor %}
+                    
+                    <!-- Repeat 2 -->
+                    {% for update in latest_updates|slice:":3" %}
+                    <div class="ticker-item" onclick="window.location.href='{% url 'video_player' update.channel.channel_id update.youtube_video_id %}'">
+                        <span class="ticker-dot"></span>
+                        <span class="ticker-text">
+                            <strong>{{ update.channel.name }}</strong> • {{ update.title|truncatechars:60 }}
+                        </span>
+                        <span class="ticker-date">{{ update.published_at|timesince }} ago</span>
+                    </div>
+                    {% endfor %}
+                    
+                    <!-- Repeat 3 -->
+                    {% for update in latest_updates|slice:":3" %}
+                    <div class="ticker-item" onclick="window.location.href='{% url 'video_player' update.channel.channel_id update.youtube_video_id %}'">
+                        <span class="ticker-dot"></span>
+                        <span class="ticker-text">
+                            <strong>{{ update.channel.name }}</strong> • {{ update.title|truncatechars:60 }}
+                        </span>
+                        <span class="ticker-date">{{ update.published_at|timesince }} ago</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Gradient Edges -->
+            <div class="ticker-gradient-left"></div>
+            <div class="ticker-gradient-right"></div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Background Layer: Carousel (z-index: 1) -->
+    <div class="hero-background pt-5">
+        <div class="recent-releases-carousel-bg">
+            <div class="releases-slider-container">
+                <button class="slider-nav-arrow prev-arrow" id="prevSlide" aria-label="Previous">
+                    <i class="bi bi-chevron-left"></i>
+                </button>
+                
+                <div class="releases-slider-track" id="releasesSlider">
+                    {% if recent_videos %}
+                        {% for video in recent_videos %}
+                        <div class="release-slide-item" data-video-id="{{ video.youtube_video_id }}">
+                            <div class="release-thumbnail">
+                                <img src="{{ video.thumbnail_url }}" alt="{{ video.title }}" loading="lazy">
+                                <div class="thumbnail-gradient-overlay"></div>
+                                
+                                <!-- Watch Button (Bottom Left) -->
+                                <a href="{% url 'video_player' video.channel.channel_id video.youtube_video_id %}" 
+                                   class="watch-btn-overlay">
+                                    <div class="watch-btn-content py-1 px-3">
+                                        <i class="bi bi-play-fill"></i>
+                                        <span >Watch Now</span>
+                                    </div>
+                                </a>
+                                
+                                <!-- Video Info (Bottom Right) -->
+                                <div class="video-quick-info">
+                                    <h5>{{ video.title|truncatechars:35 }}</h5>
+                                    <p class="channel-name">{{ video.channel.name }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        {% for i in "12345" %}
+                        <div class="release-slide-item">
+                            <div class="release-thumbnail placeholder-slide">
+                                <div class="placeholder-content">
+                                    <i class="bi bi-music-note-beamed"></i>
+                                    <span>Coming Soon</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                
+                <button class="slider-nav-arrow next-arrow" id="nextSlide" aria-label="Next">
+                    <i class="bi bi-chevron-right"></i>
+                </button>
+            </div>
+            
+            <div class="carousel-indicators" id="carouselIndicators"></div>
+            
+            <div class="carousel-label-badge">
+                <i class="bi bi-fire text-danger me-2"></i>
+                <span>Latest Releases</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Overlay Layer: SVG & Text (z-index: 10) -->
+    <div class="hero-overlay">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-10 text-center hero-content">
+                    <div class="svg-animation-wrapper mx-auto mb-0">
+                        <svg id="dotAnimation" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <radialGradient id="dotGradient" cx="50%" cy="50%">
+                                    <stop offset="0%" style="stop-color:#F90000;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#d50000;stop-opacity:1" />
+                                </radialGradient>
+                                <filter id="glow">
+                                    <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                                    <feMerge>
+                                        <feMergeNode in="coloredBlur"/>
+                                        <feMergeNode in="SourceGraphic"/>
+                                    </feMerge>
+                                </filter>
+                            </defs>
+                            <g id="dotGrid"></g>
+                        </svg>
+                    </div>
+                    <h1 class="hero-title mt-0 pt-0">Experience Music<br><span class="gradient-text">Redefined</span></h1>
+                    <p class="hero-subtitle">Discover the finest collection of music from India's most celebrated artists</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Channels Section -->
+<section class="featured-section mx-1 mx-md-5 rounded-3 py-5 mb-4" id="channels">
+
+
+    
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12 text-center mb-2">
+                <span class="section-label d-inline-block mb-3">Featured</span>
+                <h6 class="section-title text-secondary mb-3">Premium Channels</h6>
+
+               
+            </div>
+        </div>
+
+
+        <div class="row g-4 justify-content-center co-10 col-md-8 mx-auto">
+            {% for channel in channels %}
+            <div class="col-md-6">
+                <div class="card channel-card h-100">
+                    <div class="channel-thumbnail mt-1 position-relative mx-auto rounded-circle">
+                        {% if channel.thumbnail_url %}
+                        <img src="{{ channel.thumbnail_url }}" alt="{{ channel.name }}" class="w-100 h-100 rounded-circle justify-content-center">
+                        {% else %}
+                        <div class="thumbnail-overlay">
+                            <i class="bi bi-music-note-beamed text-white fs-1"></i>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="play-button">
+                            <i class="bi bi-play-fill fs-2"></i>
+                        </div>
+                                   
+                            
+                    </div>
+                    
+                    <div class="card-body channel-info">
+                        <h3 class="card-title h5 mb-2">{{ channel.name }}</h3>
+                        <p class="channel-meta text-light small mb-3">
+                            <i class="bi bi-collection-play me-1"></i> {{ channel.description|truncatechars:60|default:"Official Sony Music Channel" }}
+                        </p>
+                        
+                        <div class="channel-tags mb-3">
+                            {% if channel.channel_id == 'sonymusicindia' %}
+                            <span class="badge tag me-2">Bollywood</span>
+                            <span class="badge tag">Hindi</span>
+                            {% elif channel.channel_id == 'sonymusicsouth' %}
+                            <span class="badge tag me-2">Tamil</span>
+                            <span class="badge tag me-2">Telugu</span>
+                            <span class="badge tag">Malayalam</span>
+                            {% else %}
+                            <span class="badge tag me-2">Music</span>
+                            <span class="badge tag">Videos</span>
+                            {% endif %}
+                        </div>
+                        
+                        <a href="{% url 'channel_detail' channel.channel_id %}" class="btn btn-danger w-100">
+                            <i class="bi bi-play-circle me-2"></i> Explore Channel
+                        </a>
+                        
+                        <!-- <div class="mt-2 text-start px-5">
+                            <small class="text-light opacity-75">
+                                <i class="bi bi-music-note me-1"></i>
+                                Enjoy unlimited access to music videos, shorts, and exclusive content from India's finest artists!
+                            </small>
+                        </div> -->
+                        <div class="text-center">
+                            <i class="bi bi-hand-index-thumb fs-4 text-light text-center"></i>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <i class="bi bi-music-note-beamed text-light" style="font-size: 4rem;"></i>
+                <h4 class="text-white mt-3">No Channels Available</h4>
+                <p class="text-light">Channels will appear here once they're added.</p>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="info-box p-4 rounded-3 bg-dark">
+                    <div class="d-flex align-items-start">
+                        <div class="me-3">
+                            <i class="bi bi-music-note-beamed text-danger fs-2"></i>
+                        </div>
+                        <div>
+                            <h5 class="text-white mb-2">Welcome to Sony Music India</h5>
+                            <p class="text-light mb-0 small">
+                                <i class="bi bi-check-circle text-success me-1"></i>
+                                All content is freely available - no login required!
+                                <br>
+                                <strong>Browse our collection:</strong> Click any channel above to explore music videos, 
+                                shorts, and exclusive content from India's finest artists.
+                                <br>
+                                <span class="text-info"><i class="bi bi-info-circle me-1"></i>
+                                    Enjoy unlimited access to Bollywood hits, regional music, and more!
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats-section py-5 bg-dark">
+    <div class="container">
+        <div class="row g-4 text-center">
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <div class="stat-number display-4 fw-bold text-danger">
+                        {{ total_artists_formatted }}+
+                    </div>
+                    <div class="stat-label text-uppercase small text-light">Channels</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <div class="stat-number display-4 fw-bold text-danger">
+                        {{ total_videos_formatted }}+
+                    </div>
+                    <div class="stat-label text-uppercase small text-light">Music Videos</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <div class="stat-number display-4 fw-bold text-danger">
+                        {{ monthly_views_formatted }}+
+                    </div>
+                    <div class="stat-label text-uppercase small text-light">Monthly Listeners</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-item">
+                    <div class="stat-number display-4 fw-bold text-danger">
+                        {{ total_languages_formatted }}
+                    </div>
+                    <div class="stat-label text-uppercase small text-light">Languages</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Genres Section -->
+<section class="genres-section py-5" id="genres">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <span class="section-label d-inline-block mb-3">Explore</span>
+                <h2 class="section-title mb-3">Music Genres</h2>
+                <p class="section-desc">From classical to contemporary, discover every sound</p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-4 col-md-6">
+                <div class="card genre-card text-center h-100">
+                    <div class="card-body">
+                        <div class="genre-icon display-1 mb-3">🎵</div>
+                        <h3 class="h5 text-white mb-2">Bollywood</h3>
+                        <p class="text-light small mb-0">Film music from the heart of Indian cinema</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="card genre-card text-center h-100">
+                    <div class="card-body">
+                        <div class="genre-icon display-1 mb-3">🎸</div>
+                        <h3 class="h5 text-white mb-2">Rock & Pop</h3>
+                        <p class="text-light small mb-0">Contemporary sounds and modern beats</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="card genre-card text-center h-100">
+                    <div class="card-body">
+                        <div class="genre-icon display-1 mb-3">🎻</div>
+                        <h3 class="h5 text-white mb-2">Classical</h3>
+                        <p class="text-light small mb-0">Timeless ragas and traditional melodies</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="card genre-card text-center h-100">
+                    <div class="card-body">
+                        <div class="genre-icon display-1 mb-3">🎤</div>
+                        <h3 class="h5 text-white mb-2">Hip-Hop</h3>
+                        <p class="text-light small mb-0">Urban rhythms and rap culture</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="card genre-card text-center h-100">
+                    <div class="card-body">
+                        <div class="genre-icon display-1 mb-3">🎼</div>
+                        <h3 class="h5 text-white mb-2">Devotional</h3>
+                        <p class="text-light small mb-0">Spiritual music and bhajans</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-6">
+                <div class="card genre-card text-center h-100">
+                    <div class="card-body">
+                        <div class="genre-icon display-1 mb-3">🎹</div>
+                        <h3 class="h5 text-white mb-2">Electronic</h3>
+                        <p class="text-light small mb-0">EDM and experimental sounds</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% include 'sonyApp/inc/footer.html' %}
+
+
+{% endblock %}
