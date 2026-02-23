@@ -141,8 +141,8 @@
                                     </div>
                                 </div>
                                 
-                                <!-- Fullscreen button - hidden on mobile -->
-                                <button class="vp-btn d-none d-md-flex" id="vp-fs" aria-label="Fullscreen">
+                                <!-- Fullscreen button - visible on mobile only for normal videos -->
+                                <button class="vp-btn {% if current_video.is_short %}d-none{% else %}d-flex{% endif %} d-md-flex" id="vp-fs" aria-label="Fullscreen">
                                     <svg class="icon-fs-enter" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
                                     <svg class="icon-fs-exit" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg>
                                 </button>
@@ -215,7 +215,8 @@
                 {% if streaming %}
                     {% for video in streaming %}
                     <div class="col-6 col-sm-4 col-md-3 col-lg-3 px-1 mb-3">
-                        <div class="vid-card">
+                        <div class="vid-card {% if video.youtube_video_id == current_video.youtube_video_id %}current-video{% endif %}" 
+                             data-video-id="{{ video.youtube_video_id }}">
                             <a href="{% url 'video_player' channel.channel_id video.youtube_video_id %}" class="text-decoration-none">
                                 <div class="vid-thumb-wrap">
                                     <img src="{{ video.thumbnail_url }}"
@@ -231,6 +232,9 @@
                                     {% endif %}
                                     {% if video.is_short %}
                                     <div class="vid-short-badge">Short</div>
+                                    {% endif %}
+                                    {% if video.youtube_video_id == current_video.youtube_video_id %}
+                                    <div class="vid-current-badge">Now Playing</div>
                                     {% endif %}
                                 </div>
                                 <div class="vid-info">
@@ -281,15 +285,15 @@
 .vp-wrapper.is-short {
     aspect-ratio: 9 / 16;
     max-width: 500px;
-    max-height: 90vh; /* Limit height to 80% of viewport */
+    max-height: 90vh;
     margin: 0 auto;
-    border-radius: 12px; /* Optional: add rounded corners */
+    border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.3);
 }
 
 @media (min-width: 768px) {
     .vp-wrapper.is-short {
-        max-height: 90vh; /* Even smaller on larger screens */
+        max-height: 90vh;
     }
 }
 
@@ -330,10 +334,9 @@
 ============================================ */
 .shorts-nav-buttons {
     position: absolute;
-    top: 0;
+    bottom: 80px;
     left: 0;
     right: 0;
-    bottom: 0;
     z-index: 8;
     pointer-events: none;
     display: flex;
@@ -357,7 +360,7 @@
     transition: all 0.2s ease;
     -webkit-tap-highlight-color: transparent;
     padding: 0;
-    opacity: 0.6; /* Default opacity */
+    opacity: 0.6;
     backdrop-filter: blur(4px);
 }
 
@@ -380,6 +383,10 @@
 
 /* Always show buttons with opacity on mobile */
 @media (max-width: 767px) {
+     .shorts-nav-buttons {
+        bottom: 80px; /* Higher on mobile to avoid controls */
+        padding: 0 15px;
+    }
     .shorts-nav-btn {
         opacity: 0.5;
         width: 44px;
@@ -881,9 +888,8 @@
     background: rgba(255, 255, 255, 0.05);
     border-radius: 8px;
     overflow: hidden;
-    cursor: pointer; /* Ensure pointer cursor */
+    cursor: pointer;
     transition: all 0.2s ease;
-    /* Remove text-decoration */
     display: flex;
     flex-direction: column;
     border: 1px solid transparent;
@@ -1073,6 +1079,19 @@
     text-transform: uppercase;
 }
 
+.vid-current-badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.3);
+}
+
 .vid-info {
     padding: 6px 2px 0;
 }
@@ -1096,7 +1115,7 @@
 }
 
 /* ============================================
-   SHORTS SWIPE ANIMATION
+   SHORTS SWIPE ANIMATION - Disabled
 ============================================ */
 /* .vp-wrapper.swiping {
     transition: transform 0.3s ease;
@@ -1190,9 +1209,18 @@
         display: flex !important;
     }
     
-    /* Hide quality and fullscreen buttons on mobile */
-    .vp-quality-wrap,
-    #vp-fs {
+    /* Hide quality menu on mobile for all videos */
+    .vp-quality-wrap {
+        display: none !important;
+    }
+    
+    /* Show fullscreen button only for normal videos on mobile */
+    .vp-wrapper:not(.is-short) #vp-fs {
+        display: flex !important;
+    }
+    
+    /* Hide fullscreen button for shorts on mobile */
+    .vp-wrapper.is-short #vp-fs {
         display: none !important;
     }
     
@@ -1270,14 +1298,38 @@
         font-size: 12px;
     }
     
-    /* Fullscreen mobile adjustments */
-    .vp-wrapper:fullscreen .vp-controls {
-        padding-bottom: 20px;
+    /* Fullscreen orientation handling */
+    .vp-wrapper:fullscreen,
+    .vp-wrapper:-webkit-full-screen {
+        width: 100vw !important;
+        height: 100vh !important;
+        max-width: 100vw !important;
+        margin: 0 !important;
+        aspect-ratio: auto !important;
     }
     
-    .vp-wrapper:fullscreen .vp-btn svg {
-        width: 28px;
-        height: 28px;
+    .vp-wrapper:fullscreen iframe,
+    .vp-wrapper:-webkit-full-screen iframe {
+        width: 100vw !important;
+        height: 100vh !important;
+        object-fit: contain;
+    }
+    
+    /* Force landscape orientation hint */
+    @media (orientation: portrait) {
+        .vp-wrapper:fullscreen::after {
+            content: "Please rotate your device for better viewing";
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: white;
+            background: rgba(0,0,0,0.7);
+            padding: 10px;
+            font-size: 14px;
+            z-index: 100;
+        }
     }
 }
 
@@ -1290,14 +1342,6 @@
 }
 
 /* Fullscreen base styles (applies to all screens) */
-.vp-wrapper:fullscreen,
-.vp-wrapper:-webkit-full-screen {
-    width: 100vw !important;
-    height: 100vh !important;
-    max-width: 100vw !important;
-    margin: 0 !important;
-}
-
 .vp-wrapper:fullscreen .vp-controls {
     padding: 0px 20px 20px;
 }
@@ -1419,6 +1463,18 @@ function togglePlay(e) {
 }
 
 /* ============================================
+   SCROLL TO PLAYER
+============================================ */
+function scrollToPlayer() {
+    if (wrapper) {
+        wrapper.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+        });
+    }
+}
+
+/* ============================================
    SHORTS NAVIGATION
 ============================================ */
 function navigateShort(direction) {
@@ -1440,7 +1496,7 @@ function navigateShort(direction) {
     }
 }
 
-// New function to load video without page reload
+// Function to load video without page reload
 function loadVideo(videoId) {
     if (!player || !ready) return;
     
@@ -1462,9 +1518,38 @@ function loadVideo(videoId) {
     
     // Update video info section
     updateVideoInfo(videoId);
+    
+    // Scroll to player
+    scrollToPlayer();
+    
+    // Update current video badge in related videos
+    updateCurrentVideoBadge(videoId);
 }
 
-// New function to update video info
+// Function to update current video badge
+function updateCurrentVideoBadge(videoId) {
+    // Remove current-video class from all cards
+    document.querySelectorAll('.vid-card').forEach(function(card) {
+        card.classList.remove('current-video');
+        var badge = card.querySelector('.vid-current-badge');
+        if (badge) badge.remove();
+    });
+    
+    // Add current-video class to the new current video
+    var currentCard = document.querySelector('.vid-card[data-video-id="' + videoId + '"]');
+    if (currentCard) {
+        currentCard.classList.add('current-video');
+        var thumbWrap = currentCard.querySelector('.vid-thumb-wrap');
+        if (thumbWrap && !thumbWrap.querySelector('.vid-current-badge')) {
+            var badge = document.createElement('div');
+            badge.className = 'vid-current-badge';
+            badge.textContent = 'Now Playing';
+            thumbWrap.appendChild(badge);
+        }
+    }
+}
+
+// Function to update video info
 function updateVideoInfo(videoId) {
     var video = streamingVideos.find(v => v.youtube_video_id === videoId);
     if (!video) return;
@@ -1715,7 +1800,7 @@ window.onYouTubeIframeAPIReady = function () {
         width: '100%',
         videoId: vid,
         playerVars: {
-            autoplay: 1, // Always autoplay
+            autoplay: 1,
             controls: 0,
             modestbranding: 1,
             rel: 0,
@@ -1759,8 +1844,8 @@ function onStateChange(e) {
 
     if (e.data === S.PLAYING) {
         if (cover) cover.classList.add('hidden');
-        hideBigPlay(); // Ensure play button is hidden
-        hideSpinner(); // Hide spinner when playing starts
+        hideBigPlay();
+        hideSpinner();
         setPP(true);
         startProgress();
         hideEndScreen();
@@ -1773,7 +1858,6 @@ function onStateChange(e) {
         }, 2000);
 
     } else if (e.data === S.PAUSED) {
-        // Don't show play button when paused during buffering/loading
         if (!isEmbedError) {
             showBigPlay();
         }
@@ -1792,11 +1876,10 @@ function onStateChange(e) {
 
     } else if (e.data === S.BUFFERING) {
         if (!isEmbedError) {
-            hideBigPlay(); // Hide play button during buffering
-            showSpinner(); // Show spinner
+            hideBigPlay();
+            showSpinner();
         }
     } else if (e.data === S.CUED) {
-        // Don't show play button when cued - keep spinner
         hideBigPlay();
         showSpinner();
     }
@@ -1828,52 +1911,7 @@ if (isShort && wrapper) {
     wrapper.classList.add('is-short');
 }
 
-// Swipe detection for shorts
-// if (isMobile && isShort && wrapper) {
-//     wrapper.addEventListener('touchstart', function(e) {
-//         if (e.target.closest('.shorts-nav-btn')) return;
-        
-//         touchStartX = e.changedTouches[0].screenX;
-//         touchStartY = e.changedTouches[0].screenY;
-//         isSwiping = true;
-//     }, { passive: true });
-    
-//     wrapper.addEventListener('touchmove', function(e) {
-//         if (!isSwiping || e.target.closest('.shorts-nav-btn')) return;
-        
-//         var currentX = e.changedTouches[0].screenX;
-//         var diffX = currentX - touchStartX;
-        
-//         if (Math.abs(diffX) > 20) {
-//             e.preventDefault();
-//             wrapper.style.transform = 'translateX(' + (diffX * 0.3) + 'px)';
-//             wrapper.style.transition = 'none';
-//         }
-//     }, { passive: false });
-    
-//     wrapper.addEventListener('touchend', function(e) {
-//         if (!isSwiping || e.target.closest('.shorts-nav-btn')) return;
-        
-//         touchEndX = e.changedTouches[0].screenX;
-//         handleSwipe();
-        
-//         wrapper.style.transform = '';
-//         wrapper.style.transition = 'transform 0.3s ease';
-//         isSwiping = false;
-//     }, { passive: true });
-// }
-
-// function handleSwipe() {
-//     var swipeDistance = touchEndX - touchStartX;
-    
-//     if (Math.abs(swipeDistance) > minSwipeDistance) {
-//         if (swipeDistance > 0) {
-//             navigateShort('prev');
-//         } else {
-//             navigateShort('next');
-//         }
-//     }
-// }
+// Swipe detection is disabled - using buttons only
 
 /* ============================================
    PROGRESS BAR
@@ -2027,6 +2065,32 @@ if (shield) {
     });
 }
 
+/* ============================================
+   FULLSCREEN HANDLING
+============================================ */
+// Handle fullscreen change events
+document.addEventListener('fullscreenchange', handleFullscreenChange);
+document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+
+function handleFullscreenChange() {
+    if (document.fullscreenElement || document.webkitFullscreenElement) {
+        // Entered fullscreen
+        if (screen.orientation && screen.orientation.lock) {
+            // Try to lock to landscape
+            screen.orientation.lock('landscape').catch(function(e) {
+                console.log('Orientation lock not supported');
+            });
+        }
+    } else {
+        // Exited fullscreen
+        if (screen.orientation && screen.orientation.unlock) {
+            screen.orientation.unlock();
+        }
+    }
+}
+
 // Fullscreen button
 if (fsBtn) {
     fsBtn.addEventListener('click', function(e) {
@@ -2036,7 +2100,7 @@ if (fsBtn) {
         var w = $$('vp-wrapper');
         if (!w) return;
         
-        if (!document.fullscreenElement) {
+        if (!document.fullscreenElement && !document.webkitFullscreenElement) {
             if (w.requestFullscreen) {
                 w.requestFullscreen();
             } else if (w.webkitRequestFullscreen) {
@@ -2078,7 +2142,6 @@ function autoSkipToNext() {
     
     setTimeout(function() {
         var next = availableVideos[0];
-        // Use loadVideo instead of page reload
         loadVideo(next.youtube_video_id);
     }, 2000);
 }
@@ -2102,14 +2165,12 @@ function showEndScreen() {
             '<img src="' + video.thumbnail_url + '" loading="lazy">' +
             '<div class="vp-end-video-title">' + video.title + '</div>';
         
-        // Add click handler for client-side navigation
         card.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
             loadVideo(video.youtube_video_id);
         });
         
-        // Add cursor style
         card.style.cursor = 'pointer';
         
         endGrid.appendChild(card);
@@ -2189,28 +2250,24 @@ loadStreamingData();
 ============================================ */
 // Wait for DOM to be ready
 document.addEventListener('DOMContentLoaded', function() {
-    // Related video cards
-    var videoCards = document.querySelectorAll('.vid-card');
+    // Related video cards - exclude current video
+    var videoCards = document.querySelectorAll('.vid-card:not(.current-video)');
     videoCards.forEach(function(card) {
         var link = card.querySelector('a');
         if (link) {
             var href = link.getAttribute('href');
-            // Extract video ID from href
             var matches = href.match(/\/video\/([^\/]+)/);
             if (matches && matches[1]) {
                 var videoId = matches[1];
                 
-                // Store video ID in data attribute
                 card.setAttribute('data-video-id', videoId);
                 
-                // Remove the original link but keep its contents
                 var parent = link.parentNode;
                 while (link.firstChild) {
                     parent.insertBefore(link.firstChild, link);
                 }
                 link.remove();
                 
-                // Add click handler to the card
                 card.addEventListener('click', function(e) {
                     e.preventDefault();
                     e.stopPropagation();
@@ -2220,7 +2277,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 });
                 
-                // Add cursor style
                 card.style.cursor = 'pointer';
             }
         }
@@ -2229,7 +2285,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Also add click handlers to any dynamically loaded cards
 function initVideoCards() {
-    var videoCards = document.querySelectorAll('.vid-card:not([data-initialized])');
+    var videoCards = document.querySelectorAll('.vid-card:not([data-initialized]):not(.current-video)');
     videoCards.forEach(function(card) {
         card.setAttribute('data-initialized', 'true');
         

@@ -186,9 +186,9 @@
         </div>
 
 
-        <div class="row g-4 justify-content-center co-10 col-md-8 mx-auto">
+        <div class="row g-4 justify-content-evenly mx-auto">
             {% for channel in channels %}
-            <div class="col-md-6">
+            <div class="col-12 col-md-4">
                 <div class="card channel-card h-100">
                     <div class="channel-thumbnail mt-1 position-relative mx-auto rounded-circle">
                         {% if channel.thumbnail_url %}
@@ -260,16 +260,12 @@
                             <i class="bi bi-music-note-beamed text-danger fs-2"></i>
                         </div>
                         <div>
-                            <h5 class="text-white mb-2">Welcome to Sony Music India</h5>
+                            <h5 class="text-white mb-2">The Sound of a Billion Hearts</h5>
                             <p class="text-light mb-0 small">
-                                <i class="bi bi-check-circle text-success me-1"></i>
-                                All content is freely available - no login required!
-                                <br>
-                                <strong>Browse our collection:</strong> Click any channel above to explore music videos, 
-                                shorts, and exclusive content from India's finest artists.
+                                Explore a curated world of musical excellence. We bring you the definitive collection of South Indian blockbusters and India’s top-trending hits, all in one place. Your journey through India’s richest musical landscape starts with a single click.
                                 <br>
                                 <span class="text-info"><i class="bi bi-info-circle me-1"></i>
-                                    Enjoy unlimited access to Bollywood hits, regional music, and more!
+                                    Official Verified Content
                                 </span>
                             </p>
                         </div>
@@ -287,7 +283,7 @@
             <div class="col-6 col-md-3">
                 <div class="stat-item">
                     <div class="stat-number display-4 fw-bold text-danger">
-                        {{ total_artists_formatted }}+
+                        {{ total_artists_formatted }}
                     </div>
                     <div class="stat-label text-uppercase small text-light">Channels</div>
                 </div>
