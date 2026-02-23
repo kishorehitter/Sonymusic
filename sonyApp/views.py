@@ -539,47 +539,73 @@ def health_check(request):
 
 
 # ────────────────────────────────────────────────────────────────
-# Manual Trigger (For Testing)
+# full fetch all channel videos
 # ────────────────────────────────────────────────────────────────
 
 @csrf_exempt
 @require_http_methods(["GET", "POST"])
-def manual_fetch(request):
-    """
-    Manual trigger for admins (requires Django auth).
+def fetch_all_videos(request):
+    SECRET_TOKEN = settings.AUTO_SYNC_SECRET_TOKEN
+    provided_token = request.GET.get('token')
     
-    URL: https://your-app.onrender.com/api/manual-fetch/
-    """
-    
-    # Require authentication
-    if not request.user.is_authenticated or not request.user.is_staff:
-        return JsonResponse({
-            'error': 'Unauthorized',
-            'message': 'Admin access required'
-        }, status=401)
+    if SECRET_TOKEN and provided_token != SECRET_TOKEN:
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
     
     try:
         out = StringIO()
         
-        # Get parameters from request
-        max_videos = request.GET.get('max_videos', '50')
-        days = request.GET.get('days', '7')
-        
-        call_command(
-            'fetch_youtube_videos',
-            '--days', days,
-            '--max-videos', max_videos,
-            stdout=out
-        )
+        # Fetch ALL videos for ALL channels
+        call_command('fetch_youtube_videos', '--max-videos', '999999', stdout=out)
         
         return JsonResponse({
             'success': True,
-            'output': out.getvalue(),
-            'timestamp': datetime.now().isoformat()
+            'message': 'Fetched all videos for all channels',
+            'output': out.getvalue()
         })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
         
     except Exception as e:
         return JsonResponse({
             'success': False,
             'error': str(e)
         }, status=500)
+
+
+  # ────────────────────────────────────────────────────────────────
+#  fetch by channel videos
+# ────────────────────────────────────────────────────────────────
+  
+
+@csrf_exempt
+@require_http_methods(["GET", "POST"])
+def fetch_all_channel_videos(request):
+    SECRET_TOKEN = settings.AUTO_SYNC_SECRET_TOKEN
+    provided_token = request.GET.get('token')
+    
+    if SECRET_TOKEN and provided_token != SECRET_TOKEN:
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+    
+    channel_id = request.GET.get('channel')
+    
+    if not channel_id:
+        return JsonResponse({'error': 'channel parameter required'}, status=400)
+    
+    try:
+        out = StringIO()
+        
+        # Fetch ALL videos for this specific channel
+        call_command(
+            'fetch_youtube_videos',
+            '--channel', channel_id,
+            '--max-videos', '999999',  # ALL videos
+            stdout=out
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'Fetched all videos for channel {channel_id}',
+            'output': out.getvalue()
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)

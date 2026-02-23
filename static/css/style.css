@@ -541,11 +541,6 @@ html {
     background: var(--bg-black);
 }
 
-.featured-section{
-    border: 0.5px solid rgb(30, 30, 30);
-    box-shadow: 0 8px 16px rgba(70, 70, 70, 0.1);
-}
-
 .section-label {
     font-size: 0.6875rem;
     letter-spacing: 2px;
@@ -602,10 +597,9 @@ html {
 }
 
 .channel-thumbnail {
-    height: 200px;
+    
     overflow: hidden;
     position: relative;
-    background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
 }
 
 .channel-thumbnail img {
@@ -682,7 +676,7 @@ html {
 }
 
 .channel-info h3 {
-    font-size: 1.25rem;
+    font-size: 1.2rem;
     font-weight: 600;
     color: var(--text-white);
 }
@@ -1430,6 +1424,11 @@ html {
         padding-top: 20px;
         padding-left: 10px;
         padding-right: 10px;
+    }
+    .channel-info h3 {
+        font-size: 0.95rem;
+        font-weight: 400;
+        
     }
     .search-modal-container {
         max-height: 92vh;

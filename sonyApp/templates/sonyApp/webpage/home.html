@@ -171,11 +171,11 @@
 </section>
 
 <!-- Featured Channels Section -->
-<section class="featured-section mx-1 mx-md-5 rounded-3 py-5 mb-4" id="channels">
+<section class="featured-section mx-0 py-5 overflow-x-hidden" id="channels">
 
 
     
-    <div class="container-fluid">
+    <div class="container-fluid px-1">
         <div class="row">
             <div class="col-12 text-center mb-2">
                 <span class="section-label d-inline-block mb-3">Featured</span>
@@ -186,11 +186,11 @@
         </div>
 
 
-        <div class="row g-4 justify-content-evenly mx-auto">
+        <div class="row justify-content-evenly mx-auto">
             {% for channel in channels %}
-            <div class="col-12 col-md-4">
-                <div class="card channel-card h-100">
-                    <div class="channel-thumbnail mt-1 position-relative mx-auto rounded-circle">
+            <div class="col-6 col-md-3 px-1">
+                <div class="card channel-card h-auto">
+                    <div class="channel-thumbnail mt-1 position-relative mx-auto rounded-circle p-4">
                         {% if channel.thumbnail_url %}
                         <img src="{{ channel.thumbnail_url }}" alt="{{ channel.name }}" class="w-100 h-100 rounded-circle justify-content-center">
                         {% else %}
@@ -206,13 +206,13 @@
                             
                     </div>
                     
-                    <div class="card-body channel-info">
-                        <h3 class="card-title h5 mb-2">{{ channel.name }}</h3>
-                        <p class="channel-meta text-light small mb-3">
+                    <div class="card-body channel-info px-0 px-md-1 text-center">
+                        <h3 class="card-title h6 mb-2">{{ channel.name }}</h3>
+                        <!-- <p class="channel-meta text-light small mb-3">
                             <i class="bi bi-collection-play me-1"></i> {{ channel.description|truncatechars:60|default:"Official Sony Music Channel" }}
-                        </p>
+                        </p> -->
                         
-                        <div class="channel-tags mb-3">
+                        <!-- <div class="channel-tags mb-3">
                             {% if channel.channel_id == 'sonymusicindia' %}
                             <span class="badge tag me-2">Bollywood</span>
                             <span class="badge tag">Hindi</span>
@@ -224,11 +224,12 @@
                             <span class="badge tag me-2">Music</span>
                             <span class="badge tag">Videos</span>
                             {% endif %}
+                        </div> -->
+                        <div class="col-12 text-center">
+                            <a href="{% url 'channel_detail' channel.channel_id %}" class="btn btn-danger ">
+                                <i class="bi bi-play-circle me-2"></i> Explore
+                            </a>
                         </div>
-                        
-                        <a href="{% url 'channel_detail' channel.channel_id %}" class="btn btn-danger w-100">
-                            <i class="bi bi-play-circle me-2"></i> Explore Channel
-                        </a>
                         
                         <!-- <div class="mt-2 text-start px-5">
                             <small class="text-light opacity-75">
@@ -236,9 +237,9 @@
                                 Enjoy unlimited access to music videos, shorts, and exclusive content from India's finest artists!
                             </small>
                         </div> -->
-                        <div class="text-center">
+                        <!-- <div class="text-center">
                             <i class="bi bi-hand-index-thumb fs-4 text-light text-center"></i>
-                        </div>
+                        </div> -->
                         
                     </div>
                 </div>
@@ -252,27 +253,7 @@
             {% endfor %}
         </div>
         
-        <div class="row mt-5">
-            <div class="col-12">
-                <div class="info-box p-4 rounded-3 bg-dark">
-                    <div class="d-flex align-items-start">
-                        <div class="me-3">
-                            <i class="bi bi-music-note-beamed text-danger fs-2"></i>
-                        </div>
-                        <div>
-                            <h5 class="text-white mb-2">The Sound of a Billion Hearts</h5>
-                            <p class="text-light mb-0 small">
-                                Explore a curated world of musical excellence. We bring you the definitive collection of South Indian blockbusters and India’s top-trending hits, all in one place. Your journey through India’s richest musical landscape starts with a single click.
-                                <br>
-                                <span class="text-info"><i class="bi bi-info-circle me-1"></i>
-                                    Official Verified Content
-                                </span>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+       
     </div>
 </section>
 
@@ -385,6 +366,28 @@
         </div>
     </div>
 </section>
+
+ <div class="container row my-5 mx-auto">
+    <div class="col-12">
+        <div class="info-box p-4 rounded-3 bg-dark">
+            <div class="d-flex align-items-start">
+                <div class="me-3">
+                    <i class="bi bi-music-note-beamed text-danger fs-2"></i>
+                </div>
+                <div>
+                    <h5 class="text-white mb-2">The Sound of a Billion Hearts</h5>
+                    <p class="text-light mb-0 small">
+                        Explore a curated world of musical excellence. We bring you the definitive collection of South Indian blockbusters and India’s top-trending hits, all in one place. Your journey through India’s richest musical landscape starts with a single click.
+                        <br>
+                        <span class="text-info"><i class="bi bi-info-circle me-1"></i>
+                            Official Verified Content
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 {% include 'sonyApp/inc/footer.html' %}
 

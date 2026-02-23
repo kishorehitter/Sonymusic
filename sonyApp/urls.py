@@ -27,6 +27,7 @@ urlpatterns = [
     # Auto-fetch endpoints
     path('api/auto-fetch/', views.auto_fetch_videos, name='auto_fetch_videos'),
     path('api/health/', views.health_check, name='health_check'),
-    path('api/manual-fetch/', views.manual_fetch, name='manual_fetch'),
+    path('api/fetch-all/', views.fetch_all_channel_videos, name='fetch_all_channel'),
+    path('api/fetch-all-channels/', views.fetch_all_videos, name='fetch_all_channels'),
 
 ]
