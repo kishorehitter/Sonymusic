@@ -116,7 +116,7 @@
         <div class="d-none d-md-block flex-grow-1 px-4">
             <div class="search-input-wrapper" style="max-width: 600px; margin: 0 auto;">
                 <div 
-                    class="form-control bg-dark text-white border-light opacity-50 rounded-pill search-trigger" 
+                    class="form-control bg-dark text-white border-light opacity-50 rounded-pill search-trigger mb-2" 
                     id="desktopSearchTrigger"  
                     style="cursor: pointer; height: 40px; display: flex; align-items: center; color: rgba(255,255,255,0.5);">
                     <i class="bi bi-search me-2"></i>
@@ -150,19 +150,19 @@
 <!-- Search Modal -->
 <div class="search-modal-overlay" id="searchModal">
     <div class="search-modal-container">
-        <div class="search-modal-header">
+        <div class="search-modal-header py-2">
             <input 
                 type="text" 
                 class="search-modal-input" 
                 id="globalSearchInput" 
                 placeholder="Search for songs, artists, videos..."
                 autocomplete="off">
-            <button class="search-close-btn" id="closeSearchModal">
+            <button class="search-close-btn fs-6" id="closeSearchModal">
                 <i class="bi bi-x-lg"></i>
             </button>
         </div>
         
-        <div class="search-modal-body" id="searchResults">
+        <div class="search-modal-body py-1 px-1 px-md-2" id="searchResults">
             <!-- Results will be loaded here -->
             <div class="search-loading">
                 <i class="bi bi-music-note-beamed" style="font-size: 48px;"></i>

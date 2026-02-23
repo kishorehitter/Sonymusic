@@ -834,11 +834,6 @@
                                 ${escapeHtml(channel.name)}
                                 <span class="verified-badge"><i class="bi bi-patch-check-fill"></i></span>
                             </div>
-                            <div class="search-item-subtitle">Channel</div>
-                            <div class="search-item-meta">
-                                <span><i class="bi bi-people"></i> ${subscribers} subscribers</span>
-                                <span><i class="bi bi-collection-play"></i> ${videos} videos</span>
-                            </div>
                         </div>
                         <i class="bi bi-chevron-right" style="color: rgba(255,255,255,0.3); font-size: 1.5rem;"></i>
                     </div>
@@ -872,7 +867,7 @@
             const likes = video.likes ? formatNumber(video.likes) : null;
             
             return `
-                <div class="search-item video-item ${isShort ? 'short-item' : ''}" 
+                <div class="search-item video-item py-0 ${isShort ? 'short-item' : ''}" 
                     onclick="window.location.href='/channel/${video.channel_id}/video/${video.youtube_video_id}/'">
                     <div class="search-item-image ${isShort ? 'short-thumbnail' : ''}">
                         <img src="${video.thumbnail}" 
@@ -881,7 +876,7 @@
                             onerror="this.style.background='#1a1a1a'">
                         
                         <div class="duration-badge ${isShort ? 'short-badge' : ''}">
-                            ${isShort ? '<i class="bi bi-badge-vr-fill"></i>' : ''} ${video.duration}
+                            ${video.duration}
                         </div>
                         
                         <div class="play-overlay">
@@ -893,20 +888,13 @@
                         <div class="search-item-title">
                             ${escapeHtml(video.title)}
                         </div>
-                        <div class="search-item-subtitle">
-                            ${escapeHtml(video.channel_name)}
-                        </div>
-                        <div class="search-item-meta">
-                            <span><i class="bi bi-eye"></i> ${views} views</span>
-                            ${likes ? `<span><i class="bi bi-heart-fill"></i> ${likes}</span>` : ''}
-                            <span><i class="bi bi-calendar3"></i> ${video.published}</span>
-                        </div>
+                        
                     </div>
                     
                     <div class="search-item-action">
                         ${isShort ? 
-                            '<span class="short-indicator"><i class="bi bi-badge-vr-fill"></i> Short</span>' : 
-                            '<i class="bi bi-play-circle" style="color: #ff1744; font-size: 2rem;"></i>'}
+                            '<span class="short-indicator px-2 py-1">Short</span>' : 
+                            '<i class="bi bi-play-circle" style="color: #ff1744; font-size: 1.5rem;"></i>'}
                     </div>
                 </div>
             `;

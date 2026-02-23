@@ -19,6 +19,9 @@ DEBUG      = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
 
+# Auto-sync secret token
+AUTO_SYNC_SECRET_TOKEN = config('AUTO_SYNC_TOKEN')
+
 # ============================================
 # INSTALLED APPS - REMOVED ALL social_django references
 # ============================================

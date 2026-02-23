@@ -23,4 +23,10 @@ urlpatterns = [
     path('api/channels/<str:channel_id>/preview/', views.channel_preview_api, name='channel_preview_api'),
 
     path('api/video/flag-unembeddable/', views.flag_unembeddable, name='flag_unembeddable'),
+
+    # Auto-fetch endpoints
+    path('api/auto-fetch/', views.auto_fetch_videos, name='auto_fetch_videos'),
+    path('api/health/', views.health_check, name='health_check'),
+    path('api/manual-fetch/', views.manual_fetch, name='manual_fetch'),
+
 ]

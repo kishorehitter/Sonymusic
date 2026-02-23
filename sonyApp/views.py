@@ -19,6 +19,15 @@ from datetime import timedelta
 
 from .models import Channel, Video
 
+from django.views.decorators.csrf import csrf_exempt
+from django.core.management import call_command
+from django.db import connection
+from datetime import datetime
+from io import StringIO
+import logging
+
+logger = logging.getLogger(__name__)
+
 
 # ═══════════════════════════════════════════════════════════════
 # HELPERS
@@ -212,17 +221,17 @@ def video_player(request, channel_id, video_id):
         Video.objects
         .filter(channel=channel, is_active=True, is_embeddable=True, is_short=is_short)
         .exclude(youtube_video_id=video_id)
-        .order_by('-published_at')[:12]
+        .order_by('-published_at')[:20]
     )
 
-    if len(same_type) < 12:
+    if len(same_type) < 20:
         existing_ids = {v.id for v in same_type}
         other_type = list(
             Video.objects
             .filter(channel=channel, is_active=True, is_embeddable=True, is_short=not is_short)
             .exclude(youtube_video_id=video_id)
             .exclude(id__in=existing_ids)
-            .order_by('-published_at')[:12 - len(same_type)]
+            .order_by('-published_at')[:20 - len(same_type)]
         )
         same_type.extend(other_type)
 
@@ -241,14 +250,14 @@ def video_player(request, channel_id, video_id):
             'thumbnail_url': v.thumbnail_url,
             'is_short': v.is_short,
         }
-        for v in streaming[:12]
+        for v in streaming[:20]
     ])
 
     return render(request, 'sonyApp/webpage/video_player.html', {
         'channel': channel,
         'current_video': video,
-        'streaming': streaming[:12],
-        'streaming_json': streaming_json,  # ✅ ADD THIS
+        'streaming': streaming[:20],
+        'streaming_json': streaming_json,  
         'current_is_short': is_short,
     })
 
@@ -467,3 +476,110 @@ def get_channel_videos(channel):
         cache.set(cache_key, videos, 3600)
 
     return videos
+
+@csrf_exempt
+@require_http_methods(["GET", "POST"])
+def auto_fetch_videos(request):
+    SECRET_TOKEN = settings.AUTO_SYNC_SECRET_TOKEN
+    provided_token = request.GET.get('token')
+    
+    if SECRET_TOKEN and provided_token != SECRET_TOKEN:
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+    
+    try:
+        start_time = datetime.now()
+        out = StringIO()
+        
+        # ✅ Fetch only last 10 videos per channel
+        call_command('fetch_youtube_videos', '--recent', '10', stdout=out)
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Fetch completed - last 10 videos per channel',
+            'timestamp': start_time.isoformat(),
+            'output': out.getvalue()
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+# ────────────────────────────────────────────────────────────────
+#  Health Check (Keep Alive)
+# ────────────────────────────────────────────────────────────────
+
+@require_http_methods(["GET"])
+def health_check(request):
+    """
+    Simple health check to keep Render awake.
+    
+    URL: https://your-app.onrender.com/api/health/
+    """
+    
+    try:
+        # Test database connection
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT 1")
+        
+        return JsonResponse({
+            'status': 'healthy',
+            'timestamp': datetime.now().isoformat(),
+            'database': 'connected',
+            'videos': Video.objects.count(),
+            'channels': Channel.objects.count(),
+            'active_videos': Video.objects.filter(is_active=True).count(),
+            'embeddable_videos': Video.objects.filter(is_embeddable=True).count()
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'status': 'unhealthy',
+            'error': str(e),
+            'timestamp': datetime.now().isoformat()
+        }, status=503)
+
+
+# ────────────────────────────────────────────────────────────────
+# Manual Trigger (For Testing)
+# ────────────────────────────────────────────────────────────────
+
+@csrf_exempt
+@require_http_methods(["GET", "POST"])
+def manual_fetch(request):
+    """
+    Manual trigger for admins (requires Django auth).
+    
+    URL: https://your-app.onrender.com/api/manual-fetch/
+    """
+    
+    # Require authentication
+    if not request.user.is_authenticated or not request.user.is_staff:
+        return JsonResponse({
+            'error': 'Unauthorized',
+            'message': 'Admin access required'
+        }, status=401)
+    
+    try:
+        out = StringIO()
+        
+        # Get parameters from request
+        max_videos = request.GET.get('max_videos', '50')
+        days = request.GET.get('days', '7')
+        
+        call_command(
+            'fetch_youtube_videos',
+            '--days', days,
+            '--max-videos', max_videos,
+            stdout=out
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'output': out.getvalue(),
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)

@@ -4,30 +4,30 @@
 {% block title %}{{ current_video.title }} - {{ channel.name }}{% endblock title %}
 
 {% block content %}
-<div class="row g-0">
+<div class="row g-0 min-vh-100">
     {% include 'sonyApp/inc/navbar.html' %}
-    <div class="col-12 main-content ms-lg-auto px-0 mt-2 pt-5">
-
+    <div class="col-12 main-content ms-lg-auto px-0 mt-2 pt-5 overflow-hidden">
+        
         <div class="container-fluid mx-0 mt-sm-1 mt-md-0 p-0">
             <div class="text-center m-0 p-0">
-
+                
                 {% if current_video.youtube_video_id and current_video.youtube_video_id|length == 11 %}
-
+                    
                     <!-- ═══════════════════════════════════════
                          YOUTUBE VIDEO PLAYER
                     ═══════════════════════════════════════ -->
-                    <div class="vp-wrapper" id="vp-wrapper">
-
+                    <div class="vp-wrapper {% if current_video.is_short %}is-short{% endif %}" id="vp-wrapper">
+                        
                         <!-- YouTube iframe target -->
                         <div id="player" data-video-id="{{ current_video.youtube_video_id }}"></div>
-
+                        
                         <!-- Black cover shown before first play -->
                         <div class="vp-cover" id="vp-cover"></div>
-
+                        
                         <!-- Click shield (intercepts clicks on iframe) -->
                         <div class="vp-shield" id="vp-shield"></div>
-
-                        <!-- Double-tap zones - hidden on mobile -->
+                        
+                        <!-- Double-tap zones - now visible on mobile -->
                         <div class="vp-tap-zones" id="vp-tap-zones">
                             <div class="vp-tap-left" id="vp-tap-left">
                                 <div class="vp-tap-feedback">
@@ -46,7 +46,23 @@
                                 </div>
                             </div>
                         </div>
-
+                        
+                        <!-- Shorts Navigation Buttons - Always visible -->
+                        {% if current_video.is_short %}
+                        <div class="shorts-nav-buttons">
+                            <button class="shorts-nav-btn prev" id="shorts-nav-prev" aria-label="Previous short">
+                                <svg viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+                                </svg>
+                            </button>
+                            <button class="shorts-nav-btn next" id="shorts-nav-next" aria-label="Next short">
+                                <svg viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                                </svg>
+                            </button>
+                        </div>
+                        {% endif %}
+                        
                         <!-- Big center play button -->
                         <div class="vp-big-play" id="vp-big-play">
                             <div class="vp-big-play-ring">
@@ -55,12 +71,12 @@
                                 </svg>
                             </div>
                         </div>
-
+                        
                         <!-- Spinner -->
                         <div class="vp-spinner" id="vp-spinner">
                             <div class="vp-spin-ring"></div>
                         </div>
-
+                        
                         <!-- Error overlay -->
                         <div class="vp-error" id="vp-error">
                             <div class="vp-error-inner">
@@ -78,7 +94,7 @@
                                 </a>
                             </div>
                         </div>
-
+                        
                         <!-- Controls -->
                         <div class="vp-controls pb-0" id="vp-controls">
                             <div class="vp-prog-wrap" id="vp-prog-wrap">
@@ -87,15 +103,15 @@
                                     <div class="vp-prog-thumb" id="vp-prog-thumb"></div>
                                 </div>
                             </div>
-
+                            
                             <div class="vp-ctrl-row pb-0 pb-md-1">
                                 <button class="vp-btn" id="vp-playpause" aria-label="Play/Pause">
                                     <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
                                     <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
                                 </button>
-
+                                
                                 <span class="vp-time" id="vp-time">0:00 / 0:00</span>
-
+                                
                                 <div class="vp-vol-group" id="vp-vol-group">
                                     <button class="vp-btn" id="vp-mute" aria-label="Mute">
                                         <svg class="icon-vol-up" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
@@ -108,30 +124,31 @@
                                         </div>
                                     </div>
                                 </div>
-
+                                
                                 <div style="flex:1"></div>
-
-                                <div class="vp-quality-wrap" id="vp-quality-wrap">
+                                
+                                <!-- Quality menu - hidden on mobile -->
+                                <div class="vp-quality-wrap d-none d-md-block" id="vp-quality-wrap">
                                     <button class="vp-btn vp-quality-btn" id="vp-quality-btn" aria-label="Quality">
                                         <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
                                         <span id="vp-quality-label">Auto</span>
                                     </button>
                                     <div class="vp-quality-menu" id="vp-quality-menu">
-                                        <div class="vp-q-opt" data-q="hd1080"><span>1080p</span><span class="vp-q-check" id="qc-hd1080">✓</span></div>
-                                        <div class="vp-q-opt" data-q="hd720"><span>720p</span><span class="vp-q-check" id="qc-hd720">✓</span></div>
-                                        <div class="vp-q-opt" data-q="large"><span>480p</span><span class="vp-q-check" id="qc-large">✓</span></div>
-                                        <div class="vp-q-opt" data-q="medium"><span>360p</span><span class="vp-q-check" id="qc-medium">✓</span></div>
-                                        <div class="vp-q-opt" data-q="small"><span>240p</span><span class="vp-q-check" id="qc-small">✓</span></div>
+                                        <div class="vp-q-opt" data-q="auto"><span>Auto</span><span class="vp-q-check" id="qc-auto">✓</span></div>
+                                        <div class="vp-q-opt" data-q="low"><span>Low (240p)</span><span class="vp-q-check" id="qc-low">✓</span></div>
+                                        <div class="vp-q-opt" data-q="med"><span>Med (480p)</span><span class="vp-q-check" id="qc-med">✓</span></div>
+                                        <div class="vp-q-opt" data-q="high"><span>High (720p+)</span><span class="vp-q-check" id="qc-high">✓</span></div>
                                     </div>
                                 </div>
-
-                                <button class="vp-btn" id="vp-fs" aria-label="Fullscreen">
+                                
+                                <!-- Fullscreen button - hidden on mobile -->
+                                <button class="vp-btn d-none d-md-flex" id="vp-fs" aria-label="Fullscreen">
                                     <svg class="icon-fs-enter" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
                                     <svg class="icon-fs-exit" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg>
                                 </button>
                             </div>
                         </div>
-
+                        
                         <!-- Custom End Screen -->
                         <div class="vp-end-screen" id="vp-end-screen">
                             <div class="vp-end-content">
@@ -147,9 +164,9 @@
                                 </div>
                             </div>
                         </div>
-
+                        
                     </div><!-- /vp-wrapper -->
-
+                    
                 {% else %}
                     <div class="vp-wrapper d-flex align-items-center justify-content-center bg-dark">
                         <div class="text-center p-4">
@@ -160,7 +177,7 @@
                     </div>
                 {% endif %}
             </div>
-
+            
             <!-- Video Info -->
             <div class="container-fluid py-3">
                 <div class="row">
@@ -188,9 +205,9 @@
                 </div>
             </div>
         </div>
-
+        
         <hr class="vp-divider">
-
+        
         <!-- Related Videos -->
         <div class="container-fluid px-0 mx-0 my-2">
             <div class="row mx-0 p-0">
@@ -231,7 +248,7 @@
                 {% endif %}
             </div>
         </div>
-
+        
         {% include 'sonyApp/inc/footer.html' %}
     </div>
 </div>
@@ -246,7 +263,7 @@
 
 <style>
 /* ============================================
-   PLAYER WRAPPER
+   PLAYER WRAPPER - Base Styles
 ============================================ */
 .vp-wrapper {
     position: relative;
@@ -260,12 +277,19 @@
     -webkit-tap-highlight-color: transparent;
 }
 
-@media (max-width: 767px) {
-    .vp-wrapper {
-        width: 100vw;
-        margin-left: calc(-50vw + 50%);
-        margin-right: calc(-50vw + 50%);
-        max-width: 100vw;
+/* Shorts specific styles */
+.vp-wrapper.is-short {
+    aspect-ratio: 9 / 16;
+    max-width: 500px;
+    max-height: 90vh; /* Limit height to 80% of viewport */
+    margin: 0 auto;
+    border-radius: 12px; /* Optional: add rounded corners */
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+@media (min-width: 768px) {
+    .vp-wrapper.is-short {
+        max-height: 90vh; /* Even smaller on larger screens */
     }
 }
 
@@ -302,7 +326,75 @@
 }
 
 /* ============================================
-   TAP ZONES - Desktop only
+   SHORTS NAVIGATION BUTTONS
+============================================ */
+.shorts-nav-buttons {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 8;
+    pointer-events: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 10px;
+}
+
+.shorts-nav-btn {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    pointer-events: auto;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+    padding: 0;
+    opacity: 0.6; /* Default opacity */
+    backdrop-filter: blur(4px);
+}
+
+.shorts-nav-btn:hover {
+    opacity: 1;
+    background: rgba(0, 0, 0, 0.7);
+    transform: scale(1.1);
+}
+
+.shorts-nav-btn:active {
+    transform: scale(0.95);
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.shorts-nav-btn svg {
+    width: 28px;
+    height: 28px;
+}
+
+/* Always show buttons with opacity on mobile */
+@media (max-width: 767px) {
+    .shorts-nav-btn {
+        opacity: 0.5;
+        width: 44px;
+        height: 44px;
+        background: rgba(0, 0, 0, 0.4);
+    }
+    
+    .shorts-nav-btn:active {
+        opacity: 1;
+        background: rgba(255, 255, 255, 0.3);
+    }
+}
+
+/* ============================================
+   TAP ZONES - For double-tap seeking
 ============================================ */
 .vp-tap-zones {
     position: absolute;
@@ -388,17 +480,6 @@
     width: 32px;
     height: 32px;
     margin-left: 4px;
-}
-
-@media (max-width: 767px) {
-    .vp-big-play-ring {
-        width: 56px;
-        height: 56px;
-    }
-    .vp-big-play-ring svg {
-        width: 24px;
-        height: 24px;
-    }
 }
 
 /* ============================================
@@ -800,9 +881,9 @@
     background: rgba(255, 255, 255, 0.05);
     border-radius: 8px;
     overflow: hidden;
-    cursor: pointer;
+    cursor: pointer; /* Ensure pointer cursor */
     transition: all 0.2s ease;
-    text-decoration: none;
+    /* Remove text-decoration */
     display: flex;
     flex-direction: column;
     border: 1px solid transparent;
@@ -873,156 +954,6 @@
 .vp-nav-btn svg {
     width: 28px;
     height: 28px;
-}
-
-/* ============================================
-   MOBILE STYLES
-============================================ */
-@media (max-width: 767px) {
-    /* Hide double-tap zones on mobile */
-    .vp-tap-zones {
-        display: none !important;
-    }
-    
-    /* Make shield clickable for play/pause */
-    .vp-shield {
-        pointer-events: all;
-    }
-    
-    /* Show all controls on mobile */
-    .vp-vol-group,
-    #vp-fs {
-        display: flex !important;
-    }
-    
-    /* Adjust volume slider for mobile */
-    .vp-vol-group:hover .vp-vol-slider {
-        width: 60px;
-    }
-    
-    .vp-vol-track {
-        width: 60px;
-    }
-    
-    /* Make buttons bigger on mobile */
-    .vp-btn {
-        width: 44px;
-        height: 44px;
-    }
-    
-    .vp-btn svg {
-        width: 24px;
-        height: 24px;
-    }
-    
-    /* Mobile end screen with horizontal scroll */
-    .vp-end-screen {
-        overflow: hidden;
-    }
-    
-    .vp-end-content {
-        padding: 16px 0;
-        position: relative;
-        overflow: visible;
-    }
-    
-    .vp-end-grid {
-        display: flex;
-        flex-direction: row;
-        overflow-x: auto;
-        overflow-y: hidden;
-        scroll-snap-type: x mandatory;
-        gap: 12px;
-        padding: 0 16px 20px;
-        margin: 0;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-    }
-    
-    .vp-end-grid::-webkit-scrollbar {
-        display: none;
-    }
-    
-    .vp-end-video-card {
-        flex: 0 0 100vw;
-        max-width: 100vw;
-        scroll-snap-align: start;
-        margin-right: 0;
-    }
-    
-    /* Show mobile navigation */
-    .vp-mobile-nav {
-        display: flex;
-    }
-    
-    /* Adjust controls padding */
-    .vp-controls {
-        padding: 0 8px 8px;
-    }
-    
-    .vp-ctrl-row {
-        gap: 0px;
-    }
-    
-    .vp-time {
-        font-size: 12px;
-    }
-    
-    /* Quality menu position on mobile - FIXED */
-    .vp-quality-wrap {
-        position: relative;
-    }
-    
-    .vp-quality-menu {
-        position: fixed;
-        bottom: 40px;
-        right: 10px;
-        left: auto;
-        top: auto;
-        width: 120px;
-        max-width: 90vw;
-        margin: 0;
-        z-index: 100;
-        background: rgba(28, 28, 28, 0.98);
-        border: 1px solid rgba(255,255,255,.2);
-        border-radius: 12px;
-        padding: 2px 0;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-    }
-    
-    .vp-quality-menu.show {
-        display: block;
-        animation: fadeIn 0.2s ease;
-    }
-    
-    .vp-q-opt {
-        padding: 4px 10px;
-        font-size: 14px;
-        min-height: 30px;
-        -webkit-tap-highlight-color: transparent;
-    }
-    
-    .vp-q-opt:active {
-        background: rgba(255,255,255,0.15);
-    }
-    
-    .vp-q-check {
-        font-size: 16px;
-    }
-    
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-}
-
-/* Tablet: 2×3 grid */
-@media (min-width: 768px) and (max-width: 991px) {
-    .vp-end-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 16px;
-    }
 }
 
 /* ============================================
@@ -1165,8 +1096,200 @@
 }
 
 /* ============================================
-   FULLSCREEN
+   SHORTS SWIPE ANIMATION
 ============================================ */
+/* .vp-wrapper.swiping {
+    transition: transform 0.3s ease;
+}
+
+.vp-wrapper.swipe-left {
+    transform: translateX(-100%);
+}
+
+.vp-wrapper.swipe-right {
+    transform: translateX(100%);
+} */
+
+/* Shorts fullscreen styles */
+.vp-wrapper:fullscreen,
+.vp-wrapper:-webkit-full-screen {
+    background-color: #000;
+}
+
+.is-shorts .vp-wrapper:fullscreen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.is-shorts .vp-wrapper:fullscreen iframe {
+    height: 100vh;
+    width: auto;
+    max-width: 100vw;
+}
+
+/* ============================================
+   MEDIA QUERIES - All grouped at bottom
+============================================ */
+
+/* Mobile styles (max-width: 767px) */
+@media (max-width: 767px) {
+    /* Fix overflow */
+    body {
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+    
+    .main-content {
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Player wrapper */
+    .vp-wrapper {
+        width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+        max-width: 100%;
+    }
+    
+    /* Shorts specific mobile */
+    .vp-wrapper.is-short {
+        max-height: 85vh;
+        border-radius: 0;
+    }
+    
+    /* Allow page scrolling */
+    .container-fluid {
+        overflow-y: visible;
+    }
+    
+    /* Big play button */
+    .vp-big-play-ring {
+        width: 56px;
+        height: 56px;
+    }
+    
+    .vp-big-play-ring svg {
+        width: 24px;
+        height: 24px;
+    }
+    
+    /* Show double-tap zones on mobile */
+    .vp-tap-zones {
+        display: flex !important;
+    }
+    
+    /* Make shield clickable for play/pause */
+    .vp-shield {
+        pointer-events: all;
+    }
+    
+    /* Show all controls on mobile */
+    .vp-vol-group {
+        display: flex !important;
+    }
+    
+    /* Hide quality and fullscreen buttons on mobile */
+    .vp-quality-wrap,
+    #vp-fs {
+        display: none !important;
+    }
+    
+    /* Adjust volume slider for mobile */
+    .vp-vol-group:hover .vp-vol-slider {
+        width: 60px;
+    }
+    
+    .vp-vol-track {
+        width: 60px;
+    }
+    
+    /* Make buttons bigger on mobile */
+    .vp-btn {
+        width: 44px;
+        height: 44px;
+    }
+    
+    .vp-btn svg {
+        width: 24px;
+        height: 24px;
+    }
+    
+    /* Mobile end screen with horizontal scroll */
+    .vp-end-screen {
+        overflow: hidden;
+    }
+    
+    .vp-end-content {
+        padding: 16px 0;
+        position: relative;
+        overflow: visible;
+    }
+    
+    .vp-end-grid {
+        display: flex;
+        flex-direction: row;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scroll-snap-type: x mandatory;
+        gap: 12px;
+        padding: 0 16px 20px;
+        margin: 0;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    
+    .vp-end-grid::-webkit-scrollbar {
+        display: none;
+    }
+    
+    .vp-end-video-card {
+        flex: 0 0 100vw;
+        max-width: 100vw;
+        scroll-snap-align: start;
+        margin-right: 0;
+    }
+    
+    /* Show mobile navigation */
+    .vp-mobile-nav {
+        display: flex;
+    }
+    
+    /* Adjust controls padding */
+    .vp-controls {
+        padding: 0 8px 8px;
+    }
+    
+    .vp-ctrl-row {
+        gap: 0px;
+    }
+    
+    .vp-time {
+        font-size: 12px;
+    }
+    
+    /* Fullscreen mobile adjustments */
+    .vp-wrapper:fullscreen .vp-controls {
+        padding-bottom: 20px;
+    }
+    
+    .vp-wrapper:fullscreen .vp-btn svg {
+        width: 28px;
+        height: 28px;
+    }
+}
+
+/* Tablet styles (768px to 991px) */
+@media (min-width: 768px) and (max-width: 991px) {
+    .vp-end-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+    }
+}
+
+/* Fullscreen base styles (applies to all screens) */
 .vp-wrapper:fullscreen,
 .vp-wrapper:-webkit-full-screen {
     width: 100vw !important;
@@ -1208,11 +1331,23 @@ var activityTimer = null;
 var progressTimer = null;
 var streamingVideos = [];
 var unembeddableVideos = [];
-var skipTimer = null;
 var isEmbedError = false;
 var controlsVisible = false;
 var isMobile = window.innerWidth <= 767;
-var currentScrollIndex = 0;
+var userInteracted = false;
+var isShort = {{ current_video.is_short|yesno:"true,false" }};
+var lastTap = null;
+var lastTapTime = 0;
+var currentChannelId = '{{ channel.channel_id }}';
+var currentVideoId = '{{ current_video.youtube_video_id }}';
+
+// Swipe state for shorts
+var touchStartX = 0;
+var touchStartY = 0;
+var touchEndX = 0;
+var touchEndY = 0;
+var minSwipeDistance = 50;
+var isSwiping = false;
 
 /* DOM shortcuts */
 function $$(id) { return document.getElementById(id); }
@@ -1232,15 +1367,335 @@ var volThumb = $$('vp-vol-thumb');
 var volTrack = $$('vp-vol-track');
 var ppBtn = $$('vp-playpause');
 var muteBtn = $$('vp-mute');
-var qualMenu = $$('vp-quality-menu');
-var qualBtn = $$('vp-quality-btn');
 var fsBtn = $$('vp-fs');
-var tapLeft = $$('vp-tap-left');
-var tapRight = $$('vp-tap-right');
 var endScreen = $$('vp-end-screen');
 var endGrid = $$('vp-end-grid');
 var navPrev = $$('vp-nav-prev');
 var navNext = $$('vp-nav-next');
+var tapLeft = $$('vp-tap-left');
+var tapRight = $$('vp-tap-right');
+var shortsPrev = $$('shorts-nav-prev');
+var shortsNext = $$('shorts-nav-next');
+
+/* ============================================
+   HELPER FUNCTIONS
+============================================ */
+function showBigPlay() { if (bigPlay) bigPlay.classList.remove('hidden'); }
+function hideBigPlay() { if (bigPlay) bigPlay.classList.add('hidden'); }
+function showSpinner() { if (spinner) spinner.classList.add('show'); }
+function hideSpinner() { if (spinner) spinner.classList.remove('show'); }
+
+function setPP(playing) {
+    if (!ppBtn) return;
+    var playIcon = ppBtn.querySelector('.icon-play');
+    var pauseIcon = ppBtn.querySelector('.icon-pause');
+    if (playIcon) playIcon.style.display = playing ? 'none' : '';
+    if (pauseIcon) pauseIcon.style.display = playing ? '' : 'none';
+}
+
+function fmt(s) {
+    s = Math.floor(s || 0);
+    var m = Math.floor(s / 60);
+    var sec = s % 60;
+    return m + ':' + (sec < 10 ? '0' : '') + sec;
+}
+
+function togglePlay(e) {
+    if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    
+    if (!ready || !player || isEmbedError) return;
+    
+    var state = player.getPlayerState();
+    if (state === YT.PlayerState.PLAYING) {
+        player.pauseVideo();
+    } else {
+        hideBigPlay();
+        showSpinner();
+        player.playVideo();
+    }
+}
+
+/* ============================================
+   SHORTS NAVIGATION
+============================================ */
+function navigateShort(direction) {
+    var shorts = streamingVideos.filter(v => v.is_short);
+    if (shorts.length === 0) return;
+    
+    var currentIndex = shorts.findIndex(v => v.youtube_video_id === currentVideoId);
+    
+    var newIndex;
+    if (direction === 'next') {
+        newIndex = (currentIndex + 1) % shorts.length;
+    } else {
+        newIndex = (currentIndex - 1 + shorts.length) % shorts.length;
+    }
+    
+    if (newIndex !== currentIndex) {
+        var nextVideo = shorts[newIndex];
+        loadVideo(nextVideo.youtube_video_id);
+    }
+}
+
+// New function to load video without page reload
+function loadVideo(videoId) {
+    if (!player || !ready) return;
+    
+    // Show black cover and spinner immediately
+    if (cover) cover.classList.remove('hidden');
+    hideBigPlay();
+    showSpinner();
+    hideEndScreen();
+    
+    // Update current video ID
+    currentVideoId = videoId;
+    
+    // Update the player's video
+    player.loadVideoById(videoId);
+    
+    // Update the URL without reloading the page
+    var newUrl = '/channel/' + currentChannelId + '/video/' + videoId + '/';
+    history.pushState({videoId: videoId}, '', newUrl);
+    
+    // Update video info section
+    updateVideoInfo(videoId);
+}
+
+// New function to update video info
+function updateVideoInfo(videoId) {
+    var video = streamingVideos.find(v => v.youtube_video_id === videoId);
+    if (!video) return;
+    
+    // Update title
+    var titleEl = document.querySelector('.vp-info-title');
+    if (titleEl) titleEl.textContent = video.title;
+    
+    // Update date
+    var dateEl = document.querySelector('.vp-info-meta span:nth-child(2)');
+    if (dateEl) {
+        var date = new Date(video.published_at);
+        var formattedDate = date.toLocaleDateString('en-US', { 
+            month: 'long', 
+            day: 'numeric', 
+            year: 'numeric' 
+        });
+        dateEl.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg> ' + formattedDate;
+    }
+    
+    // Update view count if exists
+    var viewEl = document.querySelector('.vp-info-meta span:nth-child(3)');
+    if (viewEl && video.view_count) {
+        viewEl.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg> ' + video.view_count + ' views';
+    }
+}
+
+// Handle browser back/forward buttons
+window.addEventListener('popstate', function(event) {
+    if (event.state && event.state.videoId) {
+        loadVideo(event.state.videoId);
+    }
+});
+
+// Add event listeners for shorts navigation buttons
+if (shortsPrev) {
+    shortsPrev.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        navigateShort('prev');
+    });
+}
+
+if (shortsNext) {
+    shortsNext.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        navigateShort('next');
+    });
+}
+
+/* ============================================
+   DOUBLE TAP SEEKING
+============================================ */
+function handleDoubleTap(direction) {
+    if (!ready || !player) return;
+    
+    var currentTime = player.getCurrentTime();
+    var duration = player.getDuration();
+    var newTime;
+    
+    if (direction === 'left') {
+        newTime = Math.max(0, currentTime - 10);
+        if (tapLeft) {
+            tapLeft.classList.add('active');
+            setTimeout(function() {
+                tapLeft.classList.remove('active');
+            }, 300);
+        }
+    } else {
+        newTime = Math.min(duration, currentTime + 10);
+        if (tapRight) {
+            tapRight.classList.add('active');
+            setTimeout(function() {
+                tapRight.classList.remove('active');
+            }, 300);
+        }
+    }
+    
+    player.seekTo(newTime, true);
+    resetActivityTimer();
+}
+
+// Double tap detection
+if (tapLeft) {
+    var leftTapCount = 0;
+    var leftTapTimer = null;
+    
+    tapLeft.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        leftTapCount++;
+        
+        if (leftTapCount === 1) {
+            leftTapTimer = setTimeout(function() {
+                // Single tap - play/pause
+                togglePlay(e);
+                leftTapCount = 0;
+            }, 250);
+        } else if (leftTapCount === 2) {
+            clearTimeout(leftTapTimer);
+            // Double tap - seek left
+            handleDoubleTap('left');
+            leftTapCount = 0;
+        }
+    });
+}
+
+if (tapRight) {
+    var rightTapCount = 0;
+    var rightTapTimer = null;
+    
+    tapRight.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        rightTapCount++;
+        
+        if (rightTapCount === 1) {
+            rightTapTimer = setTimeout(function() {
+                // Single tap - play/pause
+                togglePlay(e);
+                rightTapCount = 0;
+            }, 250);
+        } else if (rightTapCount === 2) {
+            clearTimeout(rightTapTimer);
+            // Double tap - seek right
+            handleDoubleTap('right');
+            rightTapCount = 0;
+        }
+    });
+}
+
+/* ============================================
+   CONTROLS VISIBILITY
+============================================ */
+
+function showControls(force = false) {
+    if (!controls || isEmbedError) return;
+    
+    controls.classList.add('force-show');
+    controls.style.opacity = '1';
+    controls.style.pointerEvents = 'auto';
+    controlsVisible = true;
+    
+    if (activityTimer) {
+        clearTimeout(activityTimer);
+        activityTimer = null;
+    }
+    
+    if (force) return;
+    
+    var timeout = isMobile ? 3000 : 2000;
+    activityTimer = setTimeout(function() {
+        hideControls();
+    }, timeout);
+}
+
+function hideControls() {
+    if (!controls) return;
+    controls.classList.remove('force-show');
+    controls.style.opacity = '0';
+    controls.style.pointerEvents = 'none';
+    controlsVisible = false;
+    
+    if (activityTimer) {
+        clearTimeout(activityTimer);
+        activityTimer = null;
+    }
+}
+
+function resetActivityTimer() {
+    if (!controls || isEmbedError) return;
+    showControls();
+}
+
+// Desktop hover events
+if (wrapper && !isMobile) {
+    wrapper.addEventListener('mousemove', function() {
+        if (ready && player) {
+            showControls();
+        }
+    });
+    
+    wrapper.addEventListener('mouseleave', function() {
+        if (player && player.getPlayerState() === YT.PlayerState.PLAYING) {
+            hideControls();
+        }
+    });
+}
+
+// Mobile touch events
+if (wrapper && isMobile) {
+    wrapper.addEventListener('touchstart', function(e) {
+        if (e.target.closest('.vp-controls') || e.target.closest('.shorts-nav-btn')) {
+            return;
+        }
+        
+        if (controlsVisible) {
+            hideControls();
+        } else {
+            showControls(true);
+            resetActivityTimer();
+        }
+    }, { passive: true });
+}
+
+// Keep controls visible when interacting with them
+if (controls) {
+    controls.addEventListener('mouseenter', function() {
+        if (activityTimer) {
+            clearTimeout(activityTimer);
+            activityTimer = null;
+        }
+    });
+    
+    controls.addEventListener('mouseleave', function() {
+        if (player && player.getPlayerState() === YT.PlayerState.PLAYING) {
+            resetActivityTimer();
+        }
+    });
+    
+    controls.addEventListener('touchstart', function(e) {
+        e.stopPropagation();
+        if (activityTimer) {
+            clearTimeout(activityTimer);
+            activityTimer = null;
+        }
+    }, { passive: true });
+}
 
 /* ============================================
    YOUTUBE API
@@ -1251,12 +1706,16 @@ window.onYouTubeIframeAPIReady = function () {
     var vid = el.getAttribute('data-video-id');
     if (!vid || vid.length !== 11) return;
 
+    // Hide play button and show spinner immediately
+    hideBigPlay();
+    showSpinner();
+
     player = new YT.Player('player', {
         height: '100%',
         width: '100%',
         videoId: vid,
         playerVars: {
-            autoplay: 0,
+            autoplay: 1, // Always autoplay
             controls: 0,
             modestbranding: 1,
             rel: 0,
@@ -1277,11 +1736,22 @@ window.onYouTubeIframeAPIReady = function () {
 
 function onReady(e) {
     ready = true;
-    showBigPlay();
+    
+    // Keep spinner visible, hide play button
+    hideBigPlay();
+    showSpinner();
+    
     var dur = player.getDuration();
     if (timeEl) timeEl.textContent = '0:00 / ' + fmt(dur);
     initVolSlider();
     initProgressBar();
+    
+    // Auto-play immediately
+    try {
+        if (player.getDuration() > 0) {
+            player.playVideo();
+        }
+    } catch (e) {}
 }
 
 function onStateChange(e) {
@@ -1289,17 +1759,24 @@ function onStateChange(e) {
 
     if (e.data === S.PLAYING) {
         if (cover) cover.classList.add('hidden');
-        hideBigPlay();
-        hideSpinner();
+        hideBigPlay(); // Ensure play button is hidden
+        hideSpinner(); // Hide spinner when playing starts
         setPP(true);
         startProgress();
         hideEndScreen();
         isEmbedError = false;
-        showControls(true);
-        resetActivityTimer();
+        
+        setTimeout(function() {
+            if (player && player.getPlayerState() === S.PLAYING && !userInteracted) {
+                hideControls();
+            }
+        }, 2000);
 
     } else if (e.data === S.PAUSED) {
-        showBigPlay();
+        // Don't show play button when paused during buffering/loading
+        if (!isEmbedError) {
+            showBigPlay();
+        }
         hideSpinner();
         setPP(false);
         stopProgress();
@@ -1315,12 +1792,13 @@ function onStateChange(e) {
 
     } else if (e.data === S.BUFFERING) {
         if (!isEmbedError) {
-            hideBigPlay();
-            showSpinner();
+            hideBigPlay(); // Hide play button during buffering
+            showSpinner(); // Show spinner
         }
     } else if (e.data === S.CUED) {
-        hideSpinner();
-        showBigPlay();
+        // Don't show play button when cued - keep spinner
+        hideBigPlay();
+        showSpinner();
     }
 }
 
@@ -1331,358 +1809,71 @@ function onError(e) {
 
     if (e.data === 101 || e.data === 150) {
         isEmbedError = true;
-        
-        // Mark video as unembeddable
-        var vid = $$('player');
-        if (vid) {
-            var videoId = vid.getAttribute('data-video-id');
-            if (videoId && !unembeddableVideos.includes(videoId)) {
-                unembeddableVideos.push(videoId);
-                
-                // Send to server
-                fetch('/api/video/flag-unembeddable/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCsrf()
-                    },
-                    body: JSON.stringify({ youtube_video_id: videoId })
-                }).catch(function() {});
-            }
-        }
-        
         autoSkipToNext();
     } else {
         var msgEl = $$('vp-error-msg');
         if (msgEl) {
-            if (e.data === 100) {
-                msgEl.textContent = 'This video is private or has been removed.';
-            } else {
-                msgEl.textContent = 'This video cannot be played here.';
-            }
+            msgEl.textContent = e.data === 100 ? 'Video unavailable' : 'Cannot play video';
         }
-        
         if (errorEl) errorEl.classList.add('show');
-        if (controls) controls.style.display = 'none';
     }
 }
 
 /* ============================================
-   AUTO SKIP TO NEXT
+   MOBILE LAYOUT & SHORTS SWIPE
 ============================================ */
-function autoSkipToNext() {
-    var availableVideos = streamingVideos.filter(function(video) {
-        return !unembeddableVideos.includes(video.youtube_video_id);
-    });
-    
-    if (availableVideos.length === 0) {
-        if (errorEl) errorEl.classList.add('show');
-        if (controls) controls.style.display = 'none';
-        return;
-    }
 
-    if (cover) cover.classList.remove('hidden');
-    hideBigPlay();
-    showSpinner();
-    
-    if (errorEl) errorEl.classList.remove('show');
-    if (controls) controls.style.display = 'none';
-    
-    setTimeout(function() {
-        var next = availableVideos[0];
-        var channelId = '{{ channel.channel_id }}';
-        window.location.href = '/channel/' + channelId + '/video/' + next.youtube_video_id + '/';
-    }, 2000);
+// Set player aspect ratio based on content type
+if (isShort && wrapper) {
+    wrapper.classList.add('is-short');
 }
 
-/* ============================================
-   PLAY/PAUSE
-============================================ */
-function togglePlay(e) {
-    if (e) {
-        e.preventDefault();
-        e.stopPropagation();
-    }
-    
-    if (!ready || !player || isEmbedError) return;
-    
-    var state = player.getPlayerState();
-    if (state === YT.PlayerState.PLAYING) {
-        player.pauseVideo();
-    } else {
-        hideBigPlay();
-        showSpinner();
-        player.playVideo();
-    }
-}
-
-/* Shield click handler */
-if (shield) {
-    shield.addEventListener('click', function(e) {
-        togglePlay(e);
-    });
-}
-
-/* Play/pause button */
-if (ppBtn) {
-    ppBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        togglePlay(e);
-    });
-}
-
-/* ============================================
-   CONTROLS VISIBILITY - FIXED
-============================================ */
-function showControls(force = false) {
-    if (!controls || isEmbedError) return;
-    
-    controls.classList.add('force-show');
-    controlsVisible = true;
-    
-    if (activityTimer) {
-        clearTimeout(activityTimer);
-        activityTimer = null;
-    }
-    
-    if (force) return;
-    
-    if (player && player.getPlayerState() === YT.PlayerState.PLAYING) {
-        activityTimer = setTimeout(function() {
-            controls.classList.remove('force-show');
-            controlsVisible = false;
-            activityTimer = null;
-        }, 2000);
-    }
-}
-
-function hideControls() {
-    if (!controls) return;
-    controls.classList.remove('force-show');
-    controlsVisible = false;
-    if (activityTimer) {
-        clearTimeout(activityTimer);
-        activityTimer = null;
-    }
-}
-
-function resetActivityTimer() {
-    if (!controls || isEmbedError) return;
-    
-    controls.classList.add('force-show');
-    controlsVisible = true;
-    
-    if (activityTimer) {
-        clearTimeout(activityTimer);
-        activityTimer = null;
-    }
-    
-    if (player && player.getPlayerState() === YT.PlayerState.PLAYING) {
-        activityTimer = setTimeout(function() {
-            controls.classList.remove('force-show');
-            controlsVisible = false;
-            activityTimer = null;
-        }, 2000);
-    }
-}
-
-/* Desktop mouse events */
-if (wrapper && !isMobile) {
-    wrapper.addEventListener('mousemove', function() {
-        if (ready && player && player.getPlayerState() === YT.PlayerState.PLAYING) {
-            resetActivityTimer();
-        }
-    });
-    
-    wrapper.addEventListener('click', function(e) {
-        if (e.target.closest('.vp-btn') || e.target.closest('.vp-quality-menu')) {
-            return;
-        }
-        if (ready && player && player.getPlayerState() === YT.PlayerState.PLAYING) {
-            resetActivityTimer();
-        }
-    });
-    
-    wrapper.addEventListener('mouseleave', function() {
-        if (player && player.getPlayerState() === YT.PlayerState.PLAYING) {
-            hideControls();
-        }
-    });
-}
-
-/* Keep controls visible when interacting */
-if (controls) {
-    controls.addEventListener('mouseenter', function() {
-        if (activityTimer) {
-            clearTimeout(activityTimer);
-            activityTimer = null;
-        }
-    });
-    
-    controls.addEventListener('mouseleave', function() {
-        if (player && player.getPlayerState() === YT.PlayerState.PLAYING) {
-            resetActivityTimer();
-        }
-    });
-}
-
-/* Mobile touch events */
-if (wrapper && isMobile) {
-    wrapper.addEventListener('touchstart', function(e) {
-        if (e.target.closest('.vp-controls') || e.target.closest('.vp-end-screen')) {
-            return;
-        }
+// Swipe detection for shorts
+// if (isMobile && isShort && wrapper) {
+//     wrapper.addEventListener('touchstart', function(e) {
+//         if (e.target.closest('.shorts-nav-btn')) return;
         
-        if (controlsVisible) {
-            hideControls();
-        } else {
-            showControls(true);
-            resetActivityTimer();
-        }
-    }, { passive: true });
-}
-
-if (controls) {
-    controls.addEventListener('touchstart', function(e) {
-        e.stopPropagation();
-        if (activityTimer) {
-            clearTimeout(activityTimer);
-            activityTimer = null;
-        }
-    }, { passive: true });
-}
-
-/* ============================================
-   MUTE
-============================================ */
-if (muteBtn) {
-    muteBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
+//         touchStartX = e.changedTouches[0].screenX;
+//         touchStartY = e.changedTouches[0].screenY;
+//         isSwiping = true;
+//     }, { passive: true });
+    
+//     wrapper.addEventListener('touchmove', function(e) {
+//         if (!isSwiping || e.target.closest('.shorts-nav-btn')) return;
         
-        if (!ready || !player) return;
+//         var currentX = e.changedTouches[0].screenX;
+//         var diffX = currentX - touchStartX;
         
-        if (muted || vol === 0) {
-            vol = 0.7;
-            player.setVolume(70);
-            muted = false;
-        } else {
-            muted = true;
-            player.setVolume(0);
-        }
-        updateVolUI(muted ? 0 : vol);
-        resetActivityTimer();
-    });
-}
-
-/* ============================================
-   QUALITY - FIXED FOR MOBILE
-============================================ */
-if (qualBtn) {
-    qualBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
+//         if (Math.abs(diffX) > 20) {
+//             e.preventDefault();
+//             wrapper.style.transform = 'translateX(' + (diffX * 0.3) + 'px)';
+//             wrapper.style.transition = 'none';
+//         }
+//     }, { passive: false });
+    
+//     wrapper.addEventListener('touchend', function(e) {
+//         if (!isSwiping || e.target.closest('.shorts-nav-btn')) return;
         
-        if (qualMenu) {
-            if (qualMenu.classList.contains('show')) {
-                qualMenu.classList.remove('show');
-            } else {
-                document.querySelectorAll('.vp-quality-menu.show').forEach(function(menu) {
-                    menu.classList.remove('show');
-                });
-                qualMenu.classList.add('show');
-            }
-        }
-        resetActivityTimer();
-    });
-}
-
-// Close quality menu when clicking outside
-document.addEventListener('click', function(e) {
-    if (qualMenu && qualMenu.classList.contains('show')) {
-        var wrap = $$('vp-quality-wrap');
-        if (!wrap || !wrap.contains(e.target)) {
-            qualMenu.classList.remove('show');
-        }
-    }
-});
-
-// Prevent quality menu from closing when clicking inside
-if (qualMenu) {
-    qualMenu.addEventListener('click', function(e) {
-        e.stopPropagation();
-    });
-}
-
-// Handle quality selection
-document.querySelectorAll('.vp-q-opt').forEach(function(opt) {
-    opt.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
+//         touchEndX = e.changedTouches[0].screenX;
+//         handleSwipe();
         
-        var q = this.dataset.q;
-        if (!ready || !player) return;
-        
-        player.setPlaybackQuality(q);
-        updateQualityLabel(q);
-        
-        if (qualMenu) {
-            qualMenu.classList.remove('show');
-        }
-        
-        resetActivityTimer();
-    });
-});
+//         wrapper.style.transform = '';
+//         wrapper.style.transition = 'transform 0.3s ease';
+//         isSwiping = false;
+//     }, { passive: true });
+// }
 
-// Close quality menu on scroll (mobile)
-if (isMobile) {
-    window.addEventListener('scroll', function() {
-        if (qualMenu && qualMenu.classList.contains('show')) {
-            qualMenu.classList.remove('show');
-        }
-    }, { passive: true });
-}
-
-/* ============================================
-   FULLSCREEN
-============================================ */
-if (fsBtn) {
-    fsBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        var w = $$('vp-wrapper');
-        if (!w) return;
-        
-        if (!document.fullscreenElement) {
-            if (w.requestFullscreen) {
-                w.requestFullscreen();
-            } else if (w.webkitRequestFullscreen) {
-                w.webkitRequestFullscreen();
-            }
-        } else {
-            if (document.exitFullscreen) {
-                document.exitFullscreen();
-            } else if (document.webkitExitFullscreen) {
-                document.webkitExitFullscreen();
-            }
-        }
-        resetActivityTimer();
-    });
-}
-
-document.addEventListener('fullscreenchange', updateFSIcon);
-document.addEventListener('webkitfullscreenchange', updateFSIcon);
-
-function updateFSIcon() {
-    var inFS = !!(document.fullscreenElement || document.webkitFullscreenElement);
-    if (!fsBtn) return;
-    var enterIcon = fsBtn.querySelector('.icon-fs-enter');
-    var exitIcon = fsBtn.querySelector('.icon-fs-exit');
-    if (enterIcon) enterIcon.style.display = inFS ? 'none' : '';
-    if (exitIcon) exitIcon.style.display = inFS ? '' : 'none';
-}
+// function handleSwipe() {
+//     var swipeDistance = touchEndX - touchStartX;
+    
+//     if (Math.abs(swipeDistance) > minSwipeDistance) {
+//         if (swipeDistance > 0) {
+//             navigateShort('prev');
+//         } else {
+//             navigateShort('next');
+//         }
+//     }
+// }
 
 /* ============================================
    PROGRESS BAR
@@ -1690,57 +1881,56 @@ function updateFSIcon() {
 function initProgressBar() {
     if (!progWrap) return;
     
-    progWrap.addEventListener('mousedown', function(e) {
-        progDrag = true;
-        seekFromEvent(e);
-    });
+    progWrap.addEventListener('mousedown', startSeek);
+    progWrap.addEventListener('touchstart', startSeek, { passive: false });
+    progWrap.addEventListener('click', seek);
     
     document.addEventListener('mousemove', function(e) {
-        if (!progDrag) return;
-        seekFromEvent(e);
+        if (progDrag) seek(e);
     });
-    
-    document.addEventListener('mouseup', function() {
-        progDrag = false;
-        resetActivityTimer();
-    });
-    
-    progWrap.addEventListener('touchstart', function(e) {
-        progDrag = true;
-        seekFromTouch(e);
-    }, { passive: false });
     
     document.addEventListener('touchmove', function(e) {
         if (progDrag) {
             e.preventDefault();
-            seekFromTouch(e);
+            seek(e.touches[0]);
         }
     }, { passive: false });
     
-    document.addEventListener('touchend', function() {
-        progDrag = false;
-        resetActivityTimer();
-    });
+    document.addEventListener('mouseup', endSeek);
+    document.addEventListener('touchend', endSeek);
 }
 
-function seekFromEvent(e) {
+function startSeek(e) {
+    progDrag = true;
+    seek(e);
+}
+
+function endSeek() {
+    progDrag = false;
+    resetActivityTimer();
+}
+
+function seek(e) {
     if (!ready || !player) return;
     e.preventDefault();
-    var rect = progWrap.getBoundingClientRect();
+    e.stopPropagation();
+    
     var clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+    var rect = progWrap.getBoundingClientRect();
     var pct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
     var t = player.getDuration() * pct;
+    
     player.seekTo(t, true);
-}
-
-function seekFromTouch(e) {
-    seekFromEvent(e.touches[0]);
+    setProgUI(pct);
+    if (timeEl) {
+        timeEl.textContent = fmt(t) + ' / ' + fmt(player.getDuration());
+    }
 }
 
 function startProgress() {
     stopProgress();
     progressTimer = setInterval(function() {
-        if (!ready || !player) return;
+        if (!ready || !player || progDrag) return;
         try {
             var t = player.getCurrentTime();
             var dur = player.getDuration();
@@ -1770,17 +1960,10 @@ function setProgUI(pct) {
 function initVolSlider() {
     if (!volTrack) return;
     
-    volTrack.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        applyVol(e);
-        resetActivityTimer();
-    });
-    
+    volTrack.addEventListener('click', applyVol);
     volTrack.addEventListener('touchstart', function(e) {
         e.preventDefault();
         applyVol(e);
-        resetActivityTimer();
     }, { passive: false });
 }
 
@@ -1793,6 +1976,7 @@ function applyVol(e) {
     muted = (v === 0);
     player.setVolume(v * 100);
     updateVolUI(v);
+    resetActivityTimer();
 }
 
 function updateVolUI(v) {
@@ -1806,116 +1990,140 @@ function updateVolUI(v) {
     if (muteIcon) muteIcon.style.display = (v > 0) ? 'none' : '';
 }
 
-/* ============================================
-   DOUBLE TAP
-============================================ */
-var lastTapLeft = 0;
-var lastTapRight = 0;
-
-if (tapLeft) {
-    tapLeft.addEventListener('click', function(e) {
+// Mute button
+if (muteBtn) {
+    muteBtn.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        if (!ready || !player || isEmbedError || isMobile) return;
         
-        var now = Date.now();
-        if (now - lastTapLeft < 300) {
-            var current = player.getCurrentTime();
-            player.seekTo(Math.max(0, current - 10), true);
-            
-            tapLeft.classList.add('active');
-            setTimeout(function() {
-                tapLeft.classList.remove('active');
-            }, 300);
-            
-            resetActivityTimer();
-            lastTapLeft = 0;
+        if (!ready || !player) return;
+        
+        if (muted || vol === 0) {
+            vol = 0.7;
+            player.setVolume(70);
+            muted = false;
         } else {
-            lastTapLeft = now;
+            muted = true;
+            player.setVolume(0);
         }
+        updateVolUI(muted ? 0 : vol);
+        resetActivityTimer();
     });
 }
 
-if (tapRight) {
-    tapRight.addEventListener('click', function(e) {
+// Play/pause button
+if (ppBtn) {
+    ppBtn.addEventListener('click', function(e) {
+        togglePlay(e);
+        resetActivityTimer();
+    });
+}
+
+// Shield click handler
+if (shield) {
+    shield.addEventListener('click', function(e) {
+        togglePlay(e);
+        resetActivityTimer();
+    });
+}
+
+// Fullscreen button
+if (fsBtn) {
+    fsBtn.addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
-        if (!ready || !player || isEmbedError || isMobile) return;
         
-        var now = Date.now();
-        if (now - lastTapRight < 300) {
-            var current = player.getCurrentTime();
-            var duration = player.getDuration();
-            player.seekTo(Math.min(duration, current + 10), true);
-            
-            tapRight.classList.add('active');
-            setTimeout(function() {
-                tapRight.classList.remove('active');
-            }, 300);
-            
-            resetActivityTimer();
-            lastTapRight = 0;
+        var w = $$('vp-wrapper');
+        if (!w) return;
+        
+        if (!document.fullscreenElement) {
+            if (w.requestFullscreen) {
+                w.requestFullscreen();
+            } else if (w.webkitRequestFullscreen) {
+                w.webkitRequestFullscreen();
+            } else if (w.msRequestFullscreen) {
+                w.msRequestFullscreen();
+            }
         } else {
-            lastTapRight = now;
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            }
         }
+        resetActivityTimer();
     });
+}
+
+/* ============================================
+   AUTO SKIP TO NEXT
+============================================ */
+function autoSkipToNext() {
+    var availableVideos = streamingVideos.filter(function(video) {
+        return !unembeddableVideos.includes(video.youtube_video_id);
+    });
+    
+    if (availableVideos.length === 0) {
+        if (errorEl) errorEl.classList.add('show');
+        return;
+    }
+
+    if (cover) cover.classList.remove('hidden');
+    hideBigPlay();
+    showSpinner();
+    
+    if (errorEl) errorEl.classList.remove('show');
+    
+    setTimeout(function() {
+        var next = availableVideos[0];
+        // Use loadVideo instead of page reload
+        loadVideo(next.youtube_video_id);
+    }, 2000);
 }
 
 /* ============================================
    END SCREEN
 ============================================ */
 function showEndScreen() {
-    if (!endScreen || !endGrid || !streamingVideos || streamingVideos.length === 0) {
-        return;
-    }
+    if (!endScreen || !endGrid || !streamingVideos.length) return;
     
-    var availableVideos = streamingVideos.filter(function(video) {
-        return !unembeddableVideos.includes(video.youtube_video_id);
-    });
-    
-    if (availableVideos.length === 0) {
-        return;
-    }
+    var availableVideos = streamingVideos.filter(v => !unembeddableVideos.includes(v.youtube_video_id));
+    if (!availableVideos.length) return;
     
     endGrid.innerHTML = '';
     
-    var channelId = '{{ channel.channel_id }}';
-    availableVideos.slice(0, 6).forEach(function(video, index) {
-        var card = document.createElement('a');
+    availableVideos.slice(0, 6).forEach(function(video) {
+        var card = document.createElement('div');
         card.className = 'vp-end-video-card';
-        card.href = '/channel/' + channelId + '/video/' + video.youtube_video_id + '/';
-        card.dataset.index = index;
-        
-        card.addEventListener('touchstart', function(e) {
-            e.stopPropagation();
-        }, { passive: true });
-        
+        card.setAttribute('data-video-id', video.youtube_video_id);
         card.innerHTML = 
-            '<img src="' + video.thumbnail_url + '" alt="' + video.title + '" loading="lazy">' +
+            '<img src="' + video.thumbnail_url + '" loading="lazy">' +
             '<div class="vp-end-video-title">' + video.title + '</div>';
+        
+        // Add click handler for client-side navigation
+        card.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            loadVideo(video.youtube_video_id);
+        });
+        
+        // Add cursor style
+        card.style.cursor = 'pointer';
         
         endGrid.appendChild(card);
     });
     
     endScreen.classList.add('show');
-    currentScrollIndex = 0;
-    
-    if (isMobile && endGrid) {
-        endGrid.scrollLeft = 0;
-    }
-    
-    if (controls) {
-        controls.style.opacity = '0';
-    }
+    showControls(true);
 }
 
 function hideEndScreen() {
-    if (endScreen) {
-        endScreen.classList.remove('show');
-    }
+    if (endScreen) endScreen.classList.remove('show');
 }
 
-/* Mobile navigation */
+// Mobile navigation for end screen
 if (navPrev && navNext) {
     navPrev.addEventListener('click', function(e) {
         e.preventDefault();
@@ -1924,9 +2132,10 @@ if (navPrev && navNext) {
         
         var cardWidth = endGrid.querySelector('.vp-end-video-card')?.offsetWidth + 12 || 0;
         if (cardWidth > 0) {
-            currentScrollIndex = Math.max(0, currentScrollIndex - 1);
+            var currentIndex = Math.floor(endGrid.scrollLeft / cardWidth);
+            var newIndex = Math.max(0, currentIndex - 1);
             endGrid.scrollTo({
-                left: currentScrollIndex * cardWidth,
+                left: newIndex * cardWidth,
                 behavior: 'smooth'
             });
         }
@@ -1938,11 +2147,12 @@ if (navPrev && navNext) {
         if (!endGrid) return;
         
         var cardWidth = endGrid.querySelector('.vp-end-video-card')?.offsetWidth + 12 || 0;
-        var maxIndex = streamingVideos.length - 1;
         if (cardWidth > 0) {
-            currentScrollIndex = Math.min(maxIndex, currentScrollIndex + 1);
+            var currentIndex = Math.floor(endGrid.scrollLeft / cardWidth);
+            var maxIndex = endGrid.children.length - 1;
+            var newIndex = Math.min(maxIndex, currentIndex + 1);
             endGrid.scrollTo({
-                left: currentScrollIndex * cardWidth,
+                left: newIndex * cardWidth,
                 behavior: 'smooth'
             });
         }
@@ -1952,49 +2162,9 @@ if (navPrev && navNext) {
 /* ============================================
    HELPERS
 ============================================ */
-function showBigPlay() { if (bigPlay) bigPlay.classList.remove('hidden'); }
-function hideBigPlay() { if (bigPlay) bigPlay.classList.add('hidden'); }
-function showSpinner() { if (spinner) spinner.classList.add('show'); }
-function hideSpinner() { if (spinner) spinner.classList.remove('show'); }
-
-function setPP(playing) {
-    if (!ppBtn) return;
-    var playIcon = ppBtn.querySelector('.icon-play');
-    var pauseIcon = ppBtn.querySelector('.icon-pause');
-    if (playIcon) playIcon.style.display = playing ? 'none' : '';
-    if (pauseIcon) pauseIcon.style.display = playing ? '' : 'none';
-}
-
-function fmt(s) {
-    s = Math.floor(s || 0);
-    var m = Math.floor(s / 60);
-    var sec = s % 60;
-    return m + ':' + (sec < 10 ? '0' : '') + sec;
-}
-
-function updateQualityLabel(q) {
-    var label = $$('vp-quality-label');
-    if (!label) return;
-    
-    var labels = {
-        highres: '4K', hd1080: '1080p', hd720: '720p',
-        large: '480p', medium: '360p', small: '240p', tiny: '144p', auto: 'Auto'
-    };
-    label.textContent = labels[q] || q;
-    
-    document.querySelectorAll('.vp-q-check').forEach(function(el) {
-        el.classList.remove('active');
-    });
-    
-    var chk = $$('qc-' + q);
-    if (chk) chk.classList.add('active');
-}
-
 function getCsrf() {
     var el = document.querySelector('[name=csrfmiddlewaretoken]');
-    if (el) return el.value;
-    var m = document.cookie.match(/csrftoken=([^;]+)/);
-    return m ? m[1] : '';
+    return el ? el.value : '';
 }
 
 function loadStreamingData() {
@@ -2002,10 +2172,7 @@ function loadStreamingData() {
     if (dataEl) {
         try {
             streamingVideos = JSON.parse(dataEl.textContent);
-            console.log('Loaded', streamingVideos.length, 'related videos');
-        } catch (e) {
-            console.error('Failed to parse streaming data');
-        }
+        } catch (e) {}
     }
 }
 
@@ -2016,6 +2183,81 @@ window.addEventListener('resize', function() {
 
 /* Initialize */
 loadStreamingData();
+
+/* ============================================
+   RELATED VIDEOS CLIENT-SIDE NAVIGATION
+============================================ */
+// Wait for DOM to be ready
+document.addEventListener('DOMContentLoaded', function() {
+    // Related video cards
+    var videoCards = document.querySelectorAll('.vid-card');
+    videoCards.forEach(function(card) {
+        var link = card.querySelector('a');
+        if (link) {
+            var href = link.getAttribute('href');
+            // Extract video ID from href
+            var matches = href.match(/\/video\/([^\/]+)/);
+            if (matches && matches[1]) {
+                var videoId = matches[1];
+                
+                // Store video ID in data attribute
+                card.setAttribute('data-video-id', videoId);
+                
+                // Remove the original link but keep its contents
+                var parent = link.parentNode;
+                while (link.firstChild) {
+                    parent.insertBefore(link.firstChild, link);
+                }
+                link.remove();
+                
+                // Add click handler to the card
+                card.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    var id = this.getAttribute('data-video-id');
+                    if (id) {
+                        loadVideo(id);
+                    }
+                });
+                
+                // Add cursor style
+                card.style.cursor = 'pointer';
+            }
+        }
+    });
+});
+
+// Also add click handlers to any dynamically loaded cards
+function initVideoCards() {
+    var videoCards = document.querySelectorAll('.vid-card:not([data-initialized])');
+    videoCards.forEach(function(card) {
+        card.setAttribute('data-initialized', 'true');
+        
+        var link = card.querySelector('a');
+        if (link) {
+            var href = link.getAttribute('href');
+            var matches = href.match(/\/video\/([^\/]+)/);
+            if (matches && matches[1]) {
+                var videoId = matches[1];
+                card.setAttribute('data-video-id', videoId);
+                
+                card.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    var id = this.getAttribute('data-video-id');
+                    if (id) {
+                        loadVideo(id);
+                    }
+                });
+                
+                card.style.cursor = 'pointer';
+            }
+        }
+    });
+}
+
+// Call it initially and after any content updates
+setTimeout(initVideoCards, 500);
 
 })();
 </script>
