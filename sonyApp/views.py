@@ -3,21 +3,26 @@ sonyApp/views.py
 """
 
 import json
-from datetime        import timedelta
-from django.shortcuts               import render, get_object_or_404
-from django.http                    import JsonResponse
-from django.conf                    import settings
-from django.core.cache              import cache
-from django.utils                   import timezone
-from django.db.models               import Q, Sum
-from django.db.models.functions     import Coalesce
-from django.core.paginator          import Paginator, EmptyPage, PageNotAnInteger
-from django.views.decorators.http   import require_POST, require_http_methods
-from django.views.decorators.csrf   import csrf_protect
+from datetime import timedelta
+from django.shortcuts import redirect, render, get_object_or_404
+from django.http import HttpResponse, JsonResponse
+from django.conf import settings
+from django.core.cache import cache
+from django.utils import timezone
+from django.db.models import Q, Sum
+from django.db.models.functions import Coalesce
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.views.decorators.http import require_POST, require_http_methods
+from django.views.decorators.csrf import csrf_protect
+
+from django.core.mail import send_mail
 
 from datetime import timedelta
 
 from .models import Channel, Video
+
+from collections import Counter
+import re
 
 from django.views.decorators.csrf import csrf_exempt
 from django.core.management import call_command
@@ -26,8 +31,15 @@ from datetime import datetime
 from io import StringIO
 import logging
 
-logger = logging.getLogger(__name__)
+from django.urls import reverse
 
+from django.views.decorators.cache import cache_page
+
+# API endpoint for AJAX updates (called every 5 minutes by your JavaScript)
+from django.http import JsonResponse
+from django.views.decorators.http import require_GET
+
+logger = logging.getLogger(__name__)
 
 # ═══════════════════════════════════════════════════════════════
 # HELPERS
@@ -71,22 +83,306 @@ def format_number(num):
         return str(int(num))
 
 
+# def get_recent_artists_simple(limit=15):
+#     """
+#     Count artists - ONLY exact matches, no dangerous part searches
+#     """
+#     cache_key = f'recent_artists_exact_{limit}'
+#     cached = cache.get(cache_key)
+#     if cached:
+#         return cached
+    
+#     ninety_days_ago = timezone.now() - timedelta(days=90)
+    
+#     # 🎵 CURATED LIST OF REAL MUSIC ARTISTS
+#     REAL_ARTISTS = [
+#         # Music Directors / Composers
+#         'A.R. Rahman', 'Anirudh Ravichander', 'Yuvan Shankar Raja', 'Ilaiyaraaja',
+#         'Harris Jayaraj', 'G.V. Prakash', 'D. Imman', 'Santhosh Narayanan',
+#         'Sean Roldan', 'Hiphop Tamizha', 'Devi Sri Prasad', 'M.M. Keeravani',
+#         'Thaman S', 'Pritam', 'Vishal Dadlani', 'Shekhar Ravjiani',
+#         'Sam C.S.', 'Leon James', 'Siddhu Kumar', 'Justin Prabhakaran',
+#         'Ron Ethan Yohann', 'Jakes Bejoy', 'Sushin Shyam', 'Dharan Kumar',
+        
+#         # Playback Singers - Male
+#         'S.P. Balasubrahmanyam', 'K.J. Yesudas', 'Sid Sriram', 'Benny Dayal',
+#         'Haricharan', 'Vijay Yesudas', 'Sathyaprakash', 'Pradeep Kumar',
+#         'Armaan Malik', 'Arijit Singh', 'Mohit Chauhan', 'Javed Ali',
+#         'Sonu Nigam', 'Shankar Mahadevan', 'Udit Narayan', 'Karthik',
+#         'Rahul Nambiar', 'Ranjith', 'Vineeth Sreenivasan', 'Anand Aravindakshan',
+#         'Shenbagaraj', 'Narayanan',
+        
+#         # Playback Singers - Female
+#         'Shreya Ghoshal', 'Chinmayi', 'Jonita Gandhi', 'Neha Kakkar',
+#         'Sunidhi Chauhan', 'K.S. Chithra', 'Sadhana Sargam', 'Alka Yagnik',
+#         'Anuradha Sriram', 'Swetha Mohan', 'Madhushree', 'Bombay Jayashri',
+#         'Vaikom Vijayalakshmi', 'Sithara', 'Shweta Mohan',
+        
+#         # Independent Artists / Bands
+#         'Sivaangi Krishnakumar', 'Dhee', 'OfRo', 'The Indian Choral Ensemble',
+#         'Agam', 'Thaikkudam Bridge', 'Avial', 'Masala Coffee',
+#     ]
+    
+#     artist_data = []
+    
+#     for artist in REAL_ARTISTS:
+#         # ONLY search for exact artist name - NO PART SEARCH
+#         video_count = Video.objects.filter(
+#             Q(title__icontains=artist) | Q(description__icontains=artist),
+#             published_at__gte=ninety_days_ago,
+#             is_active=True,
+#             is_embeddable=True
+#         ).distinct().count()
+        
+#         # Only include if count > 0
+#         if video_count > 0:
+#             # Get dates
+#             videos = Video.objects.filter(
+#                 Q(title__icontains=artist) | Q(description__icontains=artist),
+#                 published_at__gte=ninety_days_ago,
+#                 is_active=True,
+#                 is_embeddable=True
+#             ).order_by('-published_at').values_list('published_at', flat=True)[:50]
+            
+#             dates = [v.strftime('%b %d, %Y') for v in videos]
+            
+#             artist_data.append({
+#                 'name': artist,
+#                 'count': video_count,
+#                 'dates': dates,
+#                 'tooltip': (
+#                     f"🎤 {artist}\n"
+#                     f"📊 Total: {video_count} videos\n"
+#                     f"📅 All dates:\n"
+#                     f"{' • '.join(dates[:15])}{' …' if len(dates) > 15 else ''}\n"
+#                     f"⏱️ {ninety_days_ago.strftime('%b %d')} – {timezone.now().strftime('%b %d, %Y')}"
+#                 )
+#             })
+    
+#     # Sort and limit
+#     artist_data.sort(key=lambda x: x['count'], reverse=True)
+#     top_artists = artist_data[:limit]
+    
+#     cache.set(cache_key, top_artists, 3600)
+#     return top_artists
+
+# ═══════════════════════════════════════════════════════════════
+# ARTISTS PAGE  — optimized: 1 DB query instead of ~70
+# ═══════════════════════════════════════════════════════════════
+
+def artists_page(request):
+    """
+    Full artists list page.
+    Uses a SINGLE DB query with Django ORM filtering + Python counting.
+    Cached 1 hour.
+
+    Strategy:
+    - Fetch ALL matching videos in last 90 days in ONE query
+    - Group/count in Python — much faster than 70 separate queries
+    """
+    cache_key = 'artists_page_data'
+    cached = cache.get(cache_key)
+    if cached:
+        return render(request, 'sonyApp/webpage/artists.html', {'artists': cached})
+
+    ninety_days_ago = timezone.now() - timedelta(days=90)
+
+    REAL_ARTISTS = [
+        # Music Directors / Composers
+        'A.R. Rahman', 'Anirudh Ravichander', 'Yuvan Shankar Raja', 'Ilaiyaraaja',
+        'Harris Jayaraj', 'G.V. Prakash', 'D. Imman', 'Santhosh Narayanan',
+        'Sean Roldan', 'Hiphop Tamizha', 'Devi Sri Prasad', 'M.M. Keeravani',
+        'Thaman S', 'Pritam', 'Vishal Dadlani', 'Shekhar Ravjiani',
+        'Sam C.S.', 'Leon James', 'Siddhu Kumar', 'Justin Prabhakaran',
+        'Ron Ethan Yohann', 'Jakes Bejoy', 'Sushin Shyam', 'Dharan Kumar',
+        # Playback Singers - Male
+        'S.P. Balasubrahmanyam', 'K.J. Yesudas', 'Sid Sriram', 'Benny Dayal',
+        'Haricharan', 'Vijay Yesudas', 'Sathyaprakash', 'Pradeep Kumar',
+        'Armaan Malik', 'Arijit Singh', 'Mohit Chauhan', 'Javed Ali',
+        'Sonu Nigam', 'Shankar Mahadevan', 'Udit Narayan', 'Karthik',
+        'Rahul Nambiar', 'Ranjith', 'Vineeth Sreenivasan', 'Anand Aravindakshan',
+        'Shenbagaraj', 'Narayanan',
+        # Playback Singers - Female
+        'Shreya Ghoshal', 'Chinmayi', 'Jonita Gandhi', 'Neha Kakkar',
+        'Sunidhi Chauhan', 'K.S. Chithra', 'Sadhana Sargam', 'Alka Yagnik',
+        'Anuradha Sriram', 'Swetha Mohan', 'Madhushree', 'Bombay Jayashri',
+        'Vaikom Vijayalakshmi', 'Sithara', 'Shweta Mohan',
+        # Independent Artists / Bands
+        'Sivaangi Krishnakumar', 'Dhee', 'OfRo', 'The Indian Choral Ensemble',
+        'Agam', 'Thaikkudam Bridge', 'Avial', 'Masala Coffee',
+    ]
+
+    # ── Step 1: Build one big OR filter for ALL artists ──────────────────
+    # One single DB query fetches all relevant video titles + descriptions
+    combined_filter = Q()
+    for artist in REAL_ARTISTS:
+        combined_filter |= Q(title__icontains=artist) | Q(description__icontains=artist)
+
+    # Fetch only the fields we need — no select_related required
+    video_texts = list(
+        Video.objects
+        .filter(
+            combined_filter,
+            published_at__gte=ninety_days_ago,
+            is_active=True,
+            is_embeddable=True,
+        )
+        .values('title', 'description')   # only 2 fields — fast
+    )
+
+    # ── Step 2: Count in Python ───────────────────────────────────────────
+    artist_data = []
+    for artist in REAL_ARTISTS:
+        artist_lower = artist.lower()
+        count = sum(
+            1 for v in video_texts
+            if artist_lower in (v['title'] or '').lower()
+            or artist_lower in (v['description'] or '').lower()
+        )
+        if count > 0:
+            artist_data.append({'name': artist, 'count': count})
+
+    # Sort descending
+    artist_data.sort(key=lambda x: x['count'], reverse=True)
+
+    # Add bar percentage relative to top artist
+    max_count = artist_data[0]['count'] if artist_data else 1
+    for a in artist_data:
+        a['bar_pct'] = round((a['count'] / max_count) * 100)
+
+    cache.set(cache_key, artist_data, 3600)  # cache 1 hour
+
+    return render(request, 'sonyApp/webpage/artists.html', {
+        'artists': artist_data,
+    })
+# ═══════════════════════════════════════════════════════════════
+# ARTIST VIDEOS PAGE  — all videos for a specific artist
+# ═══════════════════════════════════════════════════════════════
+
+def artist_videos(request):
+    """
+    Shows all videos matching the artist name in title or description.
+    URL: /artists/videos/?artist=Arijit+Singh
+    """
+    artist_name = request.GET.get('artist', '').strip()
+
+    if not artist_name:
+        return redirect('artists_page')
+
+    ninety_days_ago = timezone.now() - timedelta(days=90)
+
+    videos = (
+        Video.objects
+        .filter(
+            Q(title__icontains=artist_name) | Q(description__icontains=artist_name),
+            published_at__gte=ninety_days_ago,
+            is_active=True,
+            is_embeddable=True,
+            channel__is_active=True,
+        )
+        .select_related('channel')
+        .order_by('-published_at')
+    )
+
+    return render(request, 'sonyApp/webpage/artist_videos.html', {
+        'artist_name':  artist_name,
+        'videos':       videos,
+        'total_count':  videos.count(),
+    })
+
+# ═══════════════════════════════════════════════════════════════
+# GROWTH ANALYTICS  (3-section, 6h snapshot based)
+# ═══════════════════════════════════════════════════════════════
+
+def get_growth_sections():
+    """
+    Return videos for all 3 growth sections.
+
+    Section 1 — Hot & New   : 0h  < age < 24h   | ranked by 6h delta
+    Section 2 — Daily Growth: 24h ≤ age < 168h  | ranked by 24h rolling delta
+    Section 3 — Weekly Growth:168h ≤ age < 720h | ranked by 168h rolling delta
+
+    Results cached for 30 minutes (cache is busted on each cron run via
+    cache.delete('growth_sections') inside update_video_stats if desired).
+    """
+    cache_key = 'growth_sections_v2'
+    cached = cache.get(cache_key)
+    if cached:
+        return cached
+
+    now = timezone.now()
+
+    # ── candidate pool: videos published in last 30 days, active, not shorts ──
+    thirty_days_ago = now - timedelta(hours=720)
+    candidates = (
+        Video.objects
+        .filter(
+            channel__is_active=True,
+            is_active=True,
+            is_embeddable=True,
+            is_short=False,
+            published_at__gte=thirty_days_ago,
+            base_snapshot_timestamp__isnull=False,   # must have at least 1 snapshot
+        )
+        .select_related('channel')
+    )
+
+    hot_list    = []
+    daily_list  = []
+    weekly_list = []
+
+    for video in candidates:
+        if video.in_hot_and_new():
+            growth = video.get_hot_growth()
+            if growth > 0:
+                video.growth_value = growth
+                video.growth_label = video.get_growth_label(section='hot')
+                hot_list.append(video)
+
+        elif video.in_daily_growth():
+            growth = video.get_daily_growth()
+            if growth > 0:
+                video.growth_value = growth
+                video.growth_label = video.get_growth_label(section='daily')
+                daily_list.append(video)
+
+        elif video.in_weekly_growth():
+            growth = video.get_weekly_growth()
+            if growth > 0:
+                video.growth_value = growth
+                video.growth_label = video.get_growth_label(section='weekly')
+                weekly_list.append(video)
+
+    # Sort each section by highest absolute growth
+   
+    hot_list.sort(key=lambda v: v.growth_value, reverse=True)
+    daily_list.sort(key=lambda v: v.growth_value, reverse=True)
+    weekly_list.sort(key=lambda v: v.growth_value, reverse=True)
+
+    result = {
+        'hot_and_new':   hot_list,
+        'daily_growth':  daily_list,
+        'weekly_growth': weekly_list,
+    }
+
+    cache.set(cache_key, result, 1800)   # cache 30 minutes
+    return result
+
+
+
 # ═══════════════════════════════════════════════════════════════
 # HOME
 # ═══════════════════════════════════════════════════════════════
 
 def home(request):
-    """
-    Landing page — channels list + recent-video carousel.
-    Only embeddable videos appear in carousel.
-    Includes latest updates ticker (3 items, infinite scroll).
-    """
+    """Landing page."""
     channels = Channel.objects.filter(is_active=True)
 
-    # Carousel: last 30 days, embeddable only
+    # ── Carousel: last 30 days ─────────────────────────────────────────────
     recent_videos = (
         Video.objects
         .filter(
+            channel__is_active=True,
             is_active=True,
             is_embeddable=True,
             published_at__gte=timezone.now() - timedelta(days=30),
@@ -95,91 +391,144 @@ def home(request):
         .order_by('-published_at')[:10]
     )
 
-    # ✅ Latest Updates Ticker: Only 3 most recent videos (last 24 hours)
-    latest_updates = (
-        Video.objects
-        .filter(
-            is_active=True,
-            is_embeddable=True,
-            published_at__gte=timezone.now() - timedelta(hours=24),
-        )
-        .select_related('channel')
-        .order_by('-published_at')[:3]  # ✅ Only 3 items needed
-    )
-
-    # ── Statistics ──────────────────────────────────────
+    # ── Statistics ─────────────────────────────────────────────────────────
     total_artists = Channel.objects.filter(is_active=True).count()
 
-    total_videos = Video.objects.filter(is_active=True).count()
-
-    total_views = Video.objects.filter(is_active=True).aggregate(
-        total=Coalesce(Sum('view_count'), 0)
-    )['total']
+    total_videos = Video.objects.filter(
+        channel__is_active=True, is_active=True
+    ).count()
 
     monthly_views = Video.objects.filter(
+        channel__is_active=True,
         is_active=True,
         published_at__gte=timezone.now() - timedelta(days=30),
-    ).aggregate(
-        total=Coalesce(Sum('view_count'), 0)
-    )['total']
+    ).aggregate(total=Coalesce(Sum('view_count'), 0))['total']
 
-    total_languages = 15
+    total_subscribers = Channel.objects.filter(
+        is_active=True
+    ).aggregate(total=Coalesce(Sum('subscriber_count'), 0))['total']
 
     return render(request, 'sonyApp/webpage/home.html', {
-        'channels':                channels,
-        'recent_videos':           recent_videos,
-        'latest_updates':          latest_updates,  # ✅ 3 items for ticker
-        # raw
-        'total_artists':           total_artists,
-        'total_videos':            total_videos,
-        'monthly_views':           monthly_views,
-        'total_languages':         total_languages,
-        # formatted
-        'total_artists_formatted': format_number(total_artists),
-        'total_videos_formatted':  format_number(total_videos),
-        'monthly_views_formatted': format_number(monthly_views),
-        'total_languages_formatted': f"{total_languages}+",
+        'channels':      channels,
+        'recent_videos': recent_videos,
+
+        # ── stats ──
+        'total_artists_formatted':     format_number(total_artists),
+        'total_videos_formatted':      format_number(total_videos),
+        'monthly_views_formatted':     format_number(monthly_views),
+        'total_subscribers_formatted': format_number(total_subscribers),
     })
+
+# ═══════════════════════════════════════════════════════════════
+# GROWTH PAGE  (full top 10 per section)
+# ═══════════════════════════════════════════════════════════════
+
+def growth_page(request):
+    """Dedicated growth analytics page — top 10 per section."""
+    growth_data = get_growth_sections()
+    return render(request, 'sonyApp/webpage/growth.html', {
+        'hot_and_new':  growth_data['hot_and_new'],    # top 10
+        'daily_growth': growth_data['daily_growth'],   # top 10
+        'weekly_growth': growth_data['weekly_growth'], # top 10
+    })
+
+# ═══════════════════════════════════════════════════════════════
+# TRENDING API  (AJAX — called every 30 min by JS)
+# ═══════════════════════════════════════════════════════════════
+
+@require_GET
+def api_trending(request):
+    """Returns all 3 growth sections as JSON for AJAX refresh."""
+    growth_data = get_growth_sections()
+
+    def serialise(video, section):
+        return {
+            'title':        video.title,
+            'channel_name': video.channel.name,
+            'thumbnail_url': video.thumbnail_url,
+            'growth':       video.growth_value,
+            'growth_label': video.growth_label,
+            'url': reverse('video_player', args=[video.channel.channel_id, video.youtube_video_id]),
+        }
+
+    return JsonResponse({
+        'hot_and_new':   [serialise(v, 'hot')    for v in growth_data['hot_and_new']],
+        'daily_growth':  [serialise(v, 'daily')  for v in growth_data['daily_growth']],
+        'weekly_growth': [serialise(v, 'weekly') for v in growth_data['weekly_growth']],
+    })
+
+
+@csrf_exempt
+@require_http_methods(["GET", "POST"])
+def auto_update_stats(request):
+    """
+    Token-protected endpoint for the external 6-hour cronjob.
+    Calls update_video_stats management command and busts the growth cache.
+
+    Example cron URL:
+      https://exclusive-music.onrender.com/api/update-stats/?token=YOUR_TOKEN&days=30
+    """
+    SECRET_TOKEN   = settings.AUTO_SYNC_SECRET_TOKEN
+    provided_token = request.GET.get('token')
+
+    if SECRET_TOKEN and provided_token != SECRET_TOKEN:
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+
+    # Optional: override how many days of videos to update (default 31)
+    try:
+        days = int(request.GET.get('days', 31))
+    except ValueError:
+        days = 31
+    try:
+        start_time = datetime.now()
+        out = StringIO()
+
+        call_command('update_video_stats', '--days', str(days), stdout=out)
+
+        # Bust the growth sections cache so next page load gets fresh data
+        cache.delete('growth_sections_v2')
+
+        return JsonResponse({
+            'success':   True,
+            'message':   f'Stats updated for videos from last {days} days',
+            'timestamp': start_time.isoformat(),
+            'output':    out.getvalue(),
+        })
+
+    except Exception as e:
+        logger.error(f"auto_update_stats error: {e}")
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
 # ═══════════════════════════════════════════════════════════════
 # CHANNEL DETAIL
 # ═══════════════════════════════════════════════════════════════
 
 def channel_detail(request, channel_id):
-    """
-    Channel detail page — paginated video list.
-    Non-embeddable videos are excluded.
-    """
     channel = get_object_or_404(Channel, channel_id=channel_id)
 
-    category    = request.GET.get('category', 'all')   # all | videos | shorts
-    sort_by     = request.GET.get('sort', 'recent')     # recent | popular
+    category    = request.GET.get('category', 'all')
+    sort_by     = request.GET.get('sort', 'recent')
     page_number = request.GET.get('page', 1)
 
-    # Base queryset — embeddable only
     videos_qs = Video.objects.filter(
-        channel=channel,
-        is_active=True,
-        is_embeddable=True,
+        channel=channel, is_active=True, is_embeddable=True,
     )
 
-    # Counts for tabs (always from full embeddable set)
     total_videos = videos_qs.filter(is_short=False).count()
     total_shorts = videos_qs.filter(is_short=True).count()
-    total_all = total_videos + total_shorts 
+    total_all    = total_videos + total_shorts
 
-    # Category filter
     if category == 'videos':
         videos_qs = videos_qs.filter(is_short=False)
     elif category == 'shorts':
         videos_qs = videos_qs.filter(is_short=True)
 
-    # Sort
     if sort_by == 'popular':
         videos_qs = videos_qs.order_by('-view_count', '-published_at')
     else:
         videos_qs = videos_qs.order_by('-published_at')
 
-    # Paginate — 20 per page
     paginator = Paginator(videos_qs, 20)
     try:
         page_obj = paginator.page(page_number)
@@ -189,14 +538,14 @@ def channel_detail(request, channel_id):
         page_obj = paginator.page(paginator.num_pages)
 
     return render(request, 'sonyApp/webpage/channel_detail.html', {
-        'channel':       channel,
-        'videos':        page_obj.object_list,
-        'category':      category,
-        'sort_by':       sort_by,
-        'total_videos':  total_videos,
-        'total_shorts':  total_shorts,
-        'total_all':     total_all, 
-        'page_obj':      page_obj,
+        'channel':      channel,
+        'videos':       page_obj.object_list,
+        'category':     category,
+        'sort_by':      sort_by,
+        'total_videos': total_videos,
+        'total_shorts': total_shorts,
+        'total_all':    total_all,
+        'page_obj':     page_obj,
     })
 
 
@@ -216,48 +565,30 @@ def video_player(request, channel_id, video_id):
 
     is_short = video.is_short
 
-    # ✅ SMART FILTERING (same type first)
-    same_type = list(
+    # ── Same type ONLY — no filling with opposite type ────────────────────────
+    streaming = list(
         Video.objects
         .filter(channel=channel, is_active=True, is_embeddable=True, is_short=is_short)
         .exclude(youtube_video_id=video_id)
         .order_by('-published_at')[:20]
     )
 
-    if len(same_type) < 20:
-        existing_ids = {v.id for v in same_type}
-        other_type = list(
-            Video.objects
-            .filter(channel=channel, is_active=True, is_embeddable=True, is_short=not is_short)
-            .exclude(youtube_video_id=video_id)
-            .exclude(id__in=existing_ids)
-            .order_by('-published_at')[:20 - len(same_type)]
-        )
-        same_type.extend(other_type)
-
-    seen = set()
-    streaming = []
-    for v in same_type:
-        if v.id not in seen and v.youtube_video_id != video_id:
-            seen.add(v.id)
-            streaming.append(v)
-
-    # ✅ Convert to JSON for JavaScript
+    # ── JSON for end-screen JS (same type only, excludes current video) ───────
     streaming_json = json.dumps([
         {
             'youtube_video_id': v.youtube_video_id,
-            'title': v.title,
-            'thumbnail_url': v.thumbnail_url,
-            'is_short': v.is_short,
+            'title':            v.title,
+            'thumbnail_url':    v.thumbnail_url,
+            'is_short':         v.is_short,
         }
-        for v in streaming[:20]
+        for v in streaming
     ])
 
     return render(request, 'sonyApp/webpage/video_player.html', {
-        'channel': channel,
-        'current_video': video,
-        'streaming': streaming[:20],
-        'streaming_json': streaming_json,  
+        'channel':          channel,
+        'current_video':    video,
+        'streaming':        streaming,
+        'streaming_json':   streaming_json,
         'current_is_short': is_short,
     })
 
@@ -269,7 +600,7 @@ def video_player(request, channel_id, video_id):
 def search_videos(request):
     """
     JSON search endpoint — returns videos, shorts, and channels.
-    Only embeddable videos are returned.
+    NOW WITH PREFIX-ONLY MATCHING - words must START with the query.
     """
     query = request.GET.get('q', '').strip()
 
@@ -317,38 +648,74 @@ def search_videos(request):
             'recent_shorts': [video_dict(v, True)  for v in recent_shorts],
         })
 
-    # ── Keyword search ────────────────────────────────────────
-    base_filter = Q(title__icontains=query) | Q(description__icontains=query) | Q(channel__name__icontains=query)
-    embeddable  = dict(is_active=True, is_embeddable=True)
+    # Split query into individual words
+    search_words = query.split()
+    
+    # Build PREFIX-ONLY filter using regex with word boundaries
+    # \y is word boundary in SQLite/PostgreSQL regex
+    def build_prefix_filter(word):
+        # Match word at start of string OR after space/punctuation
+        return Q(title__iregex=r'(^|\s)' + word) | Q(channel__name__iregex=r'(^|\s)' + word)
+    
+    # If only one word
+    if len(search_words) == 1:
+        word = search_words[0]
+        # Escape any regex special characters in the word
+        import re
+        escaped_word = re.escape(word)
+        video_filter = build_prefix_filter(escaped_word)
+        channel_filter = Q(name__iregex=r'(^|\s)' + escaped_word)
+    
+    # Multiple words - require ALL words to match as prefixes (AND)
+    else:
+        video_filter = Q()
+        channel_filter = Q()
+        
+        for i, word in enumerate(search_words):
+            import re
+            escaped_word = re.escape(word)
+            word_filter = build_prefix_filter(escaped_word)
+            
+            if i == 0:
+                video_filter = word_filter
+                channel_filter = Q(name__iregex=r'(^|\s)' + escaped_word)
+            else:
+                video_filter &= word_filter
+                channel_filter &= Q(name__iregex=r'(^|\s)' + escaped_word)
+    
+    embeddable = dict(is_active=True, is_embeddable=True)
 
+    # Get videos matching ALL words as prefixes
     videos = (
         Video.objects
-        .filter(base_filter, is_short=False, **embeddable)
+        .filter(video_filter, is_short=False, **embeddable)
         .select_related('channel')
         .order_by('-published_at')[:15]
     )
+    
     shorts = (
         Video.objects
-        .filter(base_filter, is_short=True, **embeddable)
+        .filter(video_filter, is_short=True, **embeddable)
         .select_related('channel')
         .order_by('-published_at')[:15]
     )
+    
     channels = (
         Channel.objects
-        .filter(
-            Q(name__icontains=query) | Q(description__icontains=query),
-            is_active=True,
-        )
+        .filter(channel_filter, is_active=True)
         .order_by('-subscriber_count')[:5]
     )
 
-    return JsonResponse({
-        'videos':        [video_dict(v, False) for v in videos],
-        'shorts':        [video_dict(v, True)  for v in shorts],
-        'channels':      [channel_dict(c)       for c in channels],
-        'total_results': videos.count() + shorts.count() + channels.count(),
-    })
+    videos_list   = [video_dict(v, False) for v in videos]
+    shorts_list   = [video_dict(v, True)  for v in shorts]
+    channels_list = [channel_dict(c)      for c in channels]
 
+    return JsonResponse({
+        'videos':        videos_list,
+        'shorts':        shorts_list,
+        'channels':      channels_list,
+        'total_results': len(videos_list) + len(shorts_list) + len(channels_list),
+    })
 
 # ═══════════════════════════════════════════════════════════════
 # CHANNELS DROPDOWN API  (used by navbar)
@@ -477,31 +844,185 @@ def get_channel_videos(channel):
 
     return videos
 
+# def get_trending_videos():
+#     """
+#     Get trending videos based on growth, not total views
+#     Returns: {
+#         'rising_now': [],  # Last 3 days, by daily growth
+#         'trending_week': []  # Last 30 days, min age 3 days, by weekly growth
+#     }
+#     """
+#     import logging
+#     logger = logging.getLogger(__name__)
+    
+#     cache_key = 'trending_videos_growth'
+#     cached = cache.get(cache_key)
+    
+#     if cached:
+#         return cached
+    
+#     today = timezone.now().date()
+    
+#     # 🔥 RISING NOW - Last 3 days, by daily growth
+#     three_days_ago = today - timedelta(days=3)
+#     rising_candidates = Video.objects.filter(
+#         channel__is_active=True,
+#         is_active=True,
+#         is_embeddable=True,
+#         is_short=False,  # ⭐ EXCLUDE SHORTS
+#         published_at__date__gte=three_days_ago,
+#     ).select_related('channel')
+    
+#     # Calculate daily growth and filter
+#     rising_list = []
+#     for video in rising_candidates:
+#         growth = video.get_today_growth()
+#         if growth > 0:  # Only show videos with growth
+#             video.growth_value = growth
+#             video.growth_label = video.get_growth_label(days=1)
+#             rising_list.append(video)
+    
+#     # Sort by growth (highest first)
+#     rising_list.sort(key=lambda x: x.growth_value, reverse=True)
+    
+#     # 📈 TRENDING WEEK - Last 30 days, min age 3 days, by weekly growth
+#     thirty_days_ago = today - timedelta(days=30)
+#     min_age_date = today - timedelta(days=3)
+    
+#     trending_candidates = Video.objects.filter(
+#         channel__is_active=True,
+#         is_active=True,
+#         is_embeddable=True,
+#         is_short=False,  # ⭐ EXCLUDE SHORTS
+#         published_at__date__gte=thirty_days_ago,
+#         published_at__date__lte=min_age_date,  # At least 3 days old
+#     ).select_related('channel')
+    
+#     # Calculate weekly growth and filter
+#     trending_list = []
+#     for video in trending_candidates:
+#         growth = video.get_weekly_growth()
+#         if growth > 0:
+#             video.growth_value = growth
+#             video.growth_label = video.get_growth_label(days=7)
+#             trending_list.append(video)
+    
+#     # Sort by growth (highest first)
+#     trending_list.sort(key=lambda x: x.growth_value, reverse=True)
+    
+#     result = {
+#         'rising_now': rising_list[:3],      # Top 3 rising
+#         'trending_week': trending_list[:3],  # Top 3 trending
+#     }
+    
+#     # Cache for 1 hour
+#     cache.set(cache_key, result, 3600)
+    
+#     return result
+
+
+@require_http_methods(["POST"])
+def enquiry(request):
+    try:
+        data    = json.loads(request.body)
+        name    = data.get('name', '').strip()
+        email   = data.get('email', '').strip()
+        subject = data.get('subject', '').strip()
+        message = data.get('message', '').strip()
+        to      = data.get('to', 'smsunoffical@gmail.com').strip()
+
+        # Basic validation
+        if not all([name, email, message]):
+            return JsonResponse({'success': False, 'error': 'Missing required fields.'})
+
+        # Email body
+        email_body = f"""
+New enquiry from Sony Music website
+
+Name:    {name}
+Email:   {email}
+Subject: {subject}
+
+Message:
+{message}
+
+---
+Sent via exclusive-music.onrender.com contact form
+        """.strip()
+
+        send_mail(
+            subject=f"[Sony Music] {subject}",
+            message=email_body,
+            from_email='noreply@yourdomain.com',   # ← your sending domain
+            recipient_list=[to],
+            fail_silently=False,
+        )
+
+        return JsonResponse({'success': True})
+
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+# ═══════════════════════════════════════════════════════════════
+# CRON JOB ENDPOINTS
+# ═══════════════════════════════════════════════════════════════
+
+# ── CRON 2: Fetch latest 5 videos per channel — every 10 minutes ──────────
+# URL: /api/auto-fetch/?token=YOUR_TOKEN
+
 @csrf_exempt
 @require_http_methods(["GET", "POST"])
 def auto_fetch_videos(request):
-    SECRET_TOKEN = settings.AUTO_SYNC_SECRET_TOKEN
+    """Fetch the 5 most recent videos per channel. Run every 10 minutes."""
+    SECRET_TOKEN   = settings.AUTO_SYNC_SECRET_TOKEN
     provided_token = request.GET.get('token')
-    
     if SECRET_TOKEN and provided_token != SECRET_TOKEN:
         return JsonResponse({'error': 'Unauthorized'}, status=401)
-    
     try:
         start_time = datetime.now()
         out = StringIO()
-        
-        # ✅ Fetch only last 10 videos per channel
-        call_command('fetch_youtube_videos', '--recent', '10', stdout=out)
-        
+        call_command('fetch_youtube_videos', '--recent', '5', stdout=out)
         return JsonResponse({
-            'success': True,
-            'message': 'Fetch completed - last 10 videos per channel',
+            'success':   True,
+            'message':   'Fetched latest 5 videos per channel',
             'timestamp': start_time.isoformat(),
-            'output': out.getvalue()
+            'output':    out.getvalue(),
         })
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
+
+# ── CRON 4: Daily full stats update — ALL videos ever stored ──────────────
+# URL: /api/update-stats-full/?token=YOUR_TOKEN
+
+@csrf_exempt
+@require_http_methods(["GET", "POST"])
+def auto_update_stats_full(request):
+    """
+    Update view count snapshots for ALL videos ever stored.
+    Run once daily (e.g. 02:00 AM).
+    No date filter — covers every video in the DB.
+    Also busts the growth cache so home page refreshes immediately.
+    """
+    SECRET_TOKEN   = settings.AUTO_SYNC_SECRET_TOKEN
+    provided_token = request.GET.get('token')
+    if SECRET_TOKEN and provided_token != SECRET_TOKEN:
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+    try:
+        start_time = datetime.now()
+        out = StringIO()
+        # --days 36500 = 100 years → effectively no date limit
+        call_command('update_video_stats', '--days', '36500', stdout=out)
+        cache.delete('growth_sections_v2')
+        return JsonResponse({
+            'success':   True,
+            'message':   'Full stats update complete — all videos',
+            'timestamp': start_time.isoformat(),
+            'output':    out.getvalue(),
+        })
+    except Exception as e:
+        logger.error(f"auto_update_stats_full error: {e}")
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 # ────────────────────────────────────────────────────────────────
 #  Health Check (Keep Alive)
@@ -510,66 +1031,44 @@ def auto_fetch_videos(request):
 @require_http_methods(["GET"])
 def health_check(request):
     """
-    Simple health check to keep Render awake.
-    
-    URL: https://your-app.onrender.com/api/health/
+    Lightweight keep-alive ping — zero DB queries.
+    Just confirms the server process is awake.
     """
-    
-    try:
-        # Test database connection
-        with connection.cursor() as cursor:
-            cursor.execute("SELECT 1")
-        
-        return JsonResponse({
-            'status': 'healthy',
-            'timestamp': datetime.now().isoformat(),
-            'database': 'connected',
-            'videos': Video.objects.count(),
-            'channels': Channel.objects.count(),
-            'active_videos': Video.objects.filter(is_active=True).count(),
-            'embeddable_videos': Video.objects.filter(is_embeddable=True).count()
-        })
-        
-    except Exception as e:
-        return JsonResponse({
-            'status': 'unhealthy',
-            'error': str(e),
-            'timestamp': datetime.now().isoformat()
-        }, status=503)
+    return JsonResponse({'status': 'ok'})
 
 
 # ────────────────────────────────────────────────────────────────
 # full fetch all channel videos
 # ────────────────────────────────────────────────────────────────
 
-@csrf_exempt
-@require_http_methods(["GET", "POST"])
-def fetch_all_videos(request):
-    SECRET_TOKEN = settings.AUTO_SYNC_SECRET_TOKEN
-    provided_token = request.GET.get('token')
+# @csrf_exempt
+# @require_http_methods(["GET", "POST"])
+# def fetch_all_videos(request):
+#     SECRET_TOKEN = settings.AUTO_SYNC_SECRET_TOKEN
+#     provided_token = request.GET.get('token')
     
-    if SECRET_TOKEN and provided_token != SECRET_TOKEN:
-        return JsonResponse({'error': 'Unauthorized'}, status=401)
+#     if SECRET_TOKEN and provided_token != SECRET_TOKEN:
+#         return JsonResponse({'error': 'Unauthorized'}, status=401)
     
-    try:
-        out = StringIO()
+#     try:
+#         out = StringIO()
         
-        # Fetch ALL videos for ALL channels
-        call_command('fetch_youtube_videos', '--max-videos', '999999', stdout=out)
+#         # Fetch ALL videos for ALL channels
+#         call_command('fetch_youtube_videos', '--max-videos', '999999', stdout=out)
         
-        return JsonResponse({
-            'success': True,
-            'message': 'Fetched all videos for all channels',
-            'output': out.getvalue()
-        })
-    except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+#         return JsonResponse({
+#             'success': True,
+#             'message': 'Fetched all videos for all channels',
+#             'output': out.getvalue()
+#         })
+#     except Exception as e:
+#         return JsonResponse({'success': False, 'error': str(e)}, status=500)
         
-    except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'error': str(e)
-        }, status=500)
+#     except Exception as e:
+#         return JsonResponse({
+#             'success': False,
+#             'error': str(e)
+#         }, status=500)
 
 
   # ────────────────────────────────────────────────────────────────
@@ -577,35 +1076,35 @@ def fetch_all_videos(request):
 # ────────────────────────────────────────────────────────────────
   
 
-@csrf_exempt
-@require_http_methods(["GET", "POST"])
-def fetch_all_channel_videos(request):
-    SECRET_TOKEN = settings.AUTO_SYNC_SECRET_TOKEN
-    provided_token = request.GET.get('token')
+# @csrf_exempt
+# @require_http_methods(["GET", "POST"])
+# def fetch_all_channel_videos(request):
+#     SECRET_TOKEN = settings.AUTO_SYNC_SECRET_TOKEN
+#     provided_token = request.GET.get('token')
     
-    if SECRET_TOKEN and provided_token != SECRET_TOKEN:
-        return JsonResponse({'error': 'Unauthorized'}, status=401)
+#     if SECRET_TOKEN and provided_token != SECRET_TOKEN:
+#         return JsonResponse({'error': 'Unauthorized'}, status=401)
     
-    channel_id = request.GET.get('channel')
+#     channel_id = request.GET.get('channel')
     
-    if not channel_id:
-        return JsonResponse({'error': 'channel parameter required'}, status=400)
+#     if not channel_id:
+#         return JsonResponse({'error': 'channel parameter required'}, status=400)
     
-    try:
-        out = StringIO()
+#     try:
+#         out = StringIO()
         
-        # Fetch ALL videos for this specific channel
-        call_command(
-            'fetch_youtube_videos',
-            '--channel', channel_id,
-            '--max-videos', '999999',  # ALL videos
-            stdout=out
-        )
+#         # Fetch ALL videos for this specific channel
+#         call_command(
+#             'fetch_youtube_videos',
+#             '--channel', channel_id,
+#             '--max-videos', '999999',  # ALL videos
+#             stdout=out
+#         )
         
-        return JsonResponse({
-            'success': True,
-            'message': f'Fetched all videos for channel {channel_id}',
-            'output': out.getvalue()
-        })
-    except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+#         return JsonResponse({
+#             'success': True,
+#             'message': f'Fetched all videos for channel {channel_id}',
+#             'output': out.getvalue()
+#         })
+#     except Exception as e:
+#         return JsonResponse({'success': False, 'error': str(e)}, status=500)

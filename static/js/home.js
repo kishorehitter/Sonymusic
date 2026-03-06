@@ -15,6 +15,7 @@
      * DOM Ready Handler - Initializes all components
      */
     document.addEventListener('DOMContentLoaded', function() {
+        initSplashScreen();
         console.log('🚀 Sony Music India - Initializing application');
         
         // Core functionality
@@ -46,7 +47,153 @@
         initLatestTicker();
     });
     
-    
+    function initSplashScreen() {
+        const splash = document.getElementById('splash-screen');
+        const grid   = document.getElementById('splashDotGrid');
+        const brand  = document.querySelector('.splash-brand');
+        if (!splash || !grid) return;
+
+        const DOT_PATTERN = [3, 7, 9, 9, 11, 11, 11, 9, 9, 7, 3];
+        const centerX = 200, centerY = 200, spacing = 20, dotSize = 5;
+
+        // Build dots — same logic as initSVGAnimation
+        let dots = [];
+        const totalRows = DOT_PATTERN.length;
+        const startY = centerY - ((totalRows - 1) * spacing) / 2;
+
+        DOT_PATTERN.forEach((dotsInRow, rowIndex) => {
+            const y = startY + rowIndex * spacing;
+            const startX = centerX - ((dotsInRow - 1) * spacing) / 2;
+            for (let i = 0; i < dotsInRow; i++) {
+                const x = startX + i * spacing;
+                const distance = Math.sqrt(Math.pow(x - centerX, 2) + Math.pow(y - centerY, 2));
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', x);
+                circle.setAttribute('cy', y);
+                circle.setAttribute('r', 0);
+                circle.setAttribute('fill', 'url(#splashDotGradient)');
+                circle.setAttribute('filter', 'url(#splashGlow)');
+                circle.style.transition = 'r 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)';
+                grid.appendChild(circle);
+                dots.push({ element: circle, distance });
+            }
+        });
+
+        // Sort center-outward
+        dots.sort((a, b) => a.distance - b.distance);
+
+        // Animate dots in
+        const delayPerDot = 1500 / dots.length;
+        dots.forEach((dot, i) => {
+            setTimeout(() => {
+                dot.element.setAttribute('r', dotSize);
+            }, i * delayPerDot);
+        });
+
+        // Show brand text after dots finish
+        setTimeout(() => {
+            if (brand) brand.classList.add('show');
+        }, 800);
+
+        // Hide splash after animation completes
+        window.addEventListener('load', function () {
+            setTimeout(() => {
+                splash.classList.add('hide');
+                setTimeout(() => splash.remove(), 750);
+            }, 0); // total splash time
+        });
+    }
+
+
+    // ============================================================================
+    // ENQUIRY MODAL
+    // Add this inside your IIFE in home.js
+    // ============================================================================
+
+    let _enquiryTo = '';
+    let _enquiryModalInstance = null;
+
+    window.openEnquiryModal = function(type, email) {
+        _enquiryTo = email;
+
+        // Pre-fill subject and subtitle
+        document.getElementById('enquiryModalTitle').textContent    = type + ' Enquiry';
+        document.getElementById('enquiryModalSubtitle').textContent = 'We\'ll respond within 2–3 business days.';
+        document.getElementById('enquirySubject').value             = type + ' Enquiry — Sony Music India';
+
+        // Reset to clean form state
+        document.getElementById('enquiryName').value    = '';
+        document.getElementById('enquiryEmail').value   = '';
+        document.getElementById('enquiryMessage').value = '';
+        document.getElementById('enquiryFormArea').classList.remove('d-none');
+        document.getElementById('enquirySuccess').classList.add('d-none');
+        document.getElementById('enquiryError').classList.add('d-none');
+        document.getElementById('enquiryFooter').classList.remove('d-none');
+
+        const btn = document.getElementById('enquirySendBtn');
+        btn.innerHTML = '<i class="bi bi-send me-1"></i> Send Message';
+        btn.disabled  = false;
+
+        // Open Bootstrap modal
+        _enquiryModalInstance = new bootstrap.Modal(document.getElementById('enquiryModal'));
+        _enquiryModalInstance.show();
+    };
+
+    window.submitEnquiry = function() {
+        const name    = document.getElementById('enquiryName').value.trim();
+        const email   = document.getElementById('enquiryEmail').value.trim();
+        const subject = document.getElementById('enquirySubject').value.trim();
+        const message = document.getElementById('enquiryMessage').value.trim();
+
+        // Validation
+        document.getElementById('enquiryError').classList.add('d-none');
+        if (!name)                        return _showEnquiryError('Please enter your name.');
+        if (!email || !email.includes('@')) return _showEnquiryError('Please enter a valid email address.');
+        if (!message)                     return _showEnquiryError('Please enter your message.');
+
+        // Loading state
+        const btn = document.getElementById('enquirySendBtn');
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Sending...';
+        btn.disabled  = true;
+
+        fetch('/api/enquiry/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': _getCsrf(),
+            },
+            body: JSON.stringify({ name, email, subject, message, to: _enquiryTo }),
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                // Show success screen
+                document.getElementById('enquiryFormArea').classList.add('d-none');
+                document.getElementById('enquiryFooter').classList.add('d-none');
+                document.getElementById('enquirySuccess').classList.remove('d-none');
+            } else {
+                _showEnquiryError(data.error || 'Something went wrong. Please try again.');
+                btn.innerHTML = '<i class="bi bi-send me-1"></i> Send Message';
+                btn.disabled  = false;
+            }
+        })
+        .catch(() => {
+            _showEnquiryError('Network error. Please check your connection and try again.');
+            btn.innerHTML = '<i class="bi bi-send me-1"></i> Send Message';
+            btn.disabled  = false;
+        });
+    };
+
+    function _showEnquiryError(msg) {
+        const el = document.getElementById('enquiryError');
+        el.textContent = msg;
+        el.classList.remove('d-none');
+    }
+
+    function _getCsrf() {
+        const match = document.cookie.split(';').find(c => c.trim().startsWith('csrftoken='));
+        return match ? match.split('=')[1] : '';
+    }
     // ============================================================================
     // CORE ANIMATIONS
     // ============================================================================
@@ -156,7 +303,7 @@
         setInterval(startAnimation, 10000); // Repeat every 10 seconds
     }
     
-
+     
     // ============================================================================
     // TICKER - Smooth Infinite Scroll (DEBUG VERSION)
     // ============================================================================
@@ -342,8 +489,11 @@
     function initSmoothScrolling() {
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function(event) {
+                const href = this.getAttribute('href');
+                if (!href || href === '#') return; // ← ADD THIS
+
                 event.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
+                const target = document.querySelector(href);
                 
                 if (target) {
                     const navbarHeight = document.querySelector('.custom-navbar')?.offsetHeight || 0;
@@ -354,7 +504,6 @@
                         behavior: 'smooth'
                     });
                     
-                    // Close mobile navbar if open
                     const navbarCollapse = document.querySelector('.navbar-collapse');
                     if (navbarCollapse && navbarCollapse.classList.contains('show')) {
                         const bsCollapse = new bootstrap.Collapse(navbarCollapse);
@@ -775,53 +924,79 @@
             
             searchResults.innerHTML = html;
         }
+
+       
         
         /**
          * Displays search results
          */
+
         function displaySearchResults(data, query) {
-            const totalResults = (data.videos?.length || 0) + 
-                                (data.shorts?.length || 0) + 
-                                (data.channels?.length || 0);
-            
+            // Use the results directly from backend - NO FILTERING!
+            const filteredVideos = data.videos || [];
+            const filteredShorts = data.shorts || [];
+            const filteredChannels = data.channels || [];
+
+            const totalResults = filteredVideos.length + filteredShorts.length + filteredChannels.length;
+
             let html = `
                 <div class="search-header-info">
                     <span class="search-query">"${escapeHtml(query)}"</span>
-                    <span class="search-count">${totalResults} results</span>
+                    <span class="search-count">${totalResults} result${totalResults !== 1 ? 's' : ''}</span>
                 </div>
             `;
-            
-            if (data.channels && data.channels.length > 0) {
-                html += createChannelSection(data.channels);
-            }
-            
-            if (data.videos && data.videos.length > 0) {
-                html += createSection('Videos', 'bi-play-btn-fill', data.videos, false);
-            }
-            
-            if (data.shorts && data.shorts.length > 0) {
-                html += createSection('Shorts', 'bi-badge-vr-fill', data.shorts, true);
-            }
-            
+
+            if (filteredChannels.length > 0) html += createChannelSection(filteredChannels, query);
+            if (filteredVideos.length > 0)   html += createSection('Videos', 'bi-play-btn-fill', filteredVideos, false, query);
+            if (filteredShorts.length > 0)   html += createSection('Shorts', 'bi-badge-vr-fill', filteredShorts, true,  query);
+
             if (totalResults === 0) {
                 html = getEmptyState(`No results found for "${escapeHtml(query)}"`);
             }
-            
+
             searchResults.innerHTML = html;
         }
-        
+
+
+        function highlightMatch(text, query) {
+            if (!text || !query) return escapeHtml(text);
+            
+            const escaped = escapeHtml(text);
+            const queryWords = query.toLowerCase().trim().split(/\s+/).filter(w => w.length > 0);
+            
+            if (queryWords.length === 0) return escaped;
+            
+            let result = escaped;
+            
+            // Split into words, preserving spaces and punctuation
+            const words = result.split(/(\s+|[.,!?;:-])/);
+            
+            for (let i = 0; i < words.length; i++) {
+                const word = words[i];
+                const wordLower = word.toLowerCase();
+                
+                // Check if this word STARTS WITH any query word
+                for (const qWord of queryWords) {
+                    if (wordLower.startsWith(qWord) && word.length > 0) {
+                        // Highlight only the matching prefix part
+                        words[i] = `<mark class="search-highlight">${word.slice(0, qWord.length)}</mark>${word.slice(qWord.length)}`;
+                        break;
+                    }
+                }
+            }
+            
+            return words.join('');
+        }
         /**
          * Creates channel section HTML
          */
-        function createChannelSection(channels) {
+        function createChannelSection(channels, query) {               // ← added `query`
             let html = '<div class="search-section">';
             html += '<div class="search-section-title"><i class="bi bi-collection-play"></i> Channels</div>';
-            
+
             channels.forEach(channel => {
                 const thumbnail = channel.thumbnail || '';
-                const subscribers = formatNumber(channel.subscriber_count);
-                const videos = formatNumber(channel.video_count);
-                
+
                 html += `
                     <div class="search-item channel-item" onclick="window.location.href='/channel/${channel.channel_id}/'">
                         <div class="search-item-image channel-avatar" ${!thumbnail ? 'style="background: linear-gradient(135deg, #ff1744, #d50000);"' : ''}>
@@ -831,7 +1006,7 @@
                         </div>
                         <div class="search-item-content">
                             <div class="search-item-title">
-                                ${escapeHtml(channel.name)}
+                                ${query ? highlightMatch(channel.name, query) : escapeHtml(channel.name)}
                                 <span class="verified-badge"><i class="bi bi-patch-check-fill"></i></span>
                             </div>
                         </div>
@@ -839,22 +1014,20 @@
                     </div>
                 `;
             });
-            
+
             html += '</div>';
             return html;
         }
+
+
         
         /**
          * Creates a search results section
          */
-        function createSection(title, icon, items, isShort) {
+        function createSection(title, icon, items, isShort, query) {   // ← added `query`
             let html = '<div class="search-section">';
             html += `<div class="search-section-title"><i class="bi ${icon}"></i> ${title}</div>`;
-            
-            items.forEach(item => {
-                html += createVideoItem(item, isShort);
-            });
-            
+            items.forEach(item => { html += createVideoItem(item, isShort, query); });
             html += '</div>';
             return html;
         }
@@ -862,10 +1035,9 @@
         /**
          * Creates a video item HTML
          */
-        function createVideoItem(video, isShort) {
+        function createVideoItem(video, isShort, query) {
             const views = formatNumber(video.views);
-            const likes = video.likes ? formatNumber(video.likes) : null;
-            
+
             return `
                 <div class="search-item video-item py-0 ${isShort ? 'short-item' : ''}" 
                     onclick="window.location.href='/channel/${video.channel_id}/video/${video.youtube_video_id}/'">
@@ -874,23 +1046,26 @@
                             alt="${escapeHtml(video.title)}"
                             loading="lazy"
                             onerror="this.style.background='#1a1a1a'">
-                        
                         <div class="duration-badge ${isShort ? 'short-badge' : ''}">
                             ${video.duration}
                         </div>
-                        
                         <div class="play-overlay">
                             <i class="bi bi-play-circle-fill"></i>
                         </div>
                     </div>
-                    
                     <div class="search-item-content">
                         <div class="search-item-title">
-                            ${escapeHtml(video.title)}
+                            ${query ? highlightMatch(video.title, query) : escapeHtml(video.title)}
                         </div>
-                        
+                        <div class="search-item-channel">
+                            ${query ? highlightMatch(video.channel_name, query) : escapeHtml(video.channel_name)}
+                        </div>
+                        <!-- 👇 NEW: Published date with icon -->
+                        <div class="search-item-date small text-secondary">
+                            <i class="bi bi-calendar3 small"></i>
+                            ${video.published}
+                        </div>
                     </div>
-                    
                     <div class="search-item-action">
                         ${isShort ? 
                             '<span class="short-indicator px-2 py-1">Short</span>' : 
@@ -899,6 +1074,7 @@
                 </div>
             `;
         }
+
         
         /**
          * Creates empty state HTML
@@ -1091,40 +1267,170 @@
      * Initializes stats counter animation
      * @returns {void}
      */
-    function initStatsCounter() {
-        const statsObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const statNumbers = entry.target.querySelectorAll('.stat-number');
-                    statNumbers.forEach(stat => {
-                        const text = stat.textContent;
-                        const numericValue = parseInt(text.replace(/\D/g, ''));
-                        const suffix = text.replace(/[0-9]/g, '');
+    // function initStatsCounter() {
+    //     const statsObserver = new IntersectionObserver((entries) => {
+    //         entries.forEach(entry => {
+    //             if (entry.isIntersecting) {
+    //                 const statNumbers = entry.target.querySelectorAll('.stat-number');
+    //                 statNumbers.forEach(stat => {
+    //                     const text = stat.textContent;
+    //                     const numericValue = parseInt(text.replace(/\D/g, ''));
+    //                     const suffix = text.replace(/[0-9]/g, '');
                         
-                        let count = 0;
-                        const increment = numericValue / 100;
+    //                     let count = 0;
+    //                     const increment = numericValue / 100;
                         
-                        const timer = setInterval(() => {
-                            count += increment;
-                            if (count >= numericValue) {
-                                stat.textContent = numericValue + suffix;
-                                clearInterval(timer);
-                            } else {
-                                stat.textContent = Math.floor(count) + suffix;
-                            }
-                        }, 20);
-                    });
+    //                     const timer = setInterval(() => {
+    //                         count += increment;
+    //                         if (count >= numericValue) {
+    //                             stat.textContent = numericValue + suffix;
+    //                             clearInterval(timer);
+    //                         } else {
+    //                             stat.textContent = Math.floor(count) + suffix;
+    //                         }
+    //                     }, 20);
+    //                 });
                     
-                    statsObserver.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.5 });
+    //                 statsObserver.unobserve(entry.target);
+    //             }
+    //         });
+    //     }, { threshold: 0.5 });
         
-        const statsSection = document.querySelector('.stats-section');
-        if (statsSection) {
-            statsObserver.observe(statsSection);
+    //     const statsSection = document.querySelector('.stats-section');
+    //     if (statsSection) {
+    //         statsObserver.observe(statsSection);
+    //     }
+    // }
+
+    /**
+ * Updates the time-ago badge based on the active carousel slide
+ */
+    function updateTimeAgoFromActiveSlide() {
+        const activeSlide = document.querySelector('.release-slide-item.active');
+        const timeText = document.querySelector('.time-text'); // ← fix this
+
+        if (!activeSlide || !timeText) return;
+
+        const publishedAt = activeSlide.dataset.publishedAt;
+
+        if (publishedAt) {
+            const timeAgo = getTimeAgo(publishedAt);
+            timeText.textContent = timeAgo === 'just now' ? 'just now' : `${timeAgo} ago`;
+        } else {
+            timeText.textContent = 'just now';
         }
     }
+    
+    /**
+     * Calculate time ago string from ISO date
+     */
+    function getTimeAgo(publishedAt) {
+        const published = new Date(publishedAt);
+        const now = new Date();
+        const diffInSeconds = Math.floor((now - published) / 1000);
+        
+        const intervals = [
+            { label: 'year', seconds: 31536000 },
+            { label: 'month', seconds: 2592000 },
+            { label: 'day', seconds: 86400 },
+            { label: 'hour', seconds: 3600 },
+            { label: 'minute', seconds: 60 }
+        ];
+        
+        for (const interval of intervals) {
+            const count = Math.floor(diffInSeconds / interval.seconds);
+            if (count > 0) {
+                return `${count} ${interval.label}${count > 1 ? 's' : ''}`;
+            }
+        }
+        
+        return 'just now';
+    }
+
+    // Call when slide changes
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initial update
+        updateTimeAgoFromActiveSlide();
+        
+        // Update when slide changes (your existing slider code should trigger this)
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.attributeName === 'class') {
+                    const target = mutation.target;
+                    if (target.classList.contains('release-slide-item') && 
+                        target.classList.contains('active')) {
+                        updateTimeAgoFromActiveSlide();
+                    }
+                }
+            });
+        });
+        
+        // Observe all slides for class changes
+        document.querySelectorAll('.release-slide-item').forEach(slide => {
+            observer.observe(slide, { attributes: true });
+        });
+    });
+
+    // ══════════════════════════════════════════════
+    // Abbreviated number renderer + tooltip init
+     //══════════════════════════════════════════════
+     
+    document.addEventListener('DOMContentLoaded', function () {
+        function abbr(n) {
+            n = parseInt(n, 10);
+            if (isNaN(n)) return '0';
+            if (n >= 1_000_000_000) return (n / 1_000_000_000).toFixed(1).replace(/\.0$/, '') + 'B';
+            if (n >= 1_000_000)     return (n / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
+            if (n >= 1_000)         return (n / 1_000).toFixed(1).replace(/\.0$/, '') + 'K';
+            return n.toLocaleString();
+        }
+
+        document.querySelectorAll('.num-display').forEach(el => {
+            el.textContent = abbr(el.dataset.value || 0);
+        });
+
+        document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
+            new bootstrap.Tooltip(el, { trigger: 'hover focus', html: false });
+        });
+    });
+
+
+    (function() {
+        const el = document.getElementById('trendingCards');
+        if (!el) return;
+
+        function fmt(n) {
+            return n >= 1e6 ? (n/1e6).toFixed(1)+'M' : n >= 1e3 ? (n/1e3).toFixed(1)+'K' : n;
+        }
+        function esc(s) {
+            return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+        }
+
+        async function refresh() {
+            try {
+            const res  = await fetch('/api/trending/');
+            if (!res.ok) return;
+            const { videos } = await res.json();
+            el.style.opacity = '0';
+            setTimeout(() => {
+                el.innerHTML = videos.map((v, i) => `
+                <a href="${v.url}" class="sm-card d-flex align-items-center gap-2 mb-2 text-decoration-none">
+                    <span class="sm-rank text-danger fw-bold flex-shrink-0">0${i+1}</span>
+                    <img src="${esc(v.thumbnail_url)}" class="sm-thumb rounded-2 flex-shrink-0" alt="">
+                    <div class="overflow-hidden flex-grow-1">
+                    <div class="sm-ch">${esc(v.channel_name)}</div>
+                    <div class="sm-ttl text-truncate">${esc(v.title.substring(0,36))}${v.title.length>36?'…':''}</div>
+                    <div class="sm-meta">🔥 ${i===0?'<span class="badge bg-danger py-0" style="font-size:.55rem">HOT</span>':''} ${fmt(v.view_count)} views</div>
+                    </div>
+                </a>`).join('');
+                el.style.transition = 'opacity .3s';
+                el.style.opacity = '1';
+            }, 280);
+            } catch(e) {}
+        }
+
+        setInterval(refresh, 5 * 60 * 1000);
+    })();
     
 })(); // End of IIFE
 

@@ -259,3 +259,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MAX_ATTEMPTS = 3
 MAX_RUN_TIME = 3600
 INTERNAL_IPS = ['127.0.0.1']
+
+EMAIL_BACKEND    = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST       = 'smtp.gmail.com'
+EMAIL_PORT       = 587
+EMAIL_USE_TLS    = True
+EMAIL_HOST_USER  = config('EMAIL_HOST_USER_VALUE')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD_VALUE')

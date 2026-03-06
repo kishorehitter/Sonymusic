@@ -1,0 +1,360 @@
+{% extends "sonyApp/layouts/base.html" %}
+{% load static %}
+
+{% block title %}Popular Artists – Sony Music India{% endblock %}
+
+{% block content %}
+
+
+<style>
+/* ── Page Header ── */
+.artists-hero {
+  background: linear-gradient(180deg, #1a0000 0%, #0a0a0a 100%);
+  padding: 20px 0 20px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.artists-hero::before {
+  content: '';
+  position: absolute;
+  top: -40%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 400px;
+  background: radial-gradient(ellipse, rgba(255,23,68,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.artists-hero h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  letter-spacing: 3px;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.artists-hero p {
+  color: #555;
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* ── Filter bar ── */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 0 32px;
+  flex-wrap: wrap;
+}
+
+.filter-bar input {
+  flex: 1;
+  min-width: 200px;
+  background: #111;
+  border: 1px solid #727272;
+  border-radius: 50px;
+  padding: 9px 20px;
+  color: #fff;
+  font-size: 0.82rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.filter-bar input:focus { border-color: #ff1744; }
+.filter-bar input::placeholder { color: #444; }
+
+.filter-count {
+  color: #949393;
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+/* ── Artist list ── */
+.artist-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.artist-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 8px;
+  border-bottom: 1px solid #111;
+  text-decoration: none;
+  color: inherit;
+  border-radius: 6px;
+  transition: background 0.18s, transform 0.18s;
+  position: relative;
+  cursor: pointer;
+}
+
+.artist-row:hover {
+  background: #0f0f0f;
+  transform: translateX(4px);
+}
+
+.artist-row:hover .arrow-icon { opacity: 1; transform: translateX(0); }
+
+/* rank */
+.artist-rank {
+  width: 36px;
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  font-family: 'Courier New', monospace;
+}
+.rank-1  { color: #ffd700; }
+.rank-2  { color: #c0c0c0; }
+.rank-3  { color: #cd7f32; }
+.rank-rest { color: #2a2a2a; }
+
+/* avatar placeholder */
+.artist-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #1a1a1a;
+  border: 1px solid #222;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: #919191;
+  flex-shrink: 0;
+  font-weight: 700;
+  text-transform: uppercase;
+  transition: border-color 0.2s;
+}
+
+.artist-row:hover .artist-avatar {
+  border-color: #ff1744;
+  color: #ff1744;
+}
+
+/* info */
+.artist-info { flex: 1; min-width: 0; }
+
+.artist-name {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #ddd;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.2s;
+}
+
+.artist-row:hover .artist-name { color: #fff; }
+
+.artist-meta {
+  font-size: 0.7rem;
+  color: #929292;
+  margin-top: 2px;
+}
+
+/* bar viz */
+.artist-bar-wrap {
+  width: 80px;
+  flex-shrink: 0;
+}
+
+.artist-bar-bg {
+  height: 3px;
+  background: #1a1a1a;
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.artist-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #ff1744, #ff4081);
+  border-radius: 2px;
+  transition: width 0.6s ease;
+}
+
+/* count badge */
+.artist-count-badge {
+  background: #111;
+  border: 1px solid #1f1f1f;
+  color: #b4b4b4;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.artist-row:hover .artist-count-badge {
+  border-color: rgba(255,23,68,0.3);
+  color: #ff1744;
+}
+
+/* arrow */
+.arrow-icon {
+  color: #222;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+/* empty state */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #939292;
+}
+
+/* section divider */
+.list-section-header {
+  padding: 10px 16px 6px;
+  font-size: 0.65rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #898989;
+  border-bottom: 1px solid #111;
+}
+
+/* stagger animation */
+.artist-row {
+  opacity: 0;
+  animation: rowFadeIn 0.3s ease forwards;
+}
+
+@keyframes rowFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+</style>
+
+<div class="container-fluid bg-black position-relative px-4">
+    <div class="d-flex justify-content-between align-items-center w-100">
+        <a class="navbar-brand logo" href="{% url 'home' %}">
+            <svg width="200" height="50" viewBox="0 0 1454 340" xmlns="http://www.w3.org/2000/svg">
+                <g fill="#F90000">
+                    <circle cx="157" cy="17" r="11"/><circle cx="187" cy="17" r="11"/><circle cx="217" cy="17" r="11"/>
+                    <circle cx="96" cy="47" r="11"/><circle cx="126" cy="47" r="11"/><circle cx="157" cy="47" r="11"/><circle cx="187" cy="47" r="11"/><circle cx="217" cy="47" r="11"/><circle cx="247" cy="47" r="11"/><circle cx="277" cy="47" r="11"/>
+                    <circle cx="66" cy="77" r="11"/><circle cx="96" cy="77" r="11"/><circle cx="126" cy="77" r="11"/><circle cx="157" cy="77" r="11"/><circle cx="187" cy="77" r="11"/><circle cx="217" cy="77" r="11"/><circle cx="247" cy="77" r="11"/><circle cx="277" cy="77" r="11"/><circle cx="307" cy="77" r="11"/>
+                    <circle cx="66" cy="107" r="11"/><circle cx="96" cy="107" r="11"/><circle cx="126" cy="107" r="11"/><circle cx="157" cy="107" r="11"/><circle cx="187" cy="107" r="11"/><circle cx="217" cy="107" r="11"/><circle cx="247" cy="107" r="11"/><circle cx="277" cy="107" r="11"/><circle cx="307" cy="107" r="11"/>
+                    <circle cx="36" cy="137" r="11"/><circle cx="66" cy="137" r="11"/><circle cx="96" cy="137" r="11"/><circle cx="126" cy="137" r="11"/><circle cx="157" cy="137" r="11"/><circle cx="187" cy="137" r="11"/><circle cx="217" cy="137" r="11"/><circle cx="247" cy="137" r="11"/><circle cx="277" cy="137" r="11"/><circle cx="307" cy="137" r="11"/><circle cx="337" cy="137" r="11"/>
+                    <circle cx="36" cy="167" r="11"/><circle cx="66" cy="167" r="11"/><circle cx="96" cy="167" r="11"/><circle cx="126" cy="167" r="11"/><circle cx="157" cy="167" r="11"/><circle cx="187" cy="167" r="11"/><circle cx="217" cy="167" r="11"/><circle cx="247" cy="167" r="11"/><circle cx="277" cy="167" r="11"/><circle cx="307" cy="167" r="11"/><circle cx="337" cy="167" r="11"/>
+                    <circle cx="66" cy="197" r="11"/><circle cx="96" cy="197" r="11"/><circle cx="126" cy="197" r="11"/><circle cx="157" cy="197" r="11"/><circle cx="187" cy="197" r="11"/><circle cx="217" cy="197" r="11"/><circle cx="247" cy="197" r="11"/><circle cx="277" cy="197" r="11"/><circle cx="307" cy="197" r="11"/>
+                    <circle cx="66" cy="227" r="11"/><circle cx="96" cy="227" r="11"/><circle cx="126" cy="227" r="11"/><circle cx="157" cy="227" r="11"/><circle cx="187" cy="227" r="11"/><circle cx="217" cy="227" r="11"/><circle cx="247" cy="227" r="11"/><circle cx="277" cy="227" r="11"/><circle cx="307" cy="227" r="11"/>
+                    <circle cx="96" cy="257" r="11"/><circle cx="126" cy="257" r="11"/><circle cx="157" cy="257" r="11"/><circle cx="187" cy="257" r="11"/><circle cx="217" cy="257" r="11"/><circle cx="247" cy="257" r="11"/><circle cx="277" cy="257" r="11"/>
+                    <circle cx="157" cy="287" r="11"/><circle cx="187" cy="287" r="11"/><circle cx="217" cy="287" r="11"/>
+                </g>
+                <text x="410" y="200" font-family="Arial Black, sans-serif" font-size="130" font-weight="900" fill="#FFFFFF" letter-spacing="5">SONY MUSIC</text>
+            </svg>
+        </a>
+        
+
+        <a href="{% url 'home' %}" class="nav-link text-white">
+            <i class="bi bi-house fs-4"></i>
+        </a>
+    </div>
+    
+</div>
+
+<!-- Hero -->
+<div class="artists-hero">
+  <h1>🎤 Popular Artists</h1>
+  <p>Top artists by video appearances · Last 90 days</p>
+</div>
+
+<!-- Main content -->
+<div class="container" style="max-width: 720px; padding-bottom: 60px;">
+
+  <!-- Filter bar -->
+  <div class="filter-bar">
+    <input type="text" id="artistSearch"
+           placeholder="Search artists…"
+           oninput="filterArtists(this.value)">
+    <span class="filter-count" id="filterCount">{{ artists|length }} artists</span>
+  </div>
+
+  <!-- List -->
+  <div class=" artist-list" id="artistList">
+    {% for artist in artists %}
+    <a class="artist-row"
+       href="{% url 'artist_videos' %}?artist={{ artist.name|urlencode }}"
+       data-name="{{ artist.name|lower }}"
+       style="animation-delay: {{ forloop.counter0 }}0ms;">
+
+      <!-- Rank -->
+      <span class="artist-rank text-secondary {% if forloop.counter == 1 %}rank-1{% elif forloop.counter == 2 %}rank-2{% elif forloop.counter == 3 %}rank-3{% else %}rank-rest{% endif %}">
+        {% if forloop.counter == 1 %}🥇
+        {% elif forloop.counter == 2 %}🥈
+        {% elif forloop.counter == 3 %}🥉
+        {% else %}#{{ forloop.counter }}{% endif %}
+      </span>
+
+      <!-- Avatar -->
+      <div class="artist-avatar">{{ artist.name|slice:":1" }}</div>
+
+      <!-- Info -->
+      <div class="artist-info">
+        <div class="artist-name">{{ artist.name }}</div>
+        <div class="artist-meta">
+          {{ artist.count }} video appearance{{ artist.count|pluralize }}
+          &nbsp;·&nbsp;
+          <span style="color:#9f9f9f;">Last 90 days</span>
+        </div>
+      </div>
+
+      <!-- Bar viz -->
+      <div class="artist-bar-wrap">
+        <div class="artist-bar-bg">
+          <div class="artist-bar-fill"
+               style="width: {{ artist.bar_pct }}%"></div>
+        </div>
+      </div>
+
+      <!-- Count badge -->
+      <span class="artist-count-badge">{{ artist.count }} videos</span>
+
+      <!-- Arrow -->
+      <i class="bi bi-arrow-right arrow-icon"></i>
+
+    </a>
+    {% empty %}
+    <div class="empty-state">
+      <i class="bi bi-music-note-beamed" style="font-size: 3rem; color:#222;"></i>
+      <p class="mt-3" style="color:#333;">No artist data yet</p>
+      <p style="font-size:0.8rem; color:#222;">Run the update command to populate</p>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+
+<script>
+function filterArtists(q) {
+  q = q.toLowerCase().trim();
+  var rows  = document.querySelectorAll('.artist-row');
+  var count = 0;
+
+  rows.forEach(function(row) {
+    var name = row.getAttribute('data-name') || '';
+    var show = !q || name.includes(q);
+    row.style.display = show ? '' : 'none';
+    if (show) count++;
+  });
+
+  var countEl = document.getElementById('filterCount');
+  if (countEl) countEl.textContent = count + ' artist' + (count !== 1 ? 's' : '');
+}
+</script>
+
+{% include 'sonyApp/inc/footer.html' %}
+{% endblock %}

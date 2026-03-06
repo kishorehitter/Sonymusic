@@ -6,80 +6,13 @@
 
 {% block content %}
 {% include 'sonyApp/inc/menu.html' %}
-
+ 
 <!-- Hero Section with Carousel Background and SVG Overlay -->
-<section class="hero-wrapper pt-5">
+<section class="hero-wrapper pt-3">
     
-    <!-- ✅ LATEST UPDATES TICKER -->
-
-    {% if latest_updates %}
-    <!-- Premium Latest Updates Ticker -->
-    <div class="premium-ticker-wrapper mt-3">
-        <div class="ticker-container">
-            <!-- Label -->
-            <div class="ticker-label">
-                <i class="bi bi-lightning-fill text-warning me-2"></i>
-                <span>LATEST</span>
-            </div>
-            
-            <!-- Scrolling Content -->
-            <div class="ticker-content">
-                <div class="ticker-track">
-                    <!-- Show only first 3 updates, repeated 4 times for smooth infinite loop -->
-                    {% for update in latest_updates|slice:":3" %}
-                    <div class="ticker-item" onclick="window.location.href='{% url 'video_player' update.channel.channel_id update.youtube_video_id %}'">
-                        <span class="ticker-dot"></span>
-                        <span class="ticker-text">
-                            <strong>{{ update.channel.name }}</strong> • {{ update.title|truncatechars:60 }}
-                        </span>
-                        <span class="ticker-date">{{ update.published_at|timesince }} ago</span>
-                    </div>
-                    {% endfor %}
-                    
-                    <!-- Repeat 1 -->
-                    {% for update in latest_updates|slice:":3" %}
-                    <div class="ticker-item" onclick="window.location.href='{% url 'video_player' update.channel.channel_id update.youtube_video_id %}'">
-                        <span class="ticker-dot"></span>
-                        <span class="ticker-text">
-                            <strong>{{ update.channel.name }}</strong> • {{ update.title|truncatechars:60 }}
-                        </span>
-                        <span class="ticker-date">{{ update.published_at|timesince }} ago</span>
-                    </div>
-                    {% endfor %}
-                    
-                    <!-- Repeat 2 -->
-                    {% for update in latest_updates|slice:":3" %}
-                    <div class="ticker-item" onclick="window.location.href='{% url 'video_player' update.channel.channel_id update.youtube_video_id %}'">
-                        <span class="ticker-dot"></span>
-                        <span class="ticker-text">
-                            <strong>{{ update.channel.name }}</strong> • {{ update.title|truncatechars:60 }}
-                        </span>
-                        <span class="ticker-date">{{ update.published_at|timesince }} ago</span>
-                    </div>
-                    {% endfor %}
-                    
-                    <!-- Repeat 3 -->
-                    {% for update in latest_updates|slice:":3" %}
-                    <div class="ticker-item" onclick="window.location.href='{% url 'video_player' update.channel.channel_id update.youtube_video_id %}'">
-                        <span class="ticker-dot"></span>
-                        <span class="ticker-text">
-                            <strong>{{ update.channel.name }}</strong> • {{ update.title|truncatechars:60 }}
-                        </span>
-                        <span class="ticker-date">{{ update.published_at|timesince }} ago</span>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-            
-            <!-- Gradient Edges -->
-            <div class="ticker-gradient-left"></div>
-            <div class="ticker-gradient-right"></div>
-        </div>
-    </div>
-    {% endif %}
-
     <!-- Background Layer: Carousel (z-index: 1) -->
     <div class="hero-background pt-5">
+        <h6 class="text-center text-secondary">Latest Releases</h6>
         <div class="recent-releases-carousel-bg">
             <div class="releases-slider-container">
                 <button class="slider-nav-arrow prev-arrow" id="prevSlide" aria-label="Previous">
@@ -89,7 +22,9 @@
                 <div class="releases-slider-track" id="releasesSlider">
                     {% if recent_videos %}
                         {% for video in recent_videos %}
-                        <div class="release-slide-item" data-video-id="{{ video.youtube_video_id }}">
+                        <div class="release-slide-item" 
+                            data-video-id="{{ video.youtube_video_id }}" 
+                            data-published-at="{{ video.published_at|date:'c' }}">
                             <div class="release-thumbnail">
                                 <img src="{{ video.thumbnail_url }}" alt="{{ video.title }}" loading="lazy">
                                 <div class="thumbnail-gradient-overlay"></div>
@@ -97,8 +32,8 @@
                                 <!-- Watch Button (Bottom Left) -->
                                 <a href="{% url 'video_player' video.channel.channel_id video.youtube_video_id %}" 
                                    class="watch-btn-overlay">
-                                    <div class="watch-btn-content py-1 px-3">
-                                        <i class="bi bi-play-fill"></i>
+                                    <div class="watch-btn-content py-2 px-3">
+                                        <i class="bi bi-play-fill fs-6"></i>
                                         <span >Watch Now</span>
                                     </div>
                                 </a>
@@ -132,43 +67,46 @@
             
             <div class="carousel-indicators" id="carouselIndicators"></div>
             
-            <div class="carousel-label-badge">
-                <i class="bi bi-fire text-danger me-2"></i>
-                <span>Latest Releases</span>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Overlay Layer: SVG & Text (z-index: 10) -->
-    <div class="hero-overlay">
-        <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-lg-10 text-center hero-content">
-                    <div class="svg-animation-wrapper mx-auto mb-0">
-                        <svg id="dotAnimation" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
-                            <defs>
-                                <radialGradient id="dotGradient" cx="50%" cy="50%">
-                                    <stop offset="0%" style="stop-color:#F90000;stop-opacity:1" />
-                                    <stop offset="100%" style="stop-color:#d50000;stop-opacity:1" />
-                                </radialGradient>
-                                <filter id="glow">
-                                    <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-                                    <feMerge>
-                                        <feMergeNode in="coloredBlur"/>
-                                        <feMergeNode in="SourceGraphic"/>
-                                    </feMerge>
-                                </filter>
-                            </defs>
-                            <g id="dotGrid"></g>
-                        </svg>
-                    </div>
-                    <h1 class="hero-title mt-0 pt-0">Experience Music<br><span class="gradient-text">Redefined</span></h1>
-                    <p class="hero-subtitle">Discover the finest collection of music from India's most celebrated artists</p>
+            
+           <div class="carousel-label-badge">
+                <!-- Row 2: Time — appears below -->
+                <div class="time-ago-small gap-2">
+                    <i class="bi bi-hourglass-split gap-2"></i>
+                    <span class="time-text">just now</span>
                 </div>
             </div>
+
+            
         </div>
     </div>
+   
+     <div class="container-fluid px-3 px-md-4 py-4" style="position:relative;z-index:10;">
+        <div class="align-items-center ">
+
+            <!-- ── CENTER: SVG HERO ── -->
+            <div class="col-12 text-center">
+            <div class="svg-animation-wrapper mx-auto mb-0">
+                <svg id="dotAnimation" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <radialGradient id="dotGradient" cx="50%" cy="50%">
+                    <stop offset="0%"   style="stop-color:#F90000;stop-opacity:1"/>
+                    <stop offset="100%" style="stop-color:#d50000;stop-opacity:1"/>
+                    </radialGradient>
+                    <filter id="glow">
+                    <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                    <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                    </filter>
+                </defs>
+                <g id="dotGrid"></g>
+                </svg>
+            </div>
+            <h1 class="hero-title pt-0">Experience Music<br><span class="gradient-text">Redefined</span></h1>
+            <p class="hero-subtitle">Official releases from leading voices in Indian music.</p>
+            </div>
+        </div>
+    </div>   
 </section>
+
 
 <!-- Featured Channels Section -->
 <section class="featured-section mx-0 py-5 overflow-x-hidden" id="channels">
@@ -188,11 +126,11 @@
 
         <div class="row justify-content-evenly mx-auto">
             {% for channel in channels %}
-            <div class="col-6 col-md-3 px-1">
+            <div class="col-6 col-md-3 px-1 py-1">
                 <div class="card channel-card h-auto">
                     <div class="channel-thumbnail mt-1 position-relative mx-auto rounded-circle p-4">
                         {% if channel.thumbnail_url %}
-                        <img src="{{ channel.thumbnail_url }}" alt="{{ channel.name }}" class="w-100 h-100 rounded-circle justify-content-center">
+                        <img src="{{ channel.thumbnail_url }}" alt="{{ channel.name }}" loading="lazy" class="w-100 h-100 rounded-circle justify-content-center">
                         {% else %}
                         <div class="thumbnail-overlay">
                             <i class="bi bi-music-note-beamed text-white fs-1"></i>
@@ -208,38 +146,12 @@
                     
                     <div class="card-body channel-info px-0 px-md-1 text-center">
                         <h3 class="card-title h6 mb-2">{{ channel.name }}</h3>
-                        <!-- <p class="channel-meta text-light small mb-3">
-                            <i class="bi bi-collection-play me-1"></i> {{ channel.description|truncatechars:60|default:"Official Sony Music Channel" }}
-                        </p> -->
-                        
-                        <!-- <div class="channel-tags mb-3">
-                            {% if channel.channel_id == 'sonymusicindia' %}
-                            <span class="badge tag me-2">Bollywood</span>
-                            <span class="badge tag">Hindi</span>
-                            {% elif channel.channel_id == 'sonymusicsouth' %}
-                            <span class="badge tag me-2">Tamil</span>
-                            <span class="badge tag me-2">Telugu</span>
-                            <span class="badge tag">Malayalam</span>
-                            {% else %}
-                            <span class="badge tag me-2">Music</span>
-                            <span class="badge tag">Videos</span>
-                            {% endif %}
-                        </div> -->
+                       
                         <div class="col-12 text-center">
                             <a href="{% url 'channel_detail' channel.channel_id %}" class="btn btn-danger ">
-                                <i class="bi bi-play-circle me-2"></i> Explore
+                                <i class="bi bi-play-circle"></i> View
                             </a>
                         </div>
-                        
-                        <!-- <div class="mt-2 text-start px-5">
-                            <small class="text-light opacity-75">
-                                <i class="bi bi-music-note me-1"></i>
-                                Enjoy unlimited access to music videos, shorts, and exclusive content from India's finest artists!
-                            </small>
-                        </div> -->
-                        <!-- <div class="text-center">
-                            <i class="bi bi-hand-index-thumb fs-4 text-light text-center"></i>
-                        </div> -->
                         
                     </div>
                 </div>
@@ -251,19 +163,266 @@
                 <p class="text-light">Channels will appear here once they're added.</p>
             </div>
             {% endfor %}
+        </div>    
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     GROWTH TEASER  (static — zero DB queries)
+     ═══════════════════════════════════════════════════════════════ -->
+<section class="container-fluid py-5 px-3 px-md-4 text-center">
+
+  <p class="text-uppercase text-secondary mb-2" style="font-size:0.7rem; letter-spacing:3px;">Trending</p>
+  <h2 class="fw-bold text-white mb-1">📊 Growth Rankings</h2>
+  <p class="text-secondary mb-5" style="font-size:0.82rem;">Updated every 6 hours · Based on real view velocity</p>
+
+  <!-- 3 bars -->
+  <div class="mb-5 d-flex align-items-flex-end justify-content-center gap-4 gap-md-5 mb-4"
+       style="height:250px; align-items:flex-end; position:relative;">
+
+    <!-- baseline -->
+    <div style="position:absolute;bottom:0;left:10%;right:10%;height:1px;background:#1f1f1f;"></div>
+
+    <!-- Bar 1 — Hot & New -->
+    <a href="{% url 'growth_page' %}#hot-and-new"
+       class="growth-bar-col text-decoration-none"
+       style="display:flex;flex-direction:column;align-items:center;cursor:pointer;">
+      <div class="growth-bar hot-bar"
+           style="width:80px;height:100px;border-radius:6px 6px 0 0;
+                  border:2px solid #920a0a;background:transparent;
+                  position:relative;overflow:hidden;transition:box-shadow 0.3s;">
+        <div class="bar-fill"
+             style="position:absolute;bottom:0;left:0;right:0;height:0%;
+                    background:linear-gradient(180deg,#920a0a,#920a0a);
+                    transition:height 0.4s cubic-bezier(0.34,1.56,0.64,1);
+                    border-radius:4px 4px 0 0;"></div>
+        <span style="position:absolute;top:-38px;left:50%;transform:translateX(-50%);
+                     background:#1a1a1a;border:1px solid #920a0a;color:#920a0a;
+                     border-radius:20px;padding:3px 10px;font-size:0.68rem;font-weight:600;
+                     white-space:nowrap;opacity:0;transition:opacity 0.2s,top 0.2s;"
+              class="bar-tip">🔥 Hot &amp; New →</span>
+      </div>
+      <div style="margin-top:14px;">
+        <div style="font-size:1.2rem;">🔥</div>
+        <div class="bar-name" style="font-size:0.78rem;font-weight:600;color:#555;transition:color 0.2s;white-space:nowrap;">Hot &amp; New</div>
+        <div class="bar-hint" style="font-size:0.65rem;color:#333;transition:color 0.2s;">last 24 h</div>
+      </div>
+    </a>
+
+    <!-- Bar 2 — Daily Growth -->
+    <a href="{% url 'growth_page' %}#daily-growth"
+       class="growth-bar-col text-decoration-none"
+       style="display:flex;flex-direction:column;align-items:center;cursor:pointer;">
+      <div class="growth-bar daily-bar"
+           style="width:80px;height:160px;border-radius:6px 6px 0 0;
+                  border:2px solid #920a0a;background:transparent;
+                  position:relative;overflow:hidden;transition:box-shadow 0.3s;">
+        <div class="bar-fill"
+             style="position:absolute;bottom:0;left:0;right:0;height:0%;
+                    background:linear-gradient(180deg,#920a0a,#920a0a);
+                    transition:height 0.4s cubic-bezier(0.34,1.56,0.64,1);
+                    border-radius:4px 4px 0 0;"></div>
+        <span style="position:absolute;top:-38px;left:50%;transform:translateX(-50%);
+                     background:#1a1a1a;border:1px solid #920a0a;color:#920a0a;
+                     border-radius:20px;padding:3px 10px;font-size:0.68rem;font-weight:600;
+                     white-space:nowrap;opacity:0;transition:opacity 0.2s,top 0.2s;"
+              class="bar-tip">📈 Daily Growth →</span>
+      </div>
+      <div style="margin-top:14px;">
+        <div style="font-size:1.2rem;">📈</div>
+        <div class="bar-name" style="font-size:0.78rem;font-weight:600;color:#555;transition:color 0.2s;white-space:nowrap;">Daily Growth</div>
+        <div class="bar-hint" style="font-size:0.65rem;color:#333;transition:color 0.2s;">rolling 24 h</div>
+      </div>
+    </a>
+
+    <!-- Bar 3 — Weekly Growth -->
+    <a href="{% url 'growth_page' %}#weekly-growth"
+       class="growth-bar-col text-decoration-none"
+       style="display:flex;flex-direction:column;align-items:center;cursor:pointer;">
+      <div class="growth-bar weekly-bar"
+           style="width:80px;height:210px;border-radius:6px 6px 0 0;
+                  border:2px solid #920a0a;background:transparent;
+                  position:relative;overflow:hidden;transition:box-shadow 0.3s;">
+        <div class="bar-fill"
+             style="position:absolute;bottom:0;left:0;right:0;height:0%;
+                    background:linear-gradient(180deg,#920a0a,#920a0a);
+                    transition:height 0.4s cubic-bezier(0.34,1.56,0.64,1);
+                    border-radius:4px 4px 0 0;"></div>
+        <span style="position:absolute;top:-38px;left:50%;transform:translateX(-50%);
+                     background:#1a1a1a;border:1px solid #920a0a;color:#920a0a;
+                     border-radius:20px;padding:3px 10px;font-size:0.68rem;font-weight:600;
+                     white-space:nowrap;opacity:0;transition:opacity 0.2s,top 0.2s;"
+              class="bar-tip">📊 Weekly Growth →</span>
+      </div>
+      <div style="margin-top:14px;">
+        <div style="font-size:1.2rem;">📊</div>
+        <div class="bar-name" style="font-size:0.78rem;font-weight:600;color:#555;transition:color 0.2s;white-space:nowrap;">Weekly Growth</div>
+        <div class="bar-hint" style="font-size:0.65rem;color:#333;transition:color 0.2s;">rolling 7 days</div>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- CTA -->
+  <a href="{% url 'growth_page' %}"
+     style="display:inline-flex;align-items:center;gap:8px;background:transparent;
+            color:#fff;border:1px solid #2a2a2a;padding:10px 28px;border-radius:50px;
+            font-size:0.82rem;font-weight:600;text-decoration:none;transition:all 0.2s;"
+     onmouseover="this.style.background='#fff';this.style.color='#000';this.style.borderColor='#fff';"
+     onmouseout="this.style.background='transparent';this.style.color='#fff';this.style.borderColor='#2a2a2a';">
+    View Full Growth Analytics <span style="display:inline-block;transition:transform 0.2s;" class="cta-arrow">→</span>
+  </a>
+</section>  
+ 
+
+<!-- Artist Marquee with Clean Tooltips -->
+ <!-- <h5 class="text-center text-secondary fw-bolder mt-4 mb-0">POPULAR ARTIST</h5>
+<section class="artist-marquee-section py-3">
+    
+    <div class="container-fluid px-0">
+        <div class="marquee-container">
+            <div class="marquee-content marquee-rtl">
+                {% for artist in recent_artists %}
+                <span class="artist-item" 
+                      data-bs-toggle="tooltip" 
+                      data-bs-placement="top"
+                      data-bs-custom-class="artist-tooltip"
+                      title="{{ artist.tooltip }}">
+                    <span class="courgette-regular text-white fw-bold">{{ artist.name }}</span>
+                    <span class="artist-count text-danger ms-2">({{ artist.count }})</span>
+                </span>
+                <span class="separator mx-3 text-secondary">•</span>
+                {% endfor %}
+                
+               
+                {% for artist in recent_artists %}
+                <span class="artist-item"
+                      data-bs-toggle="tooltip" 
+                      data-bs-placement="top"
+                      data-bs-custom-class="artist-tooltip"
+                      title="{{ artist.tooltip }}">
+                    <span class="courgette-regular text-white fw-bold">{{ artist.name }}</span>
+                    <span class="artist-count text-danger ms-2">({{ artist.count }})</span>
+                </span>
+                <span class="separator mx-3 text-secondary">•</span>
+                {% endfor %}
+            </div>
         </div>
-        
-       
+    </div>
+</section> -->
+
+<!-- ══════════════════════════════════════════════
+     BRAND + ENQUIRY SECTION
+══════════════════════════════════════════════ -->
+<section class="container-fluid py-5 px-4 px-md-5">
+    <div class="row g-4 align-items-stretch">
+
+        <!-- LEFT: Brand Statement -->
+        <div class="col-12 col-md-6">
+            <div class="info-box h-100 p-4 p-md-5 rounded-3" 
+                 style="background: linear-gradient(135deg, #111 60%, #1a0000); border: 1px solid rgba(255,23,68,0.15);">
+                <div class="d-flex align-items-center gap-3 mb-4">
+                    <div style="width:4px; height:40px; background:#ff1744; border-radius:2px;"></div>
+                    <h4 class="text-white fw-bold mb-0">The Sound of a Billion Hearts</h4>
+                </div>
+                <p class="text-light mb-4" style="line-height:1.8;">
+                    Explore a curated world of musical excellence. We bring you the definitive 
+                    collection of South Indian blockbusters and India's top-trending hits, 
+                    all in one place. Your journey through India's richest musical landscape 
+                    starts with a single click.
+                </p>
+                <div class="d-flex flex-wrap gap-3">
+                    <span class="badge px-3 py-2" style="background:rgba(255,23,68,0.15); color:#ff1744; border:1px solid rgba(255,23,68,0.3); font-size:0.8rem;">
+                        <i class="bi bi-patch-check-fill me-1"></i> Official Verified Content
+                    </span>
+                    <span class="badge px-3 py-2" style="background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.7); border:1px solid rgba(255,255,255,0.1); font-size:0.8rem;">
+                        <i class="bi bi-music-note-beamed me-1"></i> Sony Music India
+                    </span>
+                    <span class="badge px-3 py-2" style="background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.7); border:1px solid rgba(255,255,255,0.1); font-size:0.8rem;">
+                        <i class="bi bi-globe me-1"></i> Pan India Catalogue
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT: Enquiry -->
+        <div class="col-12 col-md-6">
+            <div class="h-100 p-4 p-md-5 rounded-3"
+                 style="background: linear-gradient(135deg, #1a0000 20%, #111);">
+                <div class="d-flex align-items-center gap-2 mb-4">
+                    <i class="bi bi-envelope-paper-fill text-danger fs-5"></i>
+                    <h5 class="text-white fw-bold mb-0">Business Enquiries</h5>
+                </div>
+
+                <div class="d-flex flex-column gap-3">
+
+                    <!-- Music Licensing -->
+                    <div class="enquiry-card d-flex align-items-center gap-3 p-3 rounded-2"
+                         style="cursor:pointer; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); transition: all 0.2s;"
+                         onmouseover="this.style.borderColor='rgba(255,23,68,0.4)'; this.style.background='rgba(255,23,68,0.05)'"
+                         onmouseout="this.style.borderColor='rgba(255,255,255,0.07)'; this.style.background='rgba(255,255,255,0.04)'"
+                         onclick="openEnquiryModal('Music Licensing', 'smsunoffical@gmail.com')">
+                        <div class="flex-shrink-0 rounded-circle d-flex align-items-center justify-content-center"
+                             style="width:38px;height:38px;background:rgba(255,23,68,0.12);">
+                            <i class="bi bi-file-earmark-music text-danger"></i>
+                        </div>
+                        <div>
+                            <div class="text-white small fw-semibold">Music Licensing</div>
+                            <div class="text-secondary" style="font-size:0.75rem;">Click to send enquiry</div>
+                        </div>
+                        <i class="bi bi-envelope ms-auto text-light"></i>
+                    </div>
+
+                    <!-- Artist Relations -->
+                    <div class="enquiry-card d-flex align-items-center gap-3 p-3 rounded-2"
+                         style="cursor:pointer; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); transition: all 0.2s;"
+                         onmouseover="this.style.borderColor='rgba(255,23,68,0.4)'; this.style.background='rgba(255,23,68,0.05)'"
+                         onmouseout="this.style.borderColor='rgba(255,255,255,0.07)'; this.style.background='rgba(255,255,255,0.04)'"
+                         onclick="openEnquiryModal('Artist Relations', 'smsunoffical@gmail.com')">
+                        <div class="flex-shrink-0 rounded-circle d-flex align-items-center justify-content-center"
+                             style="width:38px;height:38px;background:rgba(255,23,68,0.12);">
+                            <i class="bi bi-person-badge text-danger"></i>
+                        </div>
+                        <div>
+                            <div class="text-white small fw-semibold">Artist Relations</div>
+                            <div class="text-secondary" style="font-size:0.75rem;">Click to send enquiry</div>
+                        </div>
+                        <i class="bi bi-envelope  ms-auto text-light"></i>
+                        
+                    </div>
+
+                    <!-- General Enquiries -->
+                    <div class="enquiry-card d-flex align-items-center gap-3 p-3 rounded-2"
+                         style="cursor:pointer; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); transition: all 0.2s;"
+                         onmouseover="this.style.borderColor='rgba(255,23,68,0.4)'; this.style.background='rgba(255,23,68,0.05)'"
+                         onmouseout="this.style.borderColor='rgba(255,255,255,0.07)'; this.style.background='rgba(255,255,255,0.04)'"
+                         onclick="openEnquiryModal('General Enquiries', 'smsunoffical@gmail.com')">
+                        <div class="flex-shrink-0 rounded-circle d-flex align-items-center justify-content-center"
+                             style="width:38px;height:38px;background:rgba(255,23,68,0.12);">
+                            <i class="bi bi-envelope text-danger"></i>
+                        </div>
+                        <div>
+                            <div class="text-white small fw-semibold">General Enquiries</div>
+                            <div class="text-secondary" style="font-size:0.75rem;">Click to send enquiry</div>
+                        </div>
+                        <i class="bi bi-envelope  ms-auto text-light"></i>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
     </div>
 </section>
 
 <!-- Stats Section -->
-<section class="stats-section py-5 bg-dark">
-    <div class="container">
-        <div class="row g-4 text-center">
+<section class="container stats-section pb-5 mx-auto overflow-hidden">
+    <div>
+        <div class="row text-center">
             <div class="col-6 col-md-3">
                 <div class="stat-item">
-                    <div class="stat-number display-4 fw-bold text-danger">
+                    <div class="stat-number display-6 fw-bold text-danger">
                         {{ total_artists_formatted }}
                     </div>
                     <div class="stat-label text-uppercase small text-light">Channels</div>
@@ -271,7 +430,7 @@
             </div>
             <div class="col-6 col-md-3">
                 <div class="stat-item">
-                    <div class="stat-number display-4 fw-bold text-danger">
+                    <div class="stat-number display-6 fw-bold text-danger">
                         {{ total_videos_formatted }}+
                     </div>
                     <div class="stat-label text-uppercase small text-light">Music Videos</div>
@@ -279,112 +438,109 @@
             </div>
             <div class="col-6 col-md-3">
                 <div class="stat-item">
-                    <div class="stat-number display-4 fw-bold text-danger">
+                    <div class="stat-number display-6 fw-bold text-danger">
                         {{ monthly_views_formatted }}+
                     </div>
-                    <div class="stat-label text-uppercase small text-light">Monthly Listeners</div>
+                    <div class="stat-label text-uppercase small text-light">Monthly Views</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="stat-item">
-                    <div class="stat-number display-4 fw-bold text-danger">
-                        {{ total_languages_formatted }}
+                    <div class="stat-number display-6 fw-bold text-danger">
+                        {{ total_subscribers_formatted }}+
                     </div>
-                    <div class="stat-label text-uppercase small text-light">Languages</div>
+                    <div class="stat-label text-uppercase small text-light">Total Subscribers</div>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Genres Section -->
-<section class="genres-section py-5" id="genres">
-    <div class="container">
-        <div class="row">
-            <div class="col-12 text-center mb-5">
-                <span class="section-label d-inline-block mb-3">Explore</span>
-                <h2 class="section-title mb-3">Music Genres</h2>
-                <p class="section-desc">From classical to contemporary, discover every sound</p>
-            </div>
-        </div>
 
-        <div class="row g-4">
-            <div class="col-lg-4 col-md-6">
-                <div class="card genre-card text-center h-100">
-                    <div class="card-body">
-                        <div class="genre-icon display-1 mb-3">🎵</div>
-                        <h3 class="h5 text-white mb-2">Bollywood</h3>
-                        <p class="text-light small mb-0">Film music from the heart of Indian cinema</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6">
-                <div class="card genre-card text-center h-100">
-                    <div class="card-body">
-                        <div class="genre-icon display-1 mb-3">🎸</div>
-                        <h3 class="h5 text-white mb-2">Rock & Pop</h3>
-                        <p class="text-light small mb-0">Contemporary sounds and modern beats</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6">
-                <div class="card genre-card text-center h-100">
-                    <div class="card-body">
-                        <div class="genre-icon display-1 mb-3">🎻</div>
-                        <h3 class="h5 text-white mb-2">Classical</h3>
-                        <p class="text-light small mb-0">Timeless ragas and traditional melodies</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6">
-                <div class="card genre-card text-center h-100">
-                    <div class="card-body">
-                        <div class="genre-icon display-1 mb-3">🎤</div>
-                        <h3 class="h5 text-white mb-2">Hip-Hop</h3>
-                        <p class="text-light small mb-0">Urban rhythms and rap culture</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6">
-                <div class="card genre-card text-center h-100">
-                    <div class="card-body">
-                        <div class="genre-icon display-1 mb-3">🎼</div>
-                        <h3 class="h5 text-white mb-2">Devotional</h3>
-                        <p class="text-light small mb-0">Spiritual music and bhajans</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6">
-                <div class="card genre-card text-center h-100">
-                    <div class="card-body">
-                        <div class="genre-icon display-1 mb-3">🎹</div>
-                        <h3 class="h5 text-white mb-2">Electronic</h3>
-                        <p class="text-light small mb-0">EDM and experimental sounds</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+<!-- ══════════════════════════════════════════════
+     ENQUIRY MODAL — place just before </body>
+══════════════════════════════════════════════ -->
+<div class="modal fade" id="enquiryModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-3"
+             style="background:#111; border:1px solid rgba(255,23,68,0.2) !important;">
 
- <div class="container row my-5 mx-auto">
-    <div class="col-12">
-        <div class="info-box p-4 rounded-3 bg-dark">
-            <div class="d-flex align-items-start">
-                <div class="me-3">
-                    <i class="bi bi-music-note-beamed text-danger fs-2"></i>
+            <!-- Header -->
+            <div class="modal-header border-0 pb-0">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-envelope-paper-fill text-danger fs-5"></i>
+                    <h5 class="modal-title text-white fw-bold" id="enquiryModalTitle">Enquiry</h5>
                 </div>
-                <div>
-                    <h5 class="text-white mb-2">The Sound of a Billion Hearts</h5>
-                    <p class="text-light mb-0 small">
-                        Explore a curated world of musical excellence. We bring you the definitive collection of South Indian blockbusters and India’s top-trending hits, all in one place. Your journey through India’s richest musical landscape starts with a single click.
-                        <br>
-                        <span class="text-info"><i class="bi bi-info-circle me-1"></i>
-                            Official Verified Content
-                        </span>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <!-- Body -->
+            <div class="modal-body">
+                <p class="text-secondary small mb-4" id="enquiryModalSubtitle">
+                    Fill in the form and we'll get back to you shortly.
+                </p>
+
+                <!-- Form -->
+                <div id="enquiryFormArea">
+                    <div class="mb-3">
+                        <label class="form-label text-light small">
+                            Your Name <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" id="enquiryName"
+                               class="form-control bg-dark text-white border-secondary"
+                               placeholder="Full name">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-light small">
+                            Email Address <span class="text-danger">*</span>
+                        </label>
+                        <input type="email" id="enquiryEmail"
+                               class="form-control bg-dark text-white border-secondary"
+                               placeholder="your@email.com">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-light small">Subject</label>
+                        <input type="text" id="enquirySubject"
+                               class="form-control bg-dark text-white border-secondary"
+                               readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-light small">
+                            Message <span class="text-danger">*</span>
+                        </label>
+                        <textarea id="enquiryMessage"
+                                  class="form-control bg-dark text-white border-secondary"
+                                  rows="4"
+                                  placeholder="Tell us more about your enquiry..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Success state -->
+                <div id="enquirySuccess" class="text-center py-4 d-none">
+                    <i class="bi bi-check-circle-fill text-success mb-3" style="font-size:3rem;"></i>
+                    <h6 class="text-white fw-bold">Message Sent!</h6>
+                    <p class="text-secondary small mb-0">
+                        We'll get back to you within 2–3 business days.
                     </p>
                 </div>
+
+                <!-- Error message -->
+                <div id="enquiryError" class="alert alert-danger d-none small py-2 mb-0"></div>
             </div>
+
+            <!-- Footer -->
+            <div class="modal-footer border-0 pt-0" id="enquiryFooter">
+                <button type="button"
+                        class="btn btn-outline-secondary btn-sm"
+                        data-bs-dismiss="modal">Cancel</button>
+                <button type="button"
+                        class="btn btn-danger btn-sm px-4"
+                        id="enquirySendBtn"
+                        onclick="submitEnquiry()">
+                    <i class="bi bi-send me-1"></i> Send Message
+                </button>
+            </div>
+
         </div>
     </div>
 </div>
@@ -392,4 +548,9 @@
 {% include 'sonyApp/inc/footer.html' %}
 
 
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+<script src="{% static 'js/homepage.js' %}"></script>
 {% endblock %}

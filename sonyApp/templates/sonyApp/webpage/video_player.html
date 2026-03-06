@@ -18,16 +18,11 @@
                     ═══════════════════════════════════════ -->
                     <div class="vp-wrapper {% if current_video.is_short %}is-short{% endif %}" id="vp-wrapper">
                         
-                        <!-- YouTube iframe target -->
                         <div id="player" data-video-id="{{ current_video.youtube_video_id }}"></div>
-                        
-                        <!-- Black cover shown before first play -->
                         <div class="vp-cover" id="vp-cover"></div>
-                        
-                        <!-- Click shield (intercepts clicks on iframe) -->
                         <div class="vp-shield" id="vp-shield"></div>
                         
-                        <!-- Double-tap zones - now visible on mobile -->
+                        <!-- Double-tap zones -->
                         <div class="vp-tap-zones" id="vp-tap-zones">
                             <div class="vp-tap-left" id="vp-tap-left">
                                 <div class="vp-tap-feedback">
@@ -47,28 +42,22 @@
                             </div>
                         </div>
                         
-                        <!-- Shorts Navigation Buttons - Always visible -->
+                        <!-- Shorts Navigation -->
                         {% if current_video.is_short %}
                         <div class="shorts-nav-buttons">
                             <button class="shorts-nav-btn prev" id="shorts-nav-prev" aria-label="Previous short">
-                                <svg viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
-                                </svg>
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
                             </button>
                             <button class="shorts-nav-btn next" id="shorts-nav-next" aria-label="Next short">
-                                <svg viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
-                                </svg>
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
                             </button>
                         </div>
                         {% endif %}
                         
-                        <!-- Big center play button -->
+                        <!-- Big play button -->
                         <div class="vp-big-play" id="vp-big-play">
                             <div class="vp-big-play-ring">
-                                <svg viewBox="0 0 24 24" fill="currentColor">
-                                    <path d="M8 5v14l11-7z"/>
-                                </svg>
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
                             </div>
                         </div>
                         
@@ -103,15 +92,12 @@
                                     <div class="vp-prog-thumb" id="vp-prog-thumb"></div>
                                 </div>
                             </div>
-                            
-                            <div class="vp-ctrl-row pb-0 pb-md-1">
+                            <div class="vp-ctrl-row pb-0">
                                 <button class="vp-btn" id="vp-playpause" aria-label="Play/Pause">
                                     <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
                                     <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
                                 </button>
-                                
                                 <span class="vp-time" id="vp-time">0:00 / 0:00</span>
-                                
                                 <div class="vp-vol-group" id="vp-vol-group">
                                     <button class="vp-btn" id="vp-mute" aria-label="Mute">
                                         <svg class="icon-vol-up" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
@@ -124,10 +110,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                
                                 <div style="flex:1"></div>
-                                
-                                <!-- Quality menu - hidden on mobile -->
                                 <div class="vp-quality-wrap d-none d-md-block" id="vp-quality-wrap">
                                     <button class="vp-btn vp-quality-btn" id="vp-quality-btn" aria-label="Quality">
                                         <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
@@ -140,8 +123,6 @@
                                         <div class="vp-q-opt" data-q="high"><span>High (720p+)</span><span class="vp-q-check" id="qc-high">✓</span></div>
                                     </div>
                                 </div>
-                                
-                                <!-- Fullscreen button - visible on mobile only for normal videos -->
                                 <button class="vp-btn {% if current_video.is_short %}d-none{% else %}d-flex{% endif %} d-md-flex" id="vp-fs" aria-label="Fullscreen">
                                     <svg class="icon-fs-enter" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
                                     <svg class="icon-fs-exit" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg>
@@ -149,11 +130,10 @@
                             </div>
                         </div>
                         
-                        <!-- Custom End Screen -->
+                        <!-- End Screen -->
                         <div class="vp-end-screen" id="vp-end-screen">
                             <div class="vp-end-content">
                                 <div class="vp-end-grid" id="vp-end-grid"></div>
-                                <!-- Mobile navigation arrows -->
                                 <div class="vp-mobile-nav" id="vp-mobile-nav">
                                     <button class="vp-nav-btn prev" id="vp-nav-prev" aria-label="Previous videos">
                                         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
@@ -178,27 +158,50 @@
                 {% endif %}
             </div>
             
-            <!-- Video Info -->
-            <div class="container-fluid py-3">
+            <!-- ═══════════════════════════════════════
+                 VIDEO INFO — abbreviated counts + likes
+            ═══════════════════════════════════════ -->
+            <div class="container-fluid py-3 text-center">
                 <div class="row">
                     <div class="col-12">
                         <div class="vp-info-card">
                             <h4 class="vp-info-title">{{ current_video.title }}</h4>
-                            <div class="vp-info-meta">
+                            <div class="vp-info-meta justify-content-center flex-wrap gap-3">
+
+                                <!-- Channel -->
                                 <span>
                                     <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
                                     {{ channel.name }}
                                 </span>
+
+                                <!-- Published date -->
                                 <span>
                                     <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg>
                                     {{ current_video.published_at|date:"F d, Y" }}
                                 </span>
+
+                                <!-- Views — abbreviated with full count on hover -->
                                 {% if current_video.view_count %}
-                                <span>
+                                <span
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="{{ current_video.view_count|floatformat:0 }} views">
                                     <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
-                                    {{ current_video.view_count|floatformat:0 }} views
+                                    <span class="num-display" data-value="{{ current_video.view_count }}"></span> views
                                 </span>
                                 {% endif %}
+
+                                <!-- Likes — abbreviated with full count on hover -->
+                                {% if current_video.like_count %}
+                                <span
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="{{ current_video.like_count|floatformat:0 }} likes">
+                                    <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg>
+                                    <span class="num-display" data-value="{{ current_video.like_count }}"></span> likes
+                                </span>
+                                {% endif %}
+
                             </div>
                         </div>
                     </div>
@@ -208,24 +211,32 @@
         
         <hr class="vp-divider">
         
-        <!-- Related Videos -->
+        <!-- ═══════════════════════════════════════
+             RELATED VIDEOS — same type only, no views/likes
+        ═══════════════════════════════════════ -->
         <div class="container-fluid px-0 mx-0 my-2">
             <div class="row mx-0 p-0">
-                <h3 class="vp-section-title">More from {{ channel.name }}</h3>
+                <h3 class="vp-section-title">
+                    More {{ current_video.is_short|yesno:"Shorts,Videos" }} from {{ channel.name }}
+                    {% if streaming %}
+                        <small class="text-secondary fs-6 ms-2">({{ streaming|length }})</small>
+                    {% endif %}
+                </h3>
+
                 {% if streaming %}
                     {% for video in streaming %}
-                    <div class="col-6 col-sm-4 col-md-3 col-lg-3 px-1 mb-3">
-                        <div class="vid-card {% if video.youtube_video_id == current_video.youtube_video_id %}current-video{% endif %}" 
+                    <div class="col-6 col-sm-4 col-md-3 col-lg-3 px-1 pt-1">
+                        <div class="video-card h-100 {% if video.youtube_video_id == current_video.youtube_video_id %}current-video{% endif %}" 
                              data-video-id="{{ video.youtube_video_id }}">
                             <a href="{% url 'video_player' channel.channel_id video.youtube_video_id %}" class="text-decoration-none">
-                                <div class="vid-thumb-wrap">
+                                <div class="video-thumbnail-wrapper position-relative">
                                     <img src="{{ video.thumbnail_url }}"
                                          alt="{{ video.title }}"
                                          class="vid-thumb"
                                          loading="lazy"
                                          onerror="this.src='{% static 'images/placeholder-video.jpg' %}'">
-                                    <div class="vid-play-overlay">
-                                        <svg viewBox="0 0 24 24" fill="white" width="28" height="28"><path d="M8 5v14l11-7z"/></svg>
+                                    <div class="play-overlay">
+                                        <i class="bi bi-play-circle-fill text-white" style="font-size: 3rem; opacity: 0.9;"></i>
                                     </div>
                                     {% if video.duration %}
                                     <div class="vid-duration">{{ video.duration }}</div>
@@ -237,17 +248,22 @@
                                     <div class="vid-current-badge">Now Playing</div>
                                     {% endif %}
                                 </div>
-                                <div class="vid-info">
-                                    <p class="vid-title">{{ video.title|truncatechars:50 }}</p>
-                                    <p class="vid-date">{{ video.published_at|date:"M d, Y" }}</p>
+                                <!-- Title + date only — no views/likes -->
+                                <div class="video-info mt-2">
+                                    <h5 class="video-title text-white mb-1">{{ video.title|truncatechars:50 }}</h5>
+                                    <div class="video-meta small text-secondary"><i class="bi bi-calendar3"></i> {{ video.published_at|date:"M d, Y" }}</div>
                                 </div>
                             </a>
                         </div>
                     </div>
                     {% endfor %}
+
                 {% else %}
                     <div class="col-12 text-center py-4">
-                        <p class="text-secondary">No other videos available.</p>
+                        <i class="bi bi-{% if current_video.is_short %}film{% else %}play-circle{% endif %} text-secondary fs-1 mb-2"></i>
+                        <p class="text-secondary">
+                            No other {{ current_video.is_short|yesno:"shorts,videos" }} available from {{ channel.name }}.
+                        </p>
                     </div>
                 {% endif %}
             </div>
@@ -257,6 +273,7 @@
     </div>
 </div>
 
+
 <!-- Streaming data for JavaScript -->
 <script id="streaming-data" type="application/json">
 {{ streaming_json|safe }}
@@ -265,7 +282,7 @@
 <!-- CSRF Token for AJAX requests -->
 {% csrf_token %}
 
-<style>
+<!-- <style>
 /* ============================================
    PLAYER WRAPPER - Base Styles
 ============================================ */
@@ -630,7 +647,7 @@
 /* Progress bar */
 .vp-prog-wrap {
     width: 100%;
-    padding: 8px 0 6px;
+    padding: 0;
     cursor: pointer;
 }
 
@@ -1288,6 +1305,7 @@
     /* Adjust controls padding */
     .vp-controls {
         padding: 0 8px 8px;
+        margin-bottom: -12px;
     }
     
     .vp-ctrl-row {
@@ -1350,971 +1368,12 @@
     width: 28px;
     height: 28px;
 }
-</style>
+</style> -->
 
 {% endblock content %}
 
 {% block scripts %}
 {{ block.super }}
-<script>
-(function () {
-'use strict';
-
-/* Load YouTube API */
-var tag = document.createElement('script');
-tag.src = 'https://www.youtube.com/iframe_api';
-document.head.appendChild(tag);
-
-/* State */
-var player = null;
-var ready = false;
-var muted = false;
-var vol = 1;
-var progDrag = false;
-var activityTimer = null;
-var progressTimer = null;
-var streamingVideos = [];
-var unembeddableVideos = [];
-var isEmbedError = false;
-var controlsVisible = false;
-var isMobile = window.innerWidth <= 767;
-var userInteracted = false;
-var isShort = {{ current_video.is_short|yesno:"true,false" }};
-var lastTap = null;
-var lastTapTime = 0;
-var currentChannelId = '{{ channel.channel_id }}';
-var currentVideoId = '{{ current_video.youtube_video_id }}';
-
-// Swipe state for shorts
-var touchStartX = 0;
-var touchStartY = 0;
-var touchEndX = 0;
-var touchEndY = 0;
-var minSwipeDistance = 50;
-var isSwiping = false;
-
-/* DOM shortcuts */
-function $$(id) { return document.getElementById(id); }
-var wrapper = $$('vp-wrapper');
-var cover = $$('vp-cover');
-var shield = $$('vp-shield');
-var bigPlay = $$('vp-big-play');
-var spinner = $$('vp-spinner');
-var errorEl = $$('vp-error');
-var controls = $$('vp-controls');
-var progFill = $$('vp-prog-fill');
-var progThumb = $$('vp-prog-thumb');
-var progWrap = $$('vp-prog-wrap');
-var timeEl = $$('vp-time');
-var volFill = $$('vp-vol-fill');
-var volThumb = $$('vp-vol-thumb');
-var volTrack = $$('vp-vol-track');
-var ppBtn = $$('vp-playpause');
-var muteBtn = $$('vp-mute');
-var fsBtn = $$('vp-fs');
-var endScreen = $$('vp-end-screen');
-var endGrid = $$('vp-end-grid');
-var navPrev = $$('vp-nav-prev');
-var navNext = $$('vp-nav-next');
-var tapLeft = $$('vp-tap-left');
-var tapRight = $$('vp-tap-right');
-var shortsPrev = $$('shorts-nav-prev');
-var shortsNext = $$('shorts-nav-next');
-
-/* ============================================
-   HELPER FUNCTIONS
-============================================ */
-function showBigPlay() { if (bigPlay) bigPlay.classList.remove('hidden'); }
-function hideBigPlay() { if (bigPlay) bigPlay.classList.add('hidden'); }
-function showSpinner() { if (spinner) spinner.classList.add('show'); }
-function hideSpinner() { if (spinner) spinner.classList.remove('show'); }
-
-function setPP(playing) {
-    if (!ppBtn) return;
-    var playIcon = ppBtn.querySelector('.icon-play');
-    var pauseIcon = ppBtn.querySelector('.icon-pause');
-    if (playIcon) playIcon.style.display = playing ? 'none' : '';
-    if (pauseIcon) pauseIcon.style.display = playing ? '' : 'none';
-}
-
-function fmt(s) {
-    s = Math.floor(s || 0);
-    var m = Math.floor(s / 60);
-    var sec = s % 60;
-    return m + ':' + (sec < 10 ? '0' : '') + sec;
-}
-
-function togglePlay(e) {
-    if (e) {
-        e.preventDefault();
-        e.stopPropagation();
-    }
-    
-    if (!ready || !player || isEmbedError) return;
-    
-    var state = player.getPlayerState();
-    if (state === YT.PlayerState.PLAYING) {
-        player.pauseVideo();
-    } else {
-        hideBigPlay();
-        showSpinner();
-        player.playVideo();
-    }
-}
-
-/* ============================================
-   SCROLL TO PLAYER
-============================================ */
-function scrollToPlayer() {
-    if (wrapper) {
-        wrapper.scrollIntoView({ 
-            behavior: 'smooth', 
-            block: 'start' 
-        });
-    }
-}
-
-/* ============================================
-   SHORTS NAVIGATION
-============================================ */
-function navigateShort(direction) {
-    var shorts = streamingVideos.filter(v => v.is_short);
-    if (shorts.length === 0) return;
-    
-    var currentIndex = shorts.findIndex(v => v.youtube_video_id === currentVideoId);
-    
-    var newIndex;
-    if (direction === 'next') {
-        newIndex = (currentIndex + 1) % shorts.length;
-    } else {
-        newIndex = (currentIndex - 1 + shorts.length) % shorts.length;
-    }
-    
-    if (newIndex !== currentIndex) {
-        var nextVideo = shorts[newIndex];
-        loadVideo(nextVideo.youtube_video_id);
-    }
-}
-
-// Function to load video without page reload
-function loadVideo(videoId) {
-    if (!player || !ready) return;
-    
-    // Show black cover and spinner immediately
-    if (cover) cover.classList.remove('hidden');
-    hideBigPlay();
-    showSpinner();
-    hideEndScreen();
-    
-    // Update current video ID
-    currentVideoId = videoId;
-    
-    // Update the player's video
-    player.loadVideoById(videoId);
-    
-    // Update the URL without reloading the page
-    var newUrl = '/channel/' + currentChannelId + '/video/' + videoId + '/';
-    history.pushState({videoId: videoId}, '', newUrl);
-    
-    // Update video info section
-    updateVideoInfo(videoId);
-    
-    // Scroll to player
-    scrollToPlayer();
-    
-    // Update current video badge in related videos
-    updateCurrentVideoBadge(videoId);
-}
-
-// Function to update current video badge
-function updateCurrentVideoBadge(videoId) {
-    // Remove current-video class from all cards
-    document.querySelectorAll('.vid-card').forEach(function(card) {
-        card.classList.remove('current-video');
-        var badge = card.querySelector('.vid-current-badge');
-        if (badge) badge.remove();
-    });
-    
-    // Add current-video class to the new current video
-    var currentCard = document.querySelector('.vid-card[data-video-id="' + videoId + '"]');
-    if (currentCard) {
-        currentCard.classList.add('current-video');
-        var thumbWrap = currentCard.querySelector('.vid-thumb-wrap');
-        if (thumbWrap && !thumbWrap.querySelector('.vid-current-badge')) {
-            var badge = document.createElement('div');
-            badge.className = 'vid-current-badge';
-            badge.textContent = 'Now Playing';
-            thumbWrap.appendChild(badge);
-        }
-    }
-}
-
-// Function to update video info
-function updateVideoInfo(videoId) {
-    var video = streamingVideos.find(v => v.youtube_video_id === videoId);
-    if (!video) return;
-    
-    // Update title
-    var titleEl = document.querySelector('.vp-info-title');
-    if (titleEl) titleEl.textContent = video.title;
-    
-    // Update date
-    var dateEl = document.querySelector('.vp-info-meta span:nth-child(2)');
-    if (dateEl) {
-        var date = new Date(video.published_at);
-        var formattedDate = date.toLocaleDateString('en-US', { 
-            month: 'long', 
-            day: 'numeric', 
-            year: 'numeric' 
-        });
-        dateEl.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg> ' + formattedDate;
-    }
-    
-    // Update view count if exists
-    var viewEl = document.querySelector('.vp-info-meta span:nth-child(3)');
-    if (viewEl && video.view_count) {
-        viewEl.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg> ' + video.view_count + ' views';
-    }
-}
-
-// Handle browser back/forward buttons
-window.addEventListener('popstate', function(event) {
-    if (event.state && event.state.videoId) {
-        loadVideo(event.state.videoId);
-    }
-});
-
-// Add event listeners for shorts navigation buttons
-if (shortsPrev) {
-    shortsPrev.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        navigateShort('prev');
-    });
-}
-
-if (shortsNext) {
-    shortsNext.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        navigateShort('next');
-    });
-}
-
-/* ============================================
-   DOUBLE TAP SEEKING
-============================================ */
-function handleDoubleTap(direction) {
-    if (!ready || !player) return;
-    
-    var currentTime = player.getCurrentTime();
-    var duration = player.getDuration();
-    var newTime;
-    
-    if (direction === 'left') {
-        newTime = Math.max(0, currentTime - 10);
-        if (tapLeft) {
-            tapLeft.classList.add('active');
-            setTimeout(function() {
-                tapLeft.classList.remove('active');
-            }, 300);
-        }
-    } else {
-        newTime = Math.min(duration, currentTime + 10);
-        if (tapRight) {
-            tapRight.classList.add('active');
-            setTimeout(function() {
-                tapRight.classList.remove('active');
-            }, 300);
-        }
-    }
-    
-    player.seekTo(newTime, true);
-    resetActivityTimer();
-}
-
-// Double tap detection
-if (tapLeft) {
-    var leftTapCount = 0;
-    var leftTapTimer = null;
-    
-    tapLeft.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        leftTapCount++;
-        
-        if (leftTapCount === 1) {
-            leftTapTimer = setTimeout(function() {
-                // Single tap - play/pause
-                togglePlay(e);
-                leftTapCount = 0;
-            }, 250);
-        } else if (leftTapCount === 2) {
-            clearTimeout(leftTapTimer);
-            // Double tap - seek left
-            handleDoubleTap('left');
-            leftTapCount = 0;
-        }
-    });
-}
-
-if (tapRight) {
-    var rightTapCount = 0;
-    var rightTapTimer = null;
-    
-    tapRight.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        rightTapCount++;
-        
-        if (rightTapCount === 1) {
-            rightTapTimer = setTimeout(function() {
-                // Single tap - play/pause
-                togglePlay(e);
-                rightTapCount = 0;
-            }, 250);
-        } else if (rightTapCount === 2) {
-            clearTimeout(rightTapTimer);
-            // Double tap - seek right
-            handleDoubleTap('right');
-            rightTapCount = 0;
-        }
-    });
-}
-
-/* ============================================
-   CONTROLS VISIBILITY
-============================================ */
-
-function showControls(force = false) {
-    if (!controls || isEmbedError) return;
-    
-    controls.classList.add('force-show');
-    controls.style.opacity = '1';
-    controls.style.pointerEvents = 'auto';
-    controlsVisible = true;
-    
-    if (activityTimer) {
-        clearTimeout(activityTimer);
-        activityTimer = null;
-    }
-    
-    if (force) return;
-    
-    var timeout = isMobile ? 3000 : 2000;
-    activityTimer = setTimeout(function() {
-        hideControls();
-    }, timeout);
-}
-
-function hideControls() {
-    if (!controls) return;
-    controls.classList.remove('force-show');
-    controls.style.opacity = '0';
-    controls.style.pointerEvents = 'none';
-    controlsVisible = false;
-    
-    if (activityTimer) {
-        clearTimeout(activityTimer);
-        activityTimer = null;
-    }
-}
-
-function resetActivityTimer() {
-    if (!controls || isEmbedError) return;
-    showControls();
-}
-
-// Desktop hover events
-if (wrapper && !isMobile) {
-    wrapper.addEventListener('mousemove', function() {
-        if (ready && player) {
-            showControls();
-        }
-    });
-    
-    wrapper.addEventListener('mouseleave', function() {
-        if (player && player.getPlayerState() === YT.PlayerState.PLAYING) {
-            hideControls();
-        }
-    });
-}
-
-// Mobile touch events
-if (wrapper && isMobile) {
-    wrapper.addEventListener('touchstart', function(e) {
-        if (e.target.closest('.vp-controls') || e.target.closest('.shorts-nav-btn')) {
-            return;
-        }
-        
-        if (controlsVisible) {
-            hideControls();
-        } else {
-            showControls(true);
-            resetActivityTimer();
-        }
-    }, { passive: true });
-}
-
-// Keep controls visible when interacting with them
-if (controls) {
-    controls.addEventListener('mouseenter', function() {
-        if (activityTimer) {
-            clearTimeout(activityTimer);
-            activityTimer = null;
-        }
-    });
-    
-    controls.addEventListener('mouseleave', function() {
-        if (player && player.getPlayerState() === YT.PlayerState.PLAYING) {
-            resetActivityTimer();
-        }
-    });
-    
-    controls.addEventListener('touchstart', function(e) {
-        e.stopPropagation();
-        if (activityTimer) {
-            clearTimeout(activityTimer);
-            activityTimer = null;
-        }
-    }, { passive: true });
-}
-
-/* ============================================
-   YOUTUBE API
-============================================ */
-window.onYouTubeIframeAPIReady = function () {
-    var el = $$('player');
-    if (!el) return;
-    var vid = el.getAttribute('data-video-id');
-    if (!vid || vid.length !== 11) return;
-
-    // Hide play button and show spinner immediately
-    hideBigPlay();
-    showSpinner();
-
-    player = new YT.Player('player', {
-        height: '100%',
-        width: '100%',
-        videoId: vid,
-        playerVars: {
-            autoplay: 1,
-            controls: 0,
-            modestbranding: 1,
-            rel: 0,
-            iv_load_policy: 3,
-            enablejsapi: 1,
-            disablekb: 1,
-            fs: 0,
-            playsinline: 1,
-            cc_load_policy: 0
-        },
-        events: {
-            onReady: onReady,
-            onStateChange: onStateChange,
-            onError: onError
-        }
-    });
-};
-
-function onReady(e) {
-    ready = true;
-    
-    // Keep spinner visible, hide play button
-    hideBigPlay();
-    showSpinner();
-    
-    var dur = player.getDuration();
-    if (timeEl) timeEl.textContent = '0:00 / ' + fmt(dur);
-    initVolSlider();
-    initProgressBar();
-    
-    // Auto-play immediately
-    try {
-        if (player.getDuration() > 0) {
-            player.playVideo();
-        }
-    } catch (e) {}
-}
-
-function onStateChange(e) {
-    var S = YT.PlayerState;
-
-    if (e.data === S.PLAYING) {
-        if (cover) cover.classList.add('hidden');
-        hideBigPlay();
-        hideSpinner();
-        setPP(true);
-        startProgress();
-        hideEndScreen();
-        isEmbedError = false;
-        
-        setTimeout(function() {
-            if (player && player.getPlayerState() === S.PLAYING && !userInteracted) {
-                hideControls();
-            }
-        }, 2000);
-
-    } else if (e.data === S.PAUSED) {
-        if (!isEmbedError) {
-            showBigPlay();
-        }
-        hideSpinner();
-        setPP(false);
-        stopProgress();
-        showControls(true);
-
-    } else if (e.data === S.ENDED) {
-        showBigPlay();
-        hideSpinner();
-        setPP(false);
-        stopProgress();
-        showControls(true);
-        showEndScreen();
-
-    } else if (e.data === S.BUFFERING) {
-        if (!isEmbedError) {
-            hideBigPlay();
-            showSpinner();
-        }
-    } else if (e.data === S.CUED) {
-        hideBigPlay();
-        showSpinner();
-    }
-}
-
-function onError(e) {
-    hideSpinner();
-    hideBigPlay();
-    console.log('Player error:', e.data);
-
-    if (e.data === 101 || e.data === 150) {
-        isEmbedError = true;
-        autoSkipToNext();
-    } else {
-        var msgEl = $$('vp-error-msg');
-        if (msgEl) {
-            msgEl.textContent = e.data === 100 ? 'Video unavailable' : 'Cannot play video';
-        }
-        if (errorEl) errorEl.classList.add('show');
-    }
-}
-
-/* ============================================
-   MOBILE LAYOUT & SHORTS SWIPE
-============================================ */
-
-// Set player aspect ratio based on content type
-if (isShort && wrapper) {
-    wrapper.classList.add('is-short');
-}
-
-// Swipe detection is disabled - using buttons only
-
-/* ============================================
-   PROGRESS BAR
-============================================ */
-function initProgressBar() {
-    if (!progWrap) return;
-    
-    progWrap.addEventListener('mousedown', startSeek);
-    progWrap.addEventListener('touchstart', startSeek, { passive: false });
-    progWrap.addEventListener('click', seek);
-    
-    document.addEventListener('mousemove', function(e) {
-        if (progDrag) seek(e);
-    });
-    
-    document.addEventListener('touchmove', function(e) {
-        if (progDrag) {
-            e.preventDefault();
-            seek(e.touches[0]);
-        }
-    }, { passive: false });
-    
-    document.addEventListener('mouseup', endSeek);
-    document.addEventListener('touchend', endSeek);
-}
-
-function startSeek(e) {
-    progDrag = true;
-    seek(e);
-}
-
-function endSeek() {
-    progDrag = false;
-    resetActivityTimer();
-}
-
-function seek(e) {
-    if (!ready || !player) return;
-    e.preventDefault();
-    e.stopPropagation();
-    
-    var clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
-    var rect = progWrap.getBoundingClientRect();
-    var pct = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-    var t = player.getDuration() * pct;
-    
-    player.seekTo(t, true);
-    setProgUI(pct);
-    if (timeEl) {
-        timeEl.textContent = fmt(t) + ' / ' + fmt(player.getDuration());
-    }
-}
-
-function startProgress() {
-    stopProgress();
-    progressTimer = setInterval(function() {
-        if (!ready || !player || progDrag) return;
-        try {
-            var t = player.getCurrentTime();
-            var dur = player.getDuration();
-            var pct = dur ? t / dur : 0;
-            setProgUI(pct);
-            if (timeEl) timeEl.textContent = fmt(t) + ' / ' + fmt(dur);
-        } catch (e) {}
-    }, 200);
-}
-
-function stopProgress() {
-    if (progressTimer) {
-        clearInterval(progressTimer);
-        progressTimer = null;
-    }
-}
-
-function setProgUI(pct) {
-    var p = (pct * 100).toFixed(2) + '%';
-    if (progFill) progFill.style.width = p;
-    if (progThumb) progThumb.style.left = p;
-}
-
-/* ============================================
-   VOLUME
-============================================ */
-function initVolSlider() {
-    if (!volTrack) return;
-    
-    volTrack.addEventListener('click', applyVol);
-    volTrack.addEventListener('touchstart', function(e) {
-        e.preventDefault();
-        applyVol(e);
-    }, { passive: false });
-}
-
-function applyVol(e) {
-    if (!ready || !player) return;
-    var rect = volTrack.getBoundingClientRect();
-    var clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
-    var v = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-    vol = v;
-    muted = (v === 0);
-    player.setVolume(v * 100);
-    updateVolUI(v);
-    resetActivityTimer();
-}
-
-function updateVolUI(v) {
-    var p = (v * 100).toFixed(1) + '%';
-    if (volFill) volFill.style.width = p;
-    if (volThumb) volThumb.style.left = p;
-    if (!muteBtn) return;
-    var upIcon = muteBtn.querySelector('.icon-vol-up');
-    var muteIcon = muteBtn.querySelector('.icon-vol-mute');
-    if (upIcon) upIcon.style.display = (v > 0) ? '' : 'none';
-    if (muteIcon) muteIcon.style.display = (v > 0) ? 'none' : '';
-}
-
-// Mute button
-if (muteBtn) {
-    muteBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        if (!ready || !player) return;
-        
-        if (muted || vol === 0) {
-            vol = 0.7;
-            player.setVolume(70);
-            muted = false;
-        } else {
-            muted = true;
-            player.setVolume(0);
-        }
-        updateVolUI(muted ? 0 : vol);
-        resetActivityTimer();
-    });
-}
-
-// Play/pause button
-if (ppBtn) {
-    ppBtn.addEventListener('click', function(e) {
-        togglePlay(e);
-        resetActivityTimer();
-    });
-}
-
-// Shield click handler
-if (shield) {
-    shield.addEventListener('click', function(e) {
-        togglePlay(e);
-        resetActivityTimer();
-    });
-}
-
-/* ============================================
-   FULLSCREEN HANDLING
-============================================ */
-// Handle fullscreen change events
-document.addEventListener('fullscreenchange', handleFullscreenChange);
-document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
-document.addEventListener('mozfullscreenchange', handleFullscreenChange);
-document.addEventListener('MSFullscreenChange', handleFullscreenChange);
-
-function handleFullscreenChange() {
-    if (document.fullscreenElement || document.webkitFullscreenElement) {
-        // Entered fullscreen
-        if (screen.orientation && screen.orientation.lock) {
-            // Try to lock to landscape
-            screen.orientation.lock('landscape').catch(function(e) {
-                console.log('Orientation lock not supported');
-            });
-        }
-    } else {
-        // Exited fullscreen
-        if (screen.orientation && screen.orientation.unlock) {
-            screen.orientation.unlock();
-        }
-    }
-}
-
-// Fullscreen button
-if (fsBtn) {
-    fsBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        var w = $$('vp-wrapper');
-        if (!w) return;
-        
-        if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-            if (w.requestFullscreen) {
-                w.requestFullscreen();
-            } else if (w.webkitRequestFullscreen) {
-                w.webkitRequestFullscreen();
-            } else if (w.msRequestFullscreen) {
-                w.msRequestFullscreen();
-            }
-        } else {
-            if (document.exitFullscreen) {
-                document.exitFullscreen();
-            } else if (document.webkitExitFullscreen) {
-                document.webkitExitFullscreen();
-            } else if (document.msExitFullscreen) {
-                document.msExitFullscreen();
-            }
-        }
-        resetActivityTimer();
-    });
-}
-
-/* ============================================
-   AUTO SKIP TO NEXT
-============================================ */
-function autoSkipToNext() {
-    var availableVideos = streamingVideos.filter(function(video) {
-        return !unembeddableVideos.includes(video.youtube_video_id);
-    });
-    
-    if (availableVideos.length === 0) {
-        if (errorEl) errorEl.classList.add('show');
-        return;
-    }
-
-    if (cover) cover.classList.remove('hidden');
-    hideBigPlay();
-    showSpinner();
-    
-    if (errorEl) errorEl.classList.remove('show');
-    
-    setTimeout(function() {
-        var next = availableVideos[0];
-        loadVideo(next.youtube_video_id);
-    }, 2000);
-}
-
-/* ============================================
-   END SCREEN
-============================================ */
-function showEndScreen() {
-    if (!endScreen || !endGrid || !streamingVideos.length) return;
-    
-    var availableVideos = streamingVideos.filter(v => !unembeddableVideos.includes(v.youtube_video_id));
-    if (!availableVideos.length) return;
-    
-    endGrid.innerHTML = '';
-    
-    availableVideos.slice(0, 6).forEach(function(video) {
-        var card = document.createElement('div');
-        card.className = 'vp-end-video-card';
-        card.setAttribute('data-video-id', video.youtube_video_id);
-        card.innerHTML = 
-            '<img src="' + video.thumbnail_url + '" loading="lazy">' +
-            '<div class="vp-end-video-title">' + video.title + '</div>';
-        
-        card.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            loadVideo(video.youtube_video_id);
-        });
-        
-        card.style.cursor = 'pointer';
-        
-        endGrid.appendChild(card);
-    });
-    
-    endScreen.classList.add('show');
-    showControls(true);
-}
-
-function hideEndScreen() {
-    if (endScreen) endScreen.classList.remove('show');
-}
-
-// Mobile navigation for end screen
-if (navPrev && navNext) {
-    navPrev.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        if (!endGrid) return;
-        
-        var cardWidth = endGrid.querySelector('.vp-end-video-card')?.offsetWidth + 12 || 0;
-        if (cardWidth > 0) {
-            var currentIndex = Math.floor(endGrid.scrollLeft / cardWidth);
-            var newIndex = Math.max(0, currentIndex - 1);
-            endGrid.scrollTo({
-                left: newIndex * cardWidth,
-                behavior: 'smooth'
-            });
-        }
-    });
-    
-    navNext.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        if (!endGrid) return;
-        
-        var cardWidth = endGrid.querySelector('.vp-end-video-card')?.offsetWidth + 12 || 0;
-        if (cardWidth > 0) {
-            var currentIndex = Math.floor(endGrid.scrollLeft / cardWidth);
-            var maxIndex = endGrid.children.length - 1;
-            var newIndex = Math.min(maxIndex, currentIndex + 1);
-            endGrid.scrollTo({
-                left: newIndex * cardWidth,
-                behavior: 'smooth'
-            });
-        }
-    });
-}
-
-/* ============================================
-   HELPERS
-============================================ */
-function getCsrf() {
-    var el = document.querySelector('[name=csrfmiddlewaretoken]');
-    return el ? el.value : '';
-}
-
-function loadStreamingData() {
-    var dataEl = $$('streaming-data');
-    if (dataEl) {
-        try {
-            streamingVideos = JSON.parse(dataEl.textContent);
-        } catch (e) {}
-    }
-}
-
-/* Handle resize */
-window.addEventListener('resize', function() {
-    isMobile = window.innerWidth <= 767;
-});
-
-/* Initialize */
-loadStreamingData();
-
-/* ============================================
-   RELATED VIDEOS CLIENT-SIDE NAVIGATION
-============================================ */
-// Wait for DOM to be ready
-document.addEventListener('DOMContentLoaded', function() {
-    // Related video cards - exclude current video
-    var videoCards = document.querySelectorAll('.vid-card:not(.current-video)');
-    videoCards.forEach(function(card) {
-        var link = card.querySelector('a');
-        if (link) {
-            var href = link.getAttribute('href');
-            var matches = href.match(/\/video\/([^\/]+)/);
-            if (matches && matches[1]) {
-                var videoId = matches[1];
-                
-                card.setAttribute('data-video-id', videoId);
-                
-                var parent = link.parentNode;
-                while (link.firstChild) {
-                    parent.insertBefore(link.firstChild, link);
-                }
-                link.remove();
-                
-                card.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    var id = this.getAttribute('data-video-id');
-                    if (id) {
-                        loadVideo(id);
-                    }
-                });
-                
-                card.style.cursor = 'pointer';
-            }
-        }
-    });
-});
-
-// Also add click handlers to any dynamically loaded cards
-function initVideoCards() {
-    var videoCards = document.querySelectorAll('.vid-card:not([data-initialized]):not(.current-video)');
-    videoCards.forEach(function(card) {
-        card.setAttribute('data-initialized', 'true');
-        
-        var link = card.querySelector('a');
-        if (link) {
-            var href = link.getAttribute('href');
-            var matches = href.match(/\/video\/([^\/]+)/);
-            if (matches && matches[1]) {
-                var videoId = matches[1];
-                card.setAttribute('data-video-id', videoId);
-                
-                card.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    var id = this.getAttribute('data-video-id');
-                    if (id) {
-                        loadVideo(id);
-                    }
-                });
-                
-                card.style.cursor = 'pointer';
-            }
-        }
-    });
-}
-
-// Call it initially and after any content updates
-setTimeout(initVideoCards, 500);
-
-})();
-</script>
-{% endblock scripts %}
+<script src="{% static 'js/navbar.js' %}"></script>
+<script src="{% static 'js/player.js' %}"></script>
+{% endblock %}

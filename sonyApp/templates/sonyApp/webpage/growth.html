@@ -1,0 +1,356 @@
+{% extends 'sonyApp/layouts/base.html' %}
+{% block title %}Growth Analytics | Sony Music{% endblock %}
+
+{% block content %}
+
+    <div class="container-fluid bg-black position-relative px-4">
+        <div class="d-flex justify-content-between align-items-center w-100">
+            <a class="navbar-brand logo" href="{% url 'home' %}">
+                <svg width="200" height="50" viewBox="0 0 1454 340" xmlns="http://www.w3.org/2000/svg">
+                    <g fill="#F90000">
+                        <circle cx="157" cy="17" r="11"/><circle cx="187" cy="17" r="11"/><circle cx="217" cy="17" r="11"/>
+                        <circle cx="96" cy="47" r="11"/><circle cx="126" cy="47" r="11"/><circle cx="157" cy="47" r="11"/><circle cx="187" cy="47" r="11"/><circle cx="217" cy="47" r="11"/><circle cx="247" cy="47" r="11"/><circle cx="277" cy="47" r="11"/>
+                        <circle cx="66" cy="77" r="11"/><circle cx="96" cy="77" r="11"/><circle cx="126" cy="77" r="11"/><circle cx="157" cy="77" r="11"/><circle cx="187" cy="77" r="11"/><circle cx="217" cy="77" r="11"/><circle cx="247" cy="77" r="11"/><circle cx="277" cy="77" r="11"/><circle cx="307" cy="77" r="11"/>
+                        <circle cx="66" cy="107" r="11"/><circle cx="96" cy="107" r="11"/><circle cx="126" cy="107" r="11"/><circle cx="157" cy="107" r="11"/><circle cx="187" cy="107" r="11"/><circle cx="217" cy="107" r="11"/><circle cx="247" cy="107" r="11"/><circle cx="277" cy="107" r="11"/><circle cx="307" cy="107" r="11"/>
+                        <circle cx="36" cy="137" r="11"/><circle cx="66" cy="137" r="11"/><circle cx="96" cy="137" r="11"/><circle cx="126" cy="137" r="11"/><circle cx="157" cy="137" r="11"/><circle cx="187" cy="137" r="11"/><circle cx="217" cy="137" r="11"/><circle cx="247" cy="137" r="11"/><circle cx="277" cy="137" r="11"/><circle cx="307" cy="137" r="11"/><circle cx="337" cy="137" r="11"/>
+                        <circle cx="36" cy="167" r="11"/><circle cx="66" cy="167" r="11"/><circle cx="96" cy="167" r="11"/><circle cx="126" cy="167" r="11"/><circle cx="157" cy="167" r="11"/><circle cx="187" cy="167" r="11"/><circle cx="217" cy="167" r="11"/><circle cx="247" cy="167" r="11"/><circle cx="277" cy="167" r="11"/><circle cx="307" cy="167" r="11"/><circle cx="337" cy="167" r="11"/>
+                        <circle cx="66" cy="197" r="11"/><circle cx="96" cy="197" r="11"/><circle cx="126" cy="197" r="11"/><circle cx="157" cy="197" r="11"/><circle cx="187" cy="197" r="11"/><circle cx="217" cy="197" r="11"/><circle cx="247" cy="197" r="11"/><circle cx="277" cy="197" r="11"/><circle cx="307" cy="197" r="11"/>
+                        <circle cx="66" cy="227" r="11"/><circle cx="96" cy="227" r="11"/><circle cx="126" cy="227" r="11"/><circle cx="157" cy="227" r="11"/><circle cx="187" cy="227" r="11"/><circle cx="217" cy="227" r="11"/><circle cx="247" cy="227" r="11"/><circle cx="277" cy="227" r="11"/><circle cx="307" cy="227" r="11"/>
+                        <circle cx="96" cy="257" r="11"/><circle cx="126" cy="257" r="11"/><circle cx="157" cy="257" r="11"/><circle cx="187" cy="257" r="11"/><circle cx="217" cy="257" r="11"/><circle cx="247" cy="257" r="11"/><circle cx="277" cy="257" r="11"/>
+                        <circle cx="157" cy="287" r="11"/><circle cx="187" cy="287" r="11"/><circle cx="217" cy="287" r="11"/>
+                    </g>
+                    <text x="410" y="200" font-family="Arial Black, sans-serif" font-size="130" font-weight="900" fill="#FFFFFF" letter-spacing="5">SONY MUSIC</text>
+                </svg>
+            </a>
+            
+
+            <a href="{% url 'home' %}" class="nav-link text-white">
+                <i class="bi bi-house fs-4"></i>
+            </a>
+        </div>
+        
+    </div>
+
+
+<!-- ── Page Header ─────────────────────────────────────────── -->
+<div class="container-fluid text-center py-2" style="background: linear-gradient(180deg, #1a0000 0%, #000 100%);">
+  <h1 class="fw-bold text-white mb-1" style="font-size: clamp(2rem, 5vw, 3.5rem);">
+    📊 Growth Analytics
+  </h1>
+  <p class="text-secondary mb-0">Real-time view growth tracking · Updated every 6 hours</p>
+
+  <!-- ── Tab Buttons ── -->
+  <div class="d-flex justify-content-center gap-2 mt-4 flex-wrap" id="growth-tabs">
+    <button class="growth-tab-btn active" data-tab="hot-and-new"
+            style="background:#2d1a00; color:#ff9500; border:1px solid #ff9500;
+                   padding:8px 20px; border-radius:50px; cursor:pointer; font-size:0.9rem; transition:all 0.2s;">
+      🔥 Hot &amp; New
+    </button>
+    <button class="growth-tab-btn" data-tab="daily-growth"
+            style="background:#1a1a1a; color:#666; border:1px solid #333;
+                   padding:8px 20px; border-radius:50px; cursor:pointer; font-size:0.9rem; transition:all 0.2s;">
+      📈 Daily Growth
+    </button>
+    <button class="growth-tab-btn" data-tab="weekly-growth"
+            style="background:#1a1a1a; color:#666; border:1px solid #333;
+                   padding:8px 20px; border-radius:50px; cursor:pointer; font-size:0.9rem; transition:all 0.2s;">
+      📊 Weekly Growth
+    </button>
+  </div>
+</div>
+
+<!-- ── Tab Panels ──────────────────────────────────────────── -->
+<div class="container-fluid px-3 px-md-5 py-4">
+
+  <!-- ══════════════════════════
+       PANEL 1 — 🔥 Hot & New
+       ══════════════════════════ -->
+  <div class="growth-tab-panel" id="tab-hot-and-new">
+    <div class="row justify-content-center">
+      <div class="col-12 col-lg-6">
+        <div class="growth-panel rounded-3 p-3" style="background:#0d0d0d; border:1px solid #1f1f1f;">
+
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="fs-3">🔥</span>
+            <h2 class="fw-bold text-white mb-0 fs-4">Hot &amp; New</h2>
+            <span class="badge ms-auto rounded-pill px-2" style="background:#2d1a00; color:#ff9500;">
+              {{ hot_and_new|length }} videos
+            </span>
+          </div>
+          <p class="text-secondary small mb-3">Videos released today · ranked by 6-hour growth</p>
+
+          <div class="growth-list">
+            {% for video in hot_and_new %}
+            <a href="{% url 'video_player' video.channel.channel_id video.youtube_video_id %}"
+               class="growth-row d-flex align-items-center gap-3 mb-2 p-2 rounded-2 text-decoration-none{% if forloop.counter > 10 %} extra-row extra-hot d-none{% endif %}"
+               style="background:#141414; transition:background 0.2s;"
+               onmouseover="this.style.background='#1f1f1f'" onmouseout="this.style.background='#141414'">
+              <span class="fw-bold text-center flex-shrink-0"
+                    style="width:28px; font-size:0.9rem;
+                    color:{% if forloop.counter == 1 %}#ffd700{% elif forloop.counter == 2 %}#c0c0c0{% elif forloop.counter == 3 %}#cd7f32{% else %}#555{% endif %};">
+                #{{ forloop.counter }}
+              </span>
+              <img src="{{ video.thumbnail_url }}" class="rounded-2 flex-shrink-0"
+                   style="width:85px; height:48px; object-fit:cover;" alt="">
+              <div class="flex-grow-1 overflow-hidden">
+                <div class="small text-danger text-truncate">{{ video.channel.name }}</div>
+                <div class="text-white text-truncate" style="font-size:0.82rem; font-weight:500;">
+                  {{ video.title|truncatechars:50 }}
+                </div>
+                <span class="badge rounded-pill px-2 mt-1"
+                      style="background:#2d1a00; color:#ff9500; font-size:0.72rem;">
+                  🔥 {{ video.growth_label }}
+                </span>
+              </div>
+            </a>
+            {% empty %}
+            <div class="text-center py-5">
+              <div class="fs-1 mb-2">🔥</div>
+              <p class="text-muted">No new releases in the last 24 h</p>
+            </div>
+            {% endfor %}
+          </div>
+
+          {% if hot_and_new|length > 10 %}
+          <button class="btn btn-sm w-100 mt-3 load-more-btn"
+                  style="background:#1f1f1f; color:#ff9500; border:1px solid #2d1a00;"
+                  data-cls="extra-hot">
+            ↓ Load More
+            <span style="opacity:0.7;">({{ hot_and_new|length|add:"-10" }} more)</span>
+          </button>
+          {% endif %}
+
+        </div>
+      </div>
+    </div>
+  </div><!-- /panel 1 -->
+
+
+  <!-- ══════════════════════════
+       PANEL 2 — 📈 Daily
+       ══════════════════════════ -->
+  <div class="growth-tab-panel d-none" id="tab-daily-growth">
+    <div class="row justify-content-center">
+      <div class="col-12 col-lg-6">
+        <div class="growth-panel rounded-3 p-3" style="background:#0d0d0d; border:1px solid #1f1f1f;">
+
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="fs-3">📈</span>
+            <h2 class="fw-bold text-white mb-0 fs-4">Daily Growth</h2>
+            <span class="badge ms-auto rounded-pill px-2" style="background:#0a2e14; color:#22c55e;">
+              {{ daily_growth|length }} videos
+            </span>
+          </div>
+          <p class="text-secondary small mb-3">1–7 days old · views gained in last 24 hours</p>
+
+          <div class="growth-list">
+            {% for video in daily_growth %}
+            <a href="{% url 'video_player' video.channel.channel_id video.youtube_video_id %}"
+               class="growth-row d-flex align-items-center gap-3 mb-2 p-2 rounded-2 text-decoration-none{% if forloop.counter > 10 %} extra-row extra-daily d-none{% endif %}"
+               style="background:#141414; transition:background 0.2s;"
+               onmouseover="this.style.background='#1f1f1f'" onmouseout="this.style.background='#141414'">
+              <span class="fw-bold text-center flex-shrink-0"
+                    style="width:28px; font-size:0.9rem;
+                    color:{% if forloop.counter == 1 %}#ffd700{% elif forloop.counter == 2 %}#c0c0c0{% elif forloop.counter == 3 %}#cd7f32{% else %}#555{% endif %};">
+                #{{ forloop.counter }}
+              </span>
+              <img src="{{ video.thumbnail_url }}" class="rounded-2 flex-shrink-0"
+                   style="width:85px; height:48px; object-fit:cover;" alt="">
+              <div class="flex-grow-1 overflow-hidden">
+                <div class="small text-danger text-truncate">{{ video.channel.name }}</div>
+                <div class="text-white text-truncate" style="font-size:0.82rem; font-weight:500;">
+                  {{ video.title|truncatechars:50 }}
+                </div>
+                <span class="badge rounded-pill px-2 mt-1"
+                      style="background:#0a2e14; color:#22c55e; font-size:0.72rem;">
+                  📈 {{ video.growth_label }}
+                </span>
+              </div>
+            </a>
+            {% empty %}
+            <div class="text-center py-5">
+              <div class="fs-1 mb-2">📈</div>
+              <p class="text-muted">No data yet for this window</p>
+              <p class="text-muted small">Needs 24 h of snapshots</p>
+            </div>
+            {% endfor %}
+          </div>
+
+          {% if daily_growth|length > 10 %}
+          <button class="btn btn-sm w-100 mt-3 load-more-btn"
+                  style="background:#1f1f1f; color:#22c55e; border:1px solid #0a2e14;"
+                  data-cls="extra-daily">
+            ↓ Load More
+            <span style="opacity:0.7;">({{ daily_growth|length|add:"-10" }} more)</span>
+          </button>
+          {% endif %}
+
+        </div>
+      </div>
+    </div>
+  </div><!-- /panel 2 -->
+
+
+  <!-- ══════════════════════════
+       PANEL 3 — 📊 Weekly
+       ══════════════════════════ -->
+  <div class="growth-tab-panel d-none" id="tab-weekly-growth">
+    <div class="row justify-content-center">
+      <div class="col-12 col-lg-6">
+        <div class="growth-panel rounded-3 p-3" style="background:#0d0d0d; border:1px solid #1f1f1f;">
+
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <span class="fs-3">📊</span>
+            <h2 class="fw-bold text-white mb-0 fs-4">Weekly Growth</h2>
+            <span class="badge ms-auto rounded-pill px-2" style="background:#0a1f2e; color:#38bdf8;">
+              {{ weekly_growth|length }} videos
+            </span>
+          </div>
+          <p class="text-secondary small mb-3">7–30 days old · views gained in last 7 days</p>
+
+          <div class="growth-list">
+            {% for video in weekly_growth %}
+            <a href="{% url 'video_player' video.channel.channel_id video.youtube_video_id %}"
+               class="growth-row d-flex align-items-center gap-3 mb-2 p-2 rounded-2 text-decoration-none{% if forloop.counter > 10 %} extra-row extra-weekly d-none{% endif %}"
+               style="background:#141414; transition:background 0.2s;"
+               onmouseover="this.style.background='#1f1f1f'" onmouseout="this.style.background='#141414'">
+              <span class="fw-bold text-center flex-shrink-0"
+                    style="width:28px; font-size:0.9rem;
+                    color:{% if forloop.counter == 1 %}#ffd700{% elif forloop.counter == 2 %}#c0c0c0{% elif forloop.counter == 3 %}#cd7f32{% else %}#555{% endif %};">
+                #{{ forloop.counter }}
+              </span>
+              <img src="{{ video.thumbnail_url }}" class="rounded-2 flex-shrink-0"
+                   style="width:85px; height:48px; object-fit:cover;" alt="">
+              <div class="flex-grow-1 overflow-hidden">
+                <div class="small text-danger text-truncate">{{ video.channel.name }}</div>
+                <div class="text-white text-truncate" style="font-size:0.82rem; font-weight:500;">
+                  {{ video.title|truncatechars:50 }}
+                </div>
+                <span class="badge rounded-pill px-2 mt-1"
+                      style="background:#0a1f2e; color:#38bdf8; font-size:0.72rem;">
+                  📊 {{ video.growth_label }}
+                </span>
+              </div>
+            </a>
+            {% empty %}
+            <div class="text-center py-5">
+              <div class="fs-1 mb-2">📊</div>
+              <p class="text-muted">No data yet for this window</p>
+              <p class="text-muted small">Videos appear here after 7 days</p>
+            </div>
+            {% endfor %}
+          </div>
+
+          {% if weekly_growth|length > 10 %}
+          <button class="btn btn-sm w-100 mt-3 load-more-btn"
+                  style="background:#1f1f1f; color:#38bdf8; border:1px solid #0a1f2e;"
+                  data-cls="extra-weekly">
+            ↓ Load More
+            <span style="opacity:0.7;">({{ weekly_growth|length|add:"-10" }} more)</span>
+          </button>
+          {% endif %}
+
+        </div>
+      </div>
+    </div>
+  </div><!-- /panel 3 -->
+
+</div>
+
+<div class="text-center py-3">
+  <p class="text-secondary small mb-0">
+    📡 Data refreshed every 6 hours · 00:00, 06:00, 12:00, 18:00 UTC
+  </p>
+</div>
+
+
+<script>
+// ── Tab config ────────────────────────────────────────────────
+var TAB_STYLES = {
+  'hot-and-new':   { active: 'background:#2d1a00;color:#ff9500;border:1px solid #ff9500;',
+                     inactive:'background:#1a1a1a;color:#666;border:1px solid #333;' },
+  'daily-growth':  { active: 'background:#0a2e14;color:#22c55e;border:1px solid #22c55e;',
+                     inactive:'background:#1a1a1a;color:#666;border:1px solid #333;' },
+  'weekly-growth': { active: 'background:#0a1f2e;color:#38bdf8;border:1px solid #38bdf8;',
+                     inactive:'background:#1a1a1a;color:#666;border:1px solid #333;' },
+};
+
+function switchTab(tabId) {
+  // Hide all panels
+  document.querySelectorAll('.growth-tab-panel').forEach(function(panel) {
+    panel.classList.add('d-none');
+  });
+
+  // Show selected panel with fade
+  var target = document.getElementById('tab-' + tabId);
+  if (target) {
+    target.classList.remove('d-none');
+    target.style.opacity = '0';
+    target.style.transform = 'translateY(8px)';
+    target.style.transition = 'none';
+    target.offsetHeight; // reflow
+    target.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+    target.style.opacity = '1';
+    target.style.transform = 'translateY(0)';
+  }
+
+  // Update tab button styles
+  document.querySelectorAll('.growth-tab-btn').forEach(function(btn) {
+    var id = btn.getAttribute('data-tab');
+    btn.classList.remove('active');
+    btn.style.cssText = 'padding:8px 20px;border-radius:50px;cursor:pointer;font-size:0.9rem;transition:all 0.2s;' +
+                        TAB_STYLES[id].inactive;
+  });
+  var activeBtn = document.querySelector('.growth-tab-btn[data-tab="' + tabId + '"]');
+  if (activeBtn) {
+    activeBtn.classList.add('active');
+    activeBtn.style.cssText = 'padding:8px 20px;border-radius:50px;cursor:pointer;font-size:0.9rem;transition:all 0.2s;' +
+                              TAB_STYLES[tabId].active;
+  }
+
+  // Update URL hash without page jump
+  history.replaceState(null, '', '#' + tabId);
+}
+
+// ── Tab button clicks ─────────────────────────────────────────
+document.querySelectorAll('.growth-tab-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    switchTab(this.getAttribute('data-tab'));
+  });
+});
+
+// ── Load More — staggered fade ────────────────────────────────
+document.querySelectorAll('.load-more-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    var cls = this.getAttribute('data-cls');
+    var delay = 0;
+    document.querySelectorAll('.' + cls).forEach(function(row) {
+      row.classList.remove('d-none');
+      row.style.opacity = '0';
+      row.style.transform = 'translateY(10px)';
+      row.style.transition = 'none';
+      setTimeout(function() {
+        row.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+        row.style.opacity = '1';
+        row.style.transform = 'translateY(0)';
+      }, delay);
+      delay += 30;
+    });
+    this.style.display = 'none';
+  });
+});
+
+// ── On load: read hash and activate correct tab ───────────────
+(function() {
+  var hash = window.location.hash.replace('#', '');
+  var validTabs = ['hot-and-new', 'daily-growth', 'weekly-growth'];
+  if (hash && validTabs.indexOf(hash) !== -1) {
+    switchTab(hash);
+  } else {
+    // Default: activate hot-and-new styling
+    switchTab('hot-and-new');
+  }
+})();
+</script>
+{% include 'sonyApp/inc/footer.html' %}
+{% endblock %}
