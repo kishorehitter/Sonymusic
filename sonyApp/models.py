@@ -170,10 +170,10 @@ class Video(models.Model):
     # ───────────────────────────────────────────────────────────────────────────
 
     def _age_hours(self):
-        """Hours elapsed since base_snapshot_timestamp. Returns None if no base."""
-        if not self.base_snapshot_timestamp:
+        """Hours elapsed since published_at. Returns None if not published."""
+        if not self.published_at:
             return None
-        delta = timezone.now() - self.base_snapshot_timestamp
+        delta = timezone.now() - self.published_at
         return delta.total_seconds() / 3600
 
     def in_hot_and_new(self):
