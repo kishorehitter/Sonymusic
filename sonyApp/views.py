@@ -457,47 +457,10 @@ def api_trending(request):
         'weekly_growth': [serialise(v, 'weekly') for v in growth_data['weekly_growth']],
     })
 
-
-@csrf_exempt
-@require_http_methods(["GET", "POST"])
-def auto_update_stats(request):
-    """
-    Token-protected endpoint for the external 6-hour cronjob.
-    Calls update_video_stats management command and busts the growth cache.
-
-    Example cron URL:
-      https://exclusive-music.onrender.com/api/update-stats/?token=YOUR_TOKEN&days=30
-    """
-    SECRET_TOKEN   = settings.AUTO_SYNC_SECRET_TOKEN
-    provided_token = request.GET.get('token')
-
-    if SECRET_TOKEN and provided_token != SECRET_TOKEN:
-        return JsonResponse({'error': 'Unauthorized'}, status=401)
-
-    # Optional: override how many days of videos to update (default 31)
-    try:
-        days = int(request.GET.get('days', 31))
-    except ValueError:
-        days = 31
-    try:
-        start_time = datetime.now()
-        out = StringIO()
-
-        call_command('update_video_stats', '--days', str(days), stdout=out)
-
-        # Bust the growth sections cache so next page load gets fresh data
-        cache.delete('growth_sections_v2')
-
-        return JsonResponse({
-            'success':   True,
-            'message':   f'Stats updated for videos from last {days} days',
-            'timestamp': start_time.isoformat(),
-            'output':    out.getvalue(),
-        })
-
-    except Exception as e:
-        logger.error(f"auto_update_stats error: {e}")
-        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+@require_GET
+def last_stats_time(request):
+    last = cache.get('last_stats_update')
+    return JsonResponse({'last_updated': last})
 
 
 # ═══════════════════════════════════════════════════════════════
@@ -844,82 +807,7 @@ def get_channel_videos(channel):
 
     return videos
 
-# def get_trending_videos():
-#     """
-#     Get trending videos based on growth, not total views
-#     Returns: {
-#         'rising_now': [],  # Last 3 days, by daily growth
-#         'trending_week': []  # Last 30 days, min age 3 days, by weekly growth
-#     }
-#     """
-#     import logging
-#     logger = logging.getLogger(__name__)
-    
-#     cache_key = 'trending_videos_growth'
-#     cached = cache.get(cache_key)
-    
-#     if cached:
-#         return cached
-    
-#     today = timezone.now().date()
-    
-#     # 🔥 RISING NOW - Last 3 days, by daily growth
-#     three_days_ago = today - timedelta(days=3)
-#     rising_candidates = Video.objects.filter(
-#         channel__is_active=True,
-#         is_active=True,
-#         is_embeddable=True,
-#         is_short=False,  # ⭐ EXCLUDE SHORTS
-#         published_at__date__gte=three_days_ago,
-#     ).select_related('channel')
-    
-#     # Calculate daily growth and filter
-#     rising_list = []
-#     for video in rising_candidates:
-#         growth = video.get_today_growth()
-#         if growth > 0:  # Only show videos with growth
-#             video.growth_value = growth
-#             video.growth_label = video.get_growth_label(days=1)
-#             rising_list.append(video)
-    
-#     # Sort by growth (highest first)
-#     rising_list.sort(key=lambda x: x.growth_value, reverse=True)
-    
-#     # 📈 TRENDING WEEK - Last 30 days, min age 3 days, by weekly growth
-#     thirty_days_ago = today - timedelta(days=30)
-#     min_age_date = today - timedelta(days=3)
-    
-#     trending_candidates = Video.objects.filter(
-#         channel__is_active=True,
-#         is_active=True,
-#         is_embeddable=True,
-#         is_short=False,  # ⭐ EXCLUDE SHORTS
-#         published_at__date__gte=thirty_days_ago,
-#         published_at__date__lte=min_age_date,  # At least 3 days old
-#     ).select_related('channel')
-    
-#     # Calculate weekly growth and filter
-#     trending_list = []
-#     for video in trending_candidates:
-#         growth = video.get_weekly_growth()
-#         if growth > 0:
-#             video.growth_value = growth
-#             video.growth_label = video.get_growth_label(days=7)
-#             trending_list.append(video)
-    
-#     # Sort by growth (highest first)
-#     trending_list.sort(key=lambda x: x.growth_value, reverse=True)
-    
-#     result = {
-#         'rising_now': rising_list[:3],      # Top 3 rising
-#         'trending_week': trending_list[:3],  # Top 3 trending
-#     }
-    
-#     # Cache for 1 hour
-#     cache.set(cache_key, result, 3600)
-    
-#     return result
-
+import threading
 
 @require_http_methods(["POST"])
 def enquiry(request):
@@ -931,11 +819,9 @@ def enquiry(request):
         message = data.get('message', '').strip()
         to      = data.get('to', 'smsunoffical@gmail.com').strip()
 
-        # Basic validation
         if not all([name, email, message]):
             return JsonResponse({'success': False, 'error': 'Missing required fields.'})
 
-        # Email body
         email_body = f"""
 New enquiry from Sony Music website
 
@@ -950,14 +836,21 @@ Message:
 Sent via exclusive-music.onrender.com contact form
         """.strip()
 
-        send_mail(
-            subject=f"[Sony Music] {subject}",
-            message=email_body,
-            from_email='noreply@yourdomain.com',   # ← your sending domain
-            recipient_list=[to],
-            fail_silently=False,
-        )
+        def send():
+            try:
+                send_mail(
+                    subject=f"[Sony Music] {subject}",
+                    message=email_body,
+                    from_email=settings.EMAIL_HOST_USER,
+                    recipient_list=[to],
+                    fail_silently=True,  # ← don't crash if email fails
+                )
+            except Exception as e:
+                logger.error(f"Email send error: {e}")
 
+        threading.Thread(target=send, daemon=True).start()
+
+        # Respond immediately — don't wait for email
         return JsonResponse({'success': True})
 
     except Exception as e:
@@ -992,37 +885,68 @@ def auto_fetch_videos(request):
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 
-# ── CRON 4: Daily full stats update — ALL videos ever stored ──────────────
+# ── CRON 3& 4: 6hours & Daily full stats update — ALL videos ever stored ──────────────
 # URL: /api/update-stats-full/?token=YOUR_TOKEN
 
 @csrf_exempt
 @require_http_methods(["GET", "POST"])
-def auto_update_stats_full(request):
-    """
-    Update view count snapshots for ALL videos ever stored.
-    Run once daily (e.g. 02:00 AM).
-    No date filter — covers every video in the DB.
-    Also busts the growth cache so home page refreshes immediately.
-    """
+def auto_update_stats(request):
     SECRET_TOKEN   = settings.AUTO_SYNC_SECRET_TOKEN
     provided_token = request.GET.get('token')
     if SECRET_TOKEN and provided_token != SECRET_TOKEN:
         return JsonResponse({'error': 'Unauthorized'}, status=401)
+
     try:
-        start_time = datetime.now()
-        out = StringIO()
-        # --days 36500 = 100 years → effectively no date limit
-        call_command('update_video_stats', '--days', '36500', stdout=out)
-        cache.delete('growth_sections_v2')
-        return JsonResponse({
-            'success':   True,
-            'message':   'Full stats update complete — all videos',
-            'timestamp': start_time.isoformat(),
-            'output':    out.getvalue(),
-        })
-    except Exception as e:
-        logger.error(f"auto_update_stats_full error: {e}")
-        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+        days = int(request.GET.get('days', 31))
+    except ValueError:
+        days = 31
+
+    import threading
+    def run():
+        try:
+            out = StringIO()
+            call_command('update_video_stats', '--days', str(days), stdout=out)
+            cache.delete('growth_sections_v2')
+            cache.set('last_stats_update', datetime.now().isoformat(), 86400)
+            logger.info(f"Stats update done: last {days} days")
+        except Exception as e:
+            logger.error(f"auto_update_stats error: {e}")
+
+    threading.Thread(target=run, daemon=True).start()
+
+    return JsonResponse({
+        'success':   True,
+        'message':   f'Stats update started for last {days} days',
+        'timestamp': datetime.now().isoformat(),
+    })
+
+
+@csrf_exempt
+@require_http_methods(["GET", "POST"])
+def auto_update_stats_full(request):
+    SECRET_TOKEN   = settings.AUTO_SYNC_SECRET_TOKEN
+    provided_token = request.GET.get('token')
+    if SECRET_TOKEN and provided_token != SECRET_TOKEN:
+        return JsonResponse({'error': 'Unauthorized'}, status=401)
+
+    import threading
+    def run():
+        try:
+            out = StringIO()
+            call_command('update_video_stats', '--days', '36500', stdout=out)
+            cache.delete('growth_sections_v2')
+            cache.set('last_stats_update', datetime.now().isoformat(), 86400)
+            logger.info("Full stats update complete")
+        except Exception as e:
+            logger.error(f"auto_update_stats_full error: {e}")
+
+    threading.Thread(target=run, daemon=True).start()
+
+    return JsonResponse({
+        'success':   True,
+        'message':   'Full stats update started in background',
+        'timestamp': datetime.now().isoformat(),
+    })
 
 # ────────────────────────────────────────────────────────────────
 #  Health Check (Keep Alive)

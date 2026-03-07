@@ -1780,6 +1780,7 @@ html {
     width: 100%;
     padding: 0;
     cursor: pointer;
+    margin-bottom: 8px;
 }
 
 .vp-prog-bg {
@@ -2307,7 +2308,7 @@ html {
         font-size: 2rem;
     }
     .channel-info h3 {
-        font-size: 0.90rem;
+        font-size: 0.85rem;
         font-weight: 400;
     }
     
@@ -2475,6 +2476,7 @@ html {
     
     .vp-ctrl-row {
         gap: 0px;
+        margin-bottom: 12px;
     }
     
     .vp-time {
@@ -2524,7 +2526,7 @@ html {
     }
     
     .channel-info h3 {
-        font-size: 0.90rem;
+        font-size: 0.85rem;
         font-weight: 400;
     }
     
@@ -2592,7 +2594,7 @@ html {
     }
     
     .channel-header .h3 {
-        font-size: 1.15rem;
+        font-size: 1rem;
     }
     
     .channel-avatar,

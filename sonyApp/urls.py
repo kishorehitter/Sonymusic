@@ -27,6 +27,7 @@ urlpatterns = [
 
     # Trending / Growth
     path('api/trending/', views.api_trending, name='api_trending'),
+    path('api/last-stats/', views.last_stats_time, name='last_stats_time'),
 
     # Enquiry
     path('api/enquiry/', views.enquiry, name='enquiry'),

@@ -91,7 +91,7 @@ class Video(models.Model):
                     total_seconds = hours * 3600 + minutes * 60 + seconds
                 else:
                     total_seconds = 0
-                self.is_short = 0 < total_seconds <= 60
+                self.is_short = 0 < total_seconds <= 70
             except (ValueError, AttributeError):
                 self.is_short = False
         super().save(*args, **kwargs)

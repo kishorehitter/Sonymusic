@@ -19,8 +19,13 @@
             </svg>
         </a>
 
-        <button class="navbar-toggler p-0" style="border: none !important;" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon fs-5 rounded-2" style="background-color: red; border: red 1px solid;"></span>
+        <button class="navbar-toggler p-0" 
+                style="border: 1px solid red !important; border-radius: 6px;" 
+                type="button" 
+                data-bs-toggle="collapse" 
+                data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon fs-5 rounded-2" 
+                style="background-color: red;"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="navbarNav">          
@@ -161,6 +166,9 @@
 </div>
 
 <style>
+.navbar-toggler:focus {
+    box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.3) !important;
+}
 
 .custom-navbar {
     background:          rgba(8,8,8,.97);

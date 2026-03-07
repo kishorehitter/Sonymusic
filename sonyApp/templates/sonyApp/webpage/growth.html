@@ -22,22 +22,24 @@
                     <text x="410" y="200" font-family="Arial Black, sans-serif" font-size="130" font-weight="900" fill="#FFFFFF" letter-spacing="5">SONY MUSIC</text>
                 </svg>
             </a>
-            
-
             <a href="{% url 'home' %}" class="nav-link text-white">
                 <i class="bi bi-house fs-4"></i>
             </a>
         </div>
-        
     </div>
-
 
 <!-- ── Page Header ─────────────────────────────────────────── -->
 <div class="container-fluid text-center py-2" style="background: linear-gradient(180deg, #1a0000 0%, #000 100%);">
   <h1 class="fw-bold text-white mb-1" style="font-size: clamp(2rem, 5vw, 3.5rem);">
     📊 Growth Analytics
   </h1>
-  <p class="text-secondary mb-0">Real-time view growth tracking · Updated every 6 hours</p>
+  <p class="text-secondary mb-0">
+    Real-time view growth tracking · Updated every 6 hours
+    &nbsp;·&nbsp;
+    <span id="lastStatsLabel" style="font-size:0.72rem; color:#ff0000; background:rgba(255,149,0,0.1); padding:2px 8px; border-radius:20px; border:1px solid rgba(255, 0, 0, 0.9);">
+      ⟳ Waiting for first cron run
+    </span> 
+  </p>
 
   <!-- ── Tab Buttons ── -->
   <div class="d-flex justify-content-center gap-2 mt-4 flex-wrap" id="growth-tabs">
@@ -77,14 +79,7 @@
               {{ hot_and_new|length }} videos
             </span>
           </div>
-          <p class="text-secondary small mb-3">
-            Videos released today · ranked by 6-hour growth
-            <span class="mb-0 mt-1" id="lastStatsLabel" style="font-size:0.72rem; color:#333;">
-            ⟳ Checking last update...
-          </span>
-          </p>
-
-          
+          <p class="text-secondary small mb-3">Videos released today · ranked by 6-hour growth</p>
 
           <div class="growth-list">
             {% for video in hot_and_new %}
@@ -101,21 +96,15 @@
                    style="width:85px; height:48px; object-fit:cover;" alt="">
               <div class="flex-grow-1 overflow-hidden">
                 <div class="small text-danger text-truncate">{{ video.channel.name }}</div>
-                <div class="text-white text-truncate" style="font-size:0.82rem; font-weight:500;">
-                  {{ video.title}}
-                </div>
+                <div class="text-white text-truncate" style="font-size:0.82rem; font-weight:500;">{{ video.title }}</div>
                 <div class="d-flex align-items-center gap-2 mt-1 flex-wrap">
-
                   <span class="badge rounded-pill px-2"
-                        style="background:rgba(45, 45, 45, 0.5); color:#01ac0c; font-size:0.75rem;">
+                        style="background:rgba(45,45,45,0.5); color:#01ac0c; font-size:0.75rem;">
                     🔥 {{ video.growth_label }}
                   </span>
-                  
-                  <span class="ms-md-auto"
-                        style="font-size:0.70rem; color:#959595;">
-                    🕐 {{ video.published_at|date:"M d, Y · g:i A" }}
+                  <span class="ms-md-auto px-2" style="font-size:0.70rem; color:#959595;">
+                    🕐 {{ video.published_at|timesince }} ago
                   </span>
-
                 </div>
               </div>
             </a>
@@ -131,8 +120,7 @@
           <button class="btn btn-sm w-100 mt-3 load-more-btn"
                   style="background:#1f1f1f; color:#ff9500; border:1px solid #2d1a00;"
                   data-cls="extra-hot">
-            ↓ Load More
-            <span style="opacity:0.7;">({{ hot_and_new|length|add:"-10" }} more)</span>
+            ↓ Load More <span style="opacity:0.7;">({{ hot_and_new|length|add:"-10" }} more)</span>
           </button>
           {% endif %}
 
@@ -153,7 +141,7 @@
           <div class="d-flex align-items-center gap-2 mb-1">
             <span class="fs-3">📈</span>
             <h2 class="fw-bold text-white mb-0 fs-4">Daily Growth</h2>
-            <span class="badge ms-auto rounded-pill px-2" style="background:#1e0f2e; color:#a855f7;">
+            <span class="badge ms-auto rounded-pill px-2" style="background:#2d0a1a; color:#f472b6;">
               {{ daily_growth|length }} videos
             </span>
           </div>
@@ -174,16 +162,16 @@
                    style="width:85px; height:48px; object-fit:cover;" alt="">
               <div class="flex-grow-1 overflow-hidden">
                 <div class="small text-danger text-truncate">{{ video.channel.name }}</div>
-                <div class="text-white text-truncate" style="font-size:0.82rem; font-weight:500;">
-                  {{ video.title|truncatechars:50 }}
+                <div class="text-white text-truncate" style="font-size:0.82rem; font-weight:500;">{{ video.title|truncatechars:50 }}</div>
+                <div class="d-flex align-items-center gap-2 mt-1 flex-wrap">
+                  <span class="badge rounded-pill px-2"
+                        style="background:rgba(45,45,45,0.5); color:#f472b6; font-size:0.75rem;">
+                    📈 {{ video.growth_label }}
+                  </span>
+                  <span class="ms-md-auto px-2" style="font-size:0.70rem; color:#959595;">
+                    🕐 {{ video.published_at|timesince }} ago
+                  </span>
                 </div>
-                <span class="badge rounded-pill px-2 mt-1"
-                      style="background:#2d1a00; color:#01ac0c; font-size:0.72rem;">
-                  🔥 {{ video.growth_label }}
-                </span>
-                <span class="d-block mt-1" style="font-size:0.65rem; color:#959595;">
-                  🕐 {{ video.published_at|date:"M d, Y · g:i A" }}
-                </span>
               </div>
             </a>
             {% empty %}
@@ -197,10 +185,9 @@
 
           {% if daily_growth|length > 10 %}
           <button class="btn btn-sm w-100 mt-3 load-more-btn"
-                  style="background:#1f1f1f; color:#22c55e; border:1px solid #0a2e14;"
+                  style="background:#1f1f1f; color:#f472b6; border:1px solid #2d0a1a;"
                   data-cls="extra-daily">
-            ↓ Load More
-            <span style="opacity:0.7;">({{ daily_growth|length|add:"-10" }} more)</span>
+            ↓ Load More <span style="opacity:0.7;">({{ daily_growth|length|add:"-10" }} more)</span>
           </button>
           {% endif %}
 
@@ -242,16 +229,16 @@
                    style="width:85px; height:48px; object-fit:cover;" alt="">
               <div class="flex-grow-1 overflow-hidden">
                 <div class="small text-danger text-truncate">{{ video.channel.name }}</div>
-                <div class="text-white text-truncate" style="font-size:0.82rem; font-weight:500;">
-                  {{ video.title|truncatechars:50 }}
+                <div class="text-white text-truncate" style="font-size:0.82rem; font-weight:500;">{{ video.title|truncatechars:50 }}</div>
+                <div class="d-flex align-items-center gap-2 mt-1 flex-wrap">
+                  <span class="badge rounded-pill px-2"
+                        style="background:rgba(45,45,45,0.5); color:#38bdf8; font-size:0.75rem;">
+                    📊 {{ video.growth_label }}
+                  </span>
+                  <span class="ms-md-auto px-2" style="font-size:0.70rem; color:#959595;">
+                    🕐 {{ video.published_at|timesince }} ago
+                  </span>
                 </div>
-                <span class="badge rounded-pill px-2 mt-1"
-                      style="background:#2d1a00; color:#01ac0c; font-size:0.72rem;">
-                  🔥 {{ video.growth_label }}
-                </span>
-                <span class="d-block mt-1" style="font-size:0.65rem; color:#959595;">
-                  🕐 {{ video.published_at|date:"M d, Y · g:i A" }}
-                </span>
               </div>
             </a>
             {% empty %}
@@ -267,8 +254,7 @@
           <button class="btn btn-sm w-100 mt-3 load-more-btn"
                   style="background:#1f1f1f; color:#38bdf8; border:1px solid #0a1f2e;"
                   data-cls="extra-weekly">
-            ↓ Load More
-            <span style="opacity:0.7;">({{ weekly_growth|length|add:"-10" }} more)</span>
+            ↓ Load More <span style="opacity:0.7;">({{ weekly_growth|length|add:"-10" }} more)</span>
           </button>
           {% endif %}
 
@@ -285,46 +271,38 @@
   </p>
 </div>
 
-
 <script>
 // ── Tab config ────────────────────────────────────────────────
 var TAB_STYLES = {
-  'hot-and-new':   { 
-    active: 'background:#2d1a00;color:#ff9500;border:1px solid #ff9500;',
-    inactive:'background:#1a1a1a;color:#666;border:1px solid #333;' 
+  'hot-and-new':   {
+    active:  'background:#2d1a00;color:#ff9500;border:1px solid #ff9500;',
+    inactive:'background:#1a1a1a;color:#666;border:1px solid #333;'
   },
-
-  'daily-growth':  { 
-    active: 'background:#1e0f2e;color:#a855f7;border:1px solid #a855f7;',
-    inactive:'background:#1a1a1a;color:#666;border:1px solid #333;' 
+  'daily-growth':  {
+    active:  'background:#2d0a1a;color:#f472b6;border:1px solid #f472b6;',
+    inactive:'background:#1a1a1a;color:#666;border:1px solid #333;'
   },
-
-  'weekly-growth': { 
-    active: 'background:#0a1f2e;color:#38bdf8;border:1px solid #38bdf8;',
-    inactive:'background:#1a1a1a;color:#666;border:1px solid #333;' 
+  'weekly-growth': {
+    active:  'background:#0a1f2e;color:#38bdf8;border:1px solid #38bdf8;',
+    inactive:'background:#1a1a1a;color:#666;border:1px solid #333;'
   },
 };
 
 function switchTab(tabId) {
-  // Hide all panels
   document.querySelectorAll('.growth-tab-panel').forEach(function(panel) {
     panel.classList.add('d-none');
   });
-
-  // Show selected panel with fade
   var target = document.getElementById('tab-' + tabId);
   if (target) {
     target.classList.remove('d-none');
     target.style.opacity = '0';
     target.style.transform = 'translateY(8px)';
     target.style.transition = 'none';
-    target.offsetHeight; // reflow
+    target.offsetHeight;
     target.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
     target.style.opacity = '1';
     target.style.transform = 'translateY(0)';
   }
-
-  // Update tab button styles
   document.querySelectorAll('.growth-tab-btn').forEach(function(btn) {
     var id = btn.getAttribute('data-tab');
     btn.classList.remove('active');
@@ -337,19 +315,15 @@ function switchTab(tabId) {
     activeBtn.style.cssText = 'padding:8px 20px;border-radius:50px;cursor:pointer;font-size:0.9rem;transition:all 0.2s;' +
                               TAB_STYLES[tabId].active;
   }
-
-  // Update URL hash without page jump
   history.replaceState(null, '', '#' + tabId);
 }
 
-// ── Tab button clicks ─────────────────────────────────────────
 document.querySelectorAll('.growth-tab-btn').forEach(function(btn) {
   btn.addEventListener('click', function() {
     switchTab(this.getAttribute('data-tab'));
   });
 });
 
-// ── Load More — staggered fade ────────────────────────────────
 document.querySelectorAll('.load-more-btn').forEach(function(btn) {
   btn.addEventListener('click', function() {
     var cls = this.getAttribute('data-cls');
@@ -370,17 +344,39 @@ document.querySelectorAll('.load-more-btn').forEach(function(btn) {
   });
 });
 
-// ── On load: read hash and activate correct tab ───────────────
+// ── On load: read hash ────────────────────────────────────────
 (function() {
   var hash = window.location.hash.replace('#', '');
   var validTabs = ['hot-and-new', 'daily-growth', 'weekly-growth'];
-  if (hash && validTabs.indexOf(hash) !== -1) {
-    switchTab(hash);
-  } else {
-    // Default: activate hot-and-new styling
-    switchTab('hot-and-new');
-  }
+  switchTab(validTabs.indexOf(hash) !== -1 ? hash : 'hot-and-new');
 })();
+
+// ── Last stats update time ────────────────────────────────────
+fetch('/api/last-stats/')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    var el = document.getElementById('lastStatsLabel');
+    if (!el) return;
+    if (data.last_updated) {
+      var d    = new Date(data.last_updated);
+      var now  = new Date();
+      var diff = Math.floor((now - d) / 60000);
+      var ago  = diff < 1    ? 'just now'
+               : diff < 60   ? diff + ' min ago'
+               : diff < 1440 ? Math.floor(diff / 60) + ' hrs ago'
+               : Math.floor(diff / 1440) + ' days ago';
+      var timeStr = d.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+      var dateStr = d.toLocaleDateString([], {month: 'short', day: 'numeric'});
+      el.innerHTML = '⟳ Last updated ' + ago + ' &nbsp;·&nbsp; <span style="color:#2a2a2a;">' + dateStr + ' · ' + timeStr + '</span>';
+    } else {
+      el.textContent = '⟳ Waiting for first cron run';
+    }
+  })
+  .catch(function() {
+    var el = document.getElementById('lastStatsLabel');
+    if (el) el.textContent = '';
+  });
 </script>
+
 {% include 'sonyApp/inc/footer.html' %}
 {% endblock %}

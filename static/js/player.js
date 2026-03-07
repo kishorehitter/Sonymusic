@@ -276,6 +276,7 @@
         hideBigPlay(); hideSpinner();
         if (timeEl) timeEl.textContent = '0:00 / ' + fmt(player.getDuration());
         initVolSlider(); initProgressBar();
+        setPP(true);
         try { if (player.getDuration() > 0) player.playVideo(); } catch (e) { console.error('Play error:', e); }
     }
 
