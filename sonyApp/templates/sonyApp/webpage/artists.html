@@ -273,7 +273,7 @@
 </div>
 
 <!-- Main content -->
-<div class="container" style="max-width: 720px; padding-bottom: 60px;">
+<div class="container-fluid px-1" style="max-width: 720px; padding-bottom: 60px;">
 
   <!-- Filter bar -->
   <div class="filter-bar">
@@ -286,7 +286,7 @@
   <!-- List -->
   <div class=" artist-list" id="artistList">
     {% for artist in artists %}
-    <a class="artist-row"
+    <a class="artist-row px-0"
        href="{% url 'artist_videos' %}?artist={{ artist.name|urlencode }}"
        data-name="{{ artist.name|lower }}"
        style="animation-delay: {{ forloop.counter0 }}0ms;">
@@ -323,8 +323,7 @@
       <!-- Count badge -->
       <span class="artist-count-badge">{{ artist.count }} videos</span>
 
-      <!-- Arrow -->
-      <i class="bi bi-arrow-right arrow-icon"></i>
+      
 
     </a>
     {% empty %}

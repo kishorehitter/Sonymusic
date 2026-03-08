@@ -1,6 +1,6 @@
 
-<nav class="container-fluid bg-danger navbar navbar-expand-lg navbar-dark fixed-top custom-navbar p-0">
-    <div class="container-fluid bg-black position-relative">
+<nav class="container-fluid navbar navbar-expand-lg navbar-dark fixed-top custom-navbar py-0">
+    <div class="container-fluid bg-black position-relative px-4">
         <a class="navbar-brand logo" href="{% url 'home' %}">
             <svg width="200" height="50" viewBox="0 0 1454 340" xmlns="http://www.w3.org/2000/svg">
                 <g fill="#F90000">
@@ -48,7 +48,7 @@
 
                 <!-- Growth dropdown  (replaces Genres) -->
                 <li class="nav-item dropdown">
-                    <a class="nav-link mt-4 mt-md-0 dropdown-toggle" href="#" id="growthDropdown"
+                    <a class="nav-link dropdown-toggle" href="#" id="growthDropdown"
                     role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         📊 Growth
                     </a>
@@ -77,7 +77,7 @@
                     </ul>
                 </li>
 
-                <li class="nav-item">
+                <li class="nav-item mb-4 mb-md-0">
                     <a class="nav-link" href="{% url 'artists_page' %}">
                         🎤 Artists
                     </a>

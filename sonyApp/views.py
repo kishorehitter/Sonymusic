@@ -836,19 +836,20 @@ Message:
 Sent via exclusive-music.onrender.com contact form
         """.strip()
 
+        import resend
+
         def send():
             try:
-                send_mail(
-                    subject=f"[Sony Music] {subject}",
-                    message=email_body,
-                    from_email=settings.EMAIL_HOST_USER,
-                    recipient_list=[to],
-                    fail_silently=False,
-                )
-                logger.info(f"✅ Email sent successfully to {to}")
+                resend.api_key = settings.RESEND_API_KEY
+                resend.Emails.send({
+                    "from": "Sony Music <onboarding@resend.dev>",
+                    "to": [to],
+                    "subject": f"[Sony Music] {subject}",
+                    "text": email_body,
+                })
+                logger.info(f"✅ Email sent to {to}")
             except Exception as e:
-                logger.error(f"❌ Email send error: {type(e).__name__}: {e}")
-
+                logger.error(f"❌ Resend error: {type(e).__name__}: {e}")
 
 
         threading.Thread(target=send, daemon=True).start()
