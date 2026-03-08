@@ -648,7 +648,7 @@ html {
 
 .carousel-label-badge {
     position: absolute;
-    top: 10px;
+    top: -10px;
     left: 50%;
     transform: translateX(-50%);
     background: rgba(10, 10, 10, 0.8);
@@ -945,8 +945,8 @@ html {
     padding: 1.5rem;
 }
 
-.channel-info h3 {
-    font-size: 0.95rem;
+.card-title {
+    font-size: 0.8rem;
     font-weight: 600;
     color: var(--text-white);
 }
@@ -2307,8 +2307,8 @@ html {
     .section-title {
         font-size: 2rem;
     }
-    .channel-info h3 {
-        font-size: 0.85rem;
+    .card-title {
+        font-size: 0.8rem;
         font-weight: 400;
     }
     
@@ -2525,8 +2525,8 @@ html {
         padding-right: 10px;
     }
     
-    .channel-info h3 {
-        font-size: 0.85rem;
+    .card-title {
+        font-size: 0.75rem;
         font-weight: 400;
     }
     
@@ -2593,8 +2593,8 @@ html {
         padding: 0;
     }
     
-    .channel-header .h3 {
-        font-size: 1rem;
+    .card-title {
+        font-size: 0.7rem;
     }
     
     .channel-avatar,
@@ -2640,7 +2640,7 @@ html {
     .carousel-label-badge {
         padding: 5px 12px;
         font-size: 0.75rem;
-        gap: 4px;
+
     }
     
     .time-ago-small {
@@ -2691,8 +2691,8 @@ html {
     }
     
     .carousel-label-badge {
-        top: 20px;
-        padding: 8px 16px;
+        top: 0px;
+        padding: 4px 12px;
         font-size: 0.75rem;
     }
     

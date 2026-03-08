@@ -109,11 +109,11 @@
 
 
 <!-- Featured Channels Section -->
-<section class="featured-section mx-0 py-5 overflow-x-hidden" id="channels">
+<section class="container featured-section py-5" id="channels">
 
 
     
-    <div class="container-fluid px-1">
+    <div class="px-1">
         <div class="row">
             <div class="col-12 text-center mb-2">
                 <span class="section-label d-inline-block mb-3">Featured</span>
@@ -124,11 +124,11 @@
         </div>
 
 
-        <div class="row justify-content-evenly mx-auto">
+        <div class="row justify-content-evenly">
             {% for channel in channels %}
             <div class="col-6 col-md-3 px-1 py-1">
                 <div class="card channel-card h-auto">
-                    <div class="channel-thumbnail mt-1 position-relative mx-auto rounded-circle p-4">
+                    <div class="channel-thumbnail mt-1 position-relative mx-auto rounded-circle bg-white" style=" padding: 1px;">
                         {% if channel.thumbnail_url %}
                         <img src="{{ channel.thumbnail_url }}" alt="{{ channel.name }}" loading="lazy" class="w-100 h-100 rounded-circle justify-content-center">
                         {% else %}
@@ -145,7 +145,7 @@
                     </div>
                     
                     <div class="card-body channel-info px-0 px-md-1 text-center">
-                        <h3 class="card-title h6 mb-2">{{ channel.name }}</h3>
+                        <h3 class="card-title mb-2">{{ channel.name }}</h3>
                        
                         <div class="col-12 text-center">
                             <a href="{% url 'channel_detail' channel.channel_id %}" class="btn btn-danger ">
@@ -170,25 +170,23 @@
 <!-- ═══════════════════════════════════════════════════════════════
      GROWTH TEASER  (static — zero DB queries)
      ═══════════════════════════════════════════════════════════════ -->
-<section class="container-fluid py-5 px-3 px-md-4 text-center">
+<section class="container py-5 text-center">  
 
   <p class="text-uppercase text-secondary mb-2" style="font-size:0.7rem; letter-spacing:3px;">Trending</p>
   <h2 class="fw-bold text-white mb-1">📊 Growth Rankings</h2>
   <p class="text-secondary mb-5" style="font-size:0.82rem;">Updated every 6 hours · Based on real view velocity</p>
 
-  <!-- 3 bars -->
-  <div class="mb-5 d-flex align-items-flex-end justify-content-center gap-4 gap-md-5 mb-4"
-       style="height:250px; align-items:flex-end; position:relative;">
-
-    <!-- baseline -->
-    <div style="position:absolute;bottom:0;left:10%;right:10%;height:1px;background:#1f1f1f;"></div>
+  <!-- 3 bars - Fixed with responsive flex wrapping -->
+  <div class="d-flex flex-wrap justify-content-center gap-4 mb-4" 
+       style="min-height:250px; align-items:flex-end;">
 
     <!-- Bar 1 — Hot & New -->
     <a href="{% url 'growth_page' %}#hot-and-new"
        class="growth-bar-col text-decoration-none"
        style="display:flex;flex-direction:column;align-items:center;cursor:pointer;">
       <div class="growth-bar hot-bar"
-           style="width:80px;height:100px;border-radius:6px 6px 0 0;
+           style="width:clamp(60px, 15vw, 80px);height:100px; 
+                  border-radius:6px 6px 0 0;
                   border:2px solid #920a0a;background:transparent;
                   position:relative;overflow:hidden;transition:box-shadow 0.3s;">
         <div class="bar-fill"
@@ -204,8 +202,8 @@
       </div>
       <div style="margin-top:14px;">
         <div style="font-size:1.2rem;">🔥</div>
-        <div class="bar-name" style="font-size:0.78rem;font-weight:600;color:#555;transition:color 0.2s;white-space:nowrap;">Hot &amp; New</div>
-        <div class="bar-hint" style="font-size:0.65rem;color:#333;transition:color 0.2s;">last 24 h</div>
+        <div class="bar-name" style="font-size:0.78rem;font-weight:600;color:#555;">Hot &amp; New</div>
+        <div class="bar-hint" style="font-size:0.65rem;color:#333;">last 24 h</div>
       </div>
     </a>
 
@@ -214,7 +212,8 @@
        class="growth-bar-col text-decoration-none"
        style="display:flex;flex-direction:column;align-items:center;cursor:pointer;">
       <div class="growth-bar daily-bar"
-           style="width:80px;height:160px;border-radius:6px 6px 0 0;
+           style="width:clamp(60px, 15vw, 80px);height:160px;  
+                  border-radius:6px 6px 0 0;
                   border:2px solid #920a0a;background:transparent;
                   position:relative;overflow:hidden;transition:box-shadow 0.3s;">
         <div class="bar-fill"
@@ -230,8 +229,8 @@
       </div>
       <div style="margin-top:14px;">
         <div style="font-size:1.2rem;">📈</div>
-        <div class="bar-name" style="font-size:0.78rem;font-weight:600;color:#555;transition:color 0.2s;white-space:nowrap;">Daily Growth</div>
-        <div class="bar-hint" style="font-size:0.65rem;color:#333;transition:color 0.2s;">rolling 24 h</div>
+        <div class="bar-name" style="font-size:0.78rem;font-weight:600;color:#555;">Daily Growth</div>
+        <div class="bar-hint" style="font-size:0.65rem;color:#333;">rolling 24 h</div>
       </div>
     </a>
 
@@ -240,7 +239,8 @@
        class="growth-bar-col text-decoration-none"
        style="display:flex;flex-direction:column;align-items:center;cursor:pointer;">
       <div class="growth-bar weekly-bar"
-           style="width:80px;height:210px;border-radius:6px 6px 0 0;
+           style="width:clamp(60px, 15vw, 80px);height:210px; 
+                  border-radius:6px 6px 0 0;
                   border:2px solid #920a0a;background:transparent;
                   position:relative;overflow:hidden;transition:box-shadow 0.3s;">
         <div class="bar-fill"
@@ -256,14 +256,14 @@
       </div>
       <div style="margin-top:14px;">
         <div style="font-size:1.2rem;">📊</div>
-        <div class="bar-name" style="font-size:0.78rem;font-weight:600;color:#555;transition:color 0.2s;white-space:nowrap;">Weekly Growth</div>
-        <div class="bar-hint" style="font-size:0.65rem;color:#333;transition:color 0.2s;">rolling 7 days</div>
+        <div class="bar-name" style="font-size:0.78rem;font-weight:600;color:#555;">Weekly Growth</div>
+        <div class="bar-hint" style="font-size:0.65rem;color:#333;">rolling 7 days</div>
       </div>
     </a>
 
   </div>
 
-  <!-- CTA -->
+  <!-- CTA - unchanged -->
   <a href="{% url 'growth_page' %}"
      style="display:inline-flex;align-items:center;gap:8px;background:transparent;
             color:#fff;border:1px solid #2a2a2a;padding:10px 28px;border-radius:50px;
@@ -272,44 +272,8 @@
      onmouseout="this.style.background='transparent';this.style.color='#fff';this.style.borderColor='#2a2a2a';">
     View Full Growth Analytics <span style="display:inline-block;transition:transform 0.2s;" class="cta-arrow">→</span>
   </a>
-</section>  
+</section>
  
-
-<!-- Artist Marquee with Clean Tooltips -->
- <!-- <h5 class="text-center text-secondary fw-bolder mt-4 mb-0">POPULAR ARTIST</h5>
-<section class="artist-marquee-section py-3">
-    
-    <div class="container-fluid px-0">
-        <div class="marquee-container">
-            <div class="marquee-content marquee-rtl">
-                {% for artist in recent_artists %}
-                <span class="artist-item" 
-                      data-bs-toggle="tooltip" 
-                      data-bs-placement="top"
-                      data-bs-custom-class="artist-tooltip"
-                      title="{{ artist.tooltip }}">
-                    <span class="courgette-regular text-white fw-bold">{{ artist.name }}</span>
-                    <span class="artist-count text-danger ms-2">({{ artist.count }})</span>
-                </span>
-                <span class="separator mx-3 text-secondary">•</span>
-                {% endfor %}
-                
-               
-                {% for artist in recent_artists %}
-                <span class="artist-item"
-                      data-bs-toggle="tooltip" 
-                      data-bs-placement="top"
-                      data-bs-custom-class="artist-tooltip"
-                      title="{{ artist.tooltip }}">
-                    <span class="courgette-regular text-white fw-bold">{{ artist.name }}</span>
-                    <span class="artist-count text-danger ms-2">({{ artist.count }})</span>
-                </span>
-                <span class="separator mx-3 text-secondary">•</span>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-</section> -->
 
 <!-- ══════════════════════════════════════════════
      BRAND + ENQUIRY SECTION
@@ -417,40 +381,41 @@
 </section>
 
 <!-- Stats Section -->
-<section class="container stats-section pb-5 mx-auto overflow-hidden">
-    <div>
-        <div class="row text-center">
-            <div class="col-6 col-md-3">
-                <div class="stat-item">
-                    <div class="stat-number display-6 fw-bold text-danger">
-                        {{ total_artists_formatted }}
-                    </div>
-                    <div class="stat-label text-uppercase small text-light">Channels</div>
+<section class="container stats-section pb-5 overflow-hidden">  <!-- Added overflow-hidden -->
+    <div class="row g-3 g-md-4 text-center">  <!-- Use g-3 for gutters instead of padding on columns -->
+        <div class="col-6 col-md-3 px-0">
+            <div class="stat-item px-0"> 
+                <div class="stat-number display-6 fw-bold text-danger">
+                    {{ total_artists_formatted }}
                 </div>
+                <div class="stat-label text-uppercase small text-light">Channels</div>
             </div>
-            <div class="col-6 col-md-3">
-                <div class="stat-item">
-                    <div class="stat-number display-6 fw-bold text-danger">
-                        {{ total_videos_formatted }}+
-                    </div>
-                    <div class="stat-label text-uppercase small text-light">Music Videos</div>
+        </div>
+        
+        <div class="col-6 col-md-3 px-0">
+            <div class="stat-item px-0">
+                <div class="stat-number display-6 fw-bold text-danger">
+                    {{ total_videos_formatted }}+
                 </div>
+                <div class="stat-label text-uppercase small text-light">Music Videos</div>
             </div>
-            <div class="col-6 col-md-3">
-                <div class="stat-item">
-                    <div class="stat-number display-6 fw-bold text-danger">
-                        {{ monthly_views_formatted }}+
-                    </div>
-                    <div class="stat-label text-uppercase small text-light">Monthly Views</div>
+        </div>
+        
+        <div class="col-6 col-md-3 px-0">
+            <div class="stat-item px-0">
+                <div class="stat-number display-6 fw-bold text-danger">
+                    {{ monthly_views_formatted }}+
                 </div>
+                <div class="stat-label text-uppercase small text-light">Monthly Views</div>
             </div>
-            <div class="col-6 col-md-3">
-                <div class="stat-item">
-                    <div class="stat-number display-6 fw-bold text-danger">
-                        {{ total_subscribers_formatted }}+
-                    </div>
-                    <div class="stat-label text-uppercase small text-light">Total Subscribers</div>
+        </div>
+        
+        <div class="col-6 col-md-3 px-0">
+            <div class="stat-item px-0">
+                <div class="stat-number display-6 fw-bold text-danger">
+                    {{ total_subscribers_formatted }}+
                 </div>
+                <div class="stat-label text-uppercase small text-light">Subscribers</div>
             </div>
         </div>
     </div>

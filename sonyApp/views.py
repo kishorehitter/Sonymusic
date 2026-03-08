@@ -843,10 +843,13 @@ Sent via exclusive-music.onrender.com contact form
                     message=email_body,
                     from_email=settings.EMAIL_HOST_USER,
                     recipient_list=[to],
-                    fail_silently=True,  # ← don't crash if email fails
+                    fail_silently=False,
                 )
+                logger.info(f"✅ Email sent successfully to {to}")
             except Exception as e:
-                logger.error(f"Email send error: {e}")
+                logger.error(f"❌ Email send error: {type(e).__name__}: {e}")
+
+
 
         threading.Thread(target=send, daemon=True).start()
 
