@@ -230,7 +230,7 @@ html {
 }
 
 .video-title {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     font-weight: 600;
     line-height: 1.4;
     display: -webkit-box;
@@ -240,7 +240,7 @@ html {
 }
 
 .video-meta {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
 }
 
 /* ============================================

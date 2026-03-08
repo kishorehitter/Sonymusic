@@ -36,7 +36,7 @@
   <p class="text-secondary mb-0">
     Real-time view growth tracking  
   </p>
-  <p class="d-inline-block" id="lastStatsLabel" style="font-size:0.72rem; color:#ff0000; background:rgba(255,149,0,0.1); padding:2px 8px; border-radius:20px; border:1px solid rgba(255, 0, 0, 0.9);">
+  <p class="d-inline-block" id="lastStatsLabel" style="font-size:0.72rem; color:white; background:rgba(255,149,0,0.1); padding:2px 8px; border-radius:20px; border:1px solid rgba(255, 0, 0, 0.9);">
       ⟳ Waiting for first cron run
   </p>
 
@@ -78,8 +78,17 @@
               {{ hot_and_new|length }} videos
             </span>
           </div>
-          <p class="text-secondary small mb-3">Videos released today · ranked by 6-hour growth</p>
-
+          <p class="text-secondary small mb-2">Videos released today · ranked by 6-hour growth</p>
+          
+          <!-- pie chart -->
+           <div class="p-2 rounded-2" style="background:#111;">
+                <p class="text-center mb-0 pb-0 text-light" >Top 3 Growth</p>
+                <div class="d-flex align-items-center gap-3 mb-3 " >
+                  <canvas id="pie-hot" width="80" height="80"></canvas>
+                  <div id="pie-hot-legend" style="flex:1; min-width:0;"></div>
+                  <!-- <div style="font-size:0.65rem;color:#555;text-align:right;flex-shrink:0;">Top 3<br>growth</div> -->
+                </div>
+            </div>
           <div class="growth-list">
             {% for video in hot_and_new %}
             <a href="{% url 'video_player' video.channel.channel_id video.youtube_video_id %}"
@@ -146,6 +155,14 @@
           </div>
           <p class="text-secondary small mb-3">1–7 days old · views gained in last 24 hours</p>
 
+          <div class="p-2 rounded-2" style="background:#111;">
+            <p class="text-center mb-0 pb-0 text-light" >Top 3 Growth</p>
+            <div class="d-flex align-items-center gap-3 mb-3 p-2 rounded-2" style="background:#111;">
+              <canvas id="pie-daily" width="80" height="80"></canvas>
+              <div id="pie-daily-legend" style="flex:1; min-width:0;"></div>
+              <!-- <div style="font-size:0.65rem;color:#555;text-align:right;flex-shrink:0;">Top 3<br>growth</div> -->
+            </div>
+          </div>
           <div class="growth-list">
             {% for video in daily_growth %}
             <a href="{% url 'video_player' video.channel.channel_id video.youtube_video_id %}"
@@ -212,7 +229,14 @@
             </span>
           </div>
           <p class="text-secondary small mb-3">7–30 days old · views gained in last 7 days</p>
-
+          <div class="p-2 rounded-2" style="background:#111;">
+            <p class="text-center mb-0 pb-0 text-light" >Top 3 Growth</p>
+          <div class="d-flex align-items-center gap-3 mb-3 p-2 rounded-2" style="background:#111;">
+            <canvas id="pie-weekly" width="80" height="80"></canvas>
+            <div id="pie-weekly-legend" style="flex:1; min-width:0;"></div>
+            <!-- <div style="font-size:0.65rem;color:#555;text-align:right;flex-shrink:0;">Top 3<br>growth</div> -->
+          </div>
+          </div>
           <div class="growth-list">
             {% for video in weekly_growth %}
             <a href="{% url 'video_player' video.channel.channel_id video.youtube_video_id %}"
@@ -366,7 +390,7 @@ fetch('/api/last-stats/')
                : Math.floor(diff / 1440) + ' days ago';
       var timeStr = d.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
       var dateStr = d.toLocaleDateString([], {month: 'short', day: 'numeric'});
-      el.innerHTML = '⟳ Last updated ' + ago + ' &nbsp;·&nbsp; <span style="color:#2a2a2a;">' + dateStr + ' · ' + timeStr + '</span>';
+      el.innerHTML = '⟳ Last updated ' + ago + ' &nbsp;·&nbsp; <span style="color:#ff0000;">' + dateStr + ' · ' + timeStr + '</span>';
     } else {
       el.textContent = '⟳ Waiting for first cron run';
     }
@@ -375,6 +399,224 @@ fetch('/api/last-stats/')
     var el = document.getElementById('lastStatsLabel');
     if (el) el.textContent = '';
   });
+
+ // ── Tab config ────────────────────────────────────────────────
+var TAB_STYLES = {
+  'hot-and-new':   {
+    active:  'background:#2d1a00;color:#ff9500;border:1px solid #ff9500;',
+    inactive:'background:#1a1a1a;color:#666;border:1px solid #333;'
+  },
+  'daily-growth':  {
+    active:  'background:#2d0a1a;color:#f472b6;border:1px solid #f472b6;',
+    inactive:'background:#1a1a1a;color:#666;border:1px solid #333;'
+  },
+  'weekly-growth': {
+    active:  'background:#0a1f2e;color:#38bdf8;border:1px solid #38bdf8;',
+    inactive:'background:#1a1a1a;color:#666;border:1px solid #333;'
+  },
+};
+
+function switchTab(tabId) {
+  document.querySelectorAll('.growth-tab-panel').forEach(function(panel) {
+    panel.classList.add('d-none');
+  });
+  var target = document.getElementById('tab-' + tabId);
+  if (target) {
+    target.classList.remove('d-none');
+    target.style.opacity = '0';
+    target.style.transform = 'translateY(8px)';
+    target.style.transition = 'none';
+    target.offsetHeight;
+    target.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+    target.style.opacity = '1';
+    target.style.transform = 'translateY(0)';
+  }
+  document.querySelectorAll('.growth-tab-btn').forEach(function(btn) {
+    var id = btn.getAttribute('data-tab');
+    btn.classList.remove('active');
+    btn.style.cssText = 'padding:8px 20px;border-radius:50px;cursor:pointer;font-size:0.9rem;transition:all 0.2s;' +
+                        TAB_STYLES[id].inactive;
+  });
+  var activeBtn = document.querySelector('.growth-tab-btn[data-tab="' + tabId + '"]');
+  if (activeBtn) {
+    activeBtn.classList.add('active');
+    activeBtn.style.cssText = 'padding:8px 20px;border-radius:50px;cursor:pointer;font-size:0.9rem;transition:all 0.2s;' +
+                              TAB_STYLES[tabId].active;
+  }
+  history.replaceState(null, '', '#' + tabId);
+}
+
+document.querySelectorAll('.growth-tab-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    switchTab(this.getAttribute('data-tab'));
+  });
+});
+
+// ── Load More ─────────────────────────────────────────────────
+document.querySelectorAll('.load-more-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    var cls = this.getAttribute('data-cls');
+    var delay = 0;
+    document.querySelectorAll('.' + cls).forEach(function(row) {
+      row.classList.remove('d-none');
+      row.style.opacity = '0';
+      row.style.transform = 'translateY(10px)';
+      row.style.transition = 'none';
+      setTimeout(function() {
+        row.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
+        row.style.opacity = '1';
+        row.style.transform = 'translateY(0)';
+      }, delay);
+      delay += 30;
+    });
+    this.style.display = 'none';
+  });
+});
+
+// ── On load: read hash ────────────────────────────────────────
+(function() {
+  var hash = window.location.hash.replace('#', '');
+  var validTabs = ['hot-and-new', 'daily-growth', 'weekly-growth'];
+  switchTab(validTabs.indexOf(hash) !== -1 ? hash : 'hot-and-new');
+})();
+
+// ── Last stats update time ────────────────────────────────────
+fetch('/api/last-stats/')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    var el = document.getElementById('lastStatsLabel');
+    if (!el) return;
+    if (data.last_updated) {
+      var d    = new Date(data.last_updated);
+      var now  = new Date();
+      var diff = Math.floor((now - d) / 60000);
+      var ago  = diff < 1    ? 'just now'
+               : diff < 60   ? diff + ' min ago'
+               : diff < 1440 ? Math.floor(diff / 60) + ' hrs ago'
+               : Math.floor(diff / 1440) + ' days ago';
+      var timeStr = d.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+      var dateStr = d.toLocaleDateString([], {month: 'short', day: 'numeric'});
+      el.innerHTML = '⟳ Last updated ' + ago + ' &nbsp;·&nbsp; <span style="color:#555;">' + dateStr + ' · ' + timeStr + '</span>';
+      el.style.color = '#ff9500';
+    } else {
+      el.textContent = '⟳ Waiting for first cron run';
+      el.style.color = '#ff0000';
+    }
+  })
+  .catch(function() {
+    var el = document.getElementById('lastStatsLabel');
+    if (el) el.textContent = '';
+  });
+
+  // ── Pie Charts ────────────────────────────────────────────────
+  var PIE_COLORS = {
+    'hot':    ['#ff9500', '#ffb347', '#ffd580'],
+    'daily':  ['#f472b6', '#f9a8d4', '#fce7f3'],
+    'weekly': ['#38bdf8', '#7dd3fc', '#bae6fd'],
+  };
+
+  function drawPie(canvasId, data, colors) {
+    var canvas = document.getElementById(canvasId);
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    var total = data.reduce(function(a, b) { return a + b; }, 0);
+    if (total === 0) return;
+    var startAngle = -Math.PI / 2;
+    var cx = canvas.width / 2, cy = canvas.height / 2, r = cx - 4;
+    data.forEach(function(val, i) {
+      var slice = (val / total) * 2 * Math.PI;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, r, startAngle, startAngle + slice);
+      ctx.closePath();
+      ctx.fillStyle = colors[i];
+      ctx.fill();
+      startAngle += slice;
+    });
+    // donut hole
+    ctx.beginPath();
+    ctx.arc(cx, cy, r * 0.5, 0, 2 * Math.PI);
+    ctx.fillStyle = '#0d0d0d';
+    ctx.fill();
+  }
+
+  function parseGrowthValue(badge) {
+    if (!badge) return 0;
+    // Remove everything except digits, commas, K, M
+    var raw = badge.textContent.replace(/[^0-9KkMm,]/g, '').trim();
+    // Remove commas (thousand separators)
+    var cleaned = raw.replace(/,/g, '');
+    var val = parseFloat(cleaned.replace(/[KkMm]/i, ''));
+    if (cleaned.match(/[Mm]/i)) val *= 1000000;
+    else if (cleaned.match(/[Kk]/i)) val *= 1000;
+    return isNaN(val) ? 0 : val;
+  }
+
+  function calcPercentages(data) {
+    var total = data.reduce(function(a, b) { return a + b; }, 0);
+    if (total === 0) return data.map(function() { return 0; });
+
+    // Floor all percentages first
+    var exact   = data.map(function(v) { return (v / total) * 100; });
+    var floored = exact.map(function(p) { return Math.floor(p); });
+    var remainders = exact.map(function(p, i) { return p - floored[i]; });
+    var leftover = 100 - floored.reduce(function(a, b) { return a + b; }, 0);
+
+    // Distribute leftover 1s to highest remainders — guarantees sum = 100
+    var indices = remainders.map(function(_, i) { return i; });
+    indices.sort(function(a, b) { return remainders[b] - remainders[a]; });
+    for (var r = 0; r < leftover; r++) {
+      floored[indices[r]] += 1;
+    }
+    return floored;
+  }
+
+  function buildPieData(panelId) {
+    var rows = document.querySelectorAll('#' + panelId + ' .growth-row:not(.d-none)');
+    var data = [], labels = [];
+    var count = 0;
+    rows.forEach(function(row) {
+      if (count >= 3) return;
+      var badge = row.querySelector('.badge');
+      var val   = parseGrowthValue(badge);
+      var titleEl = row.querySelector('.text-white.text-truncate');
+      var label = titleEl ? titleEl.textContent.trim() : ('Video ' + (count + 1));
+      if (label.length > 20) label = label.substring(0, 20) + '…';
+      labels.push(label);
+      data.push(val);
+      count++;
+    });
+    return { data: data, labels: labels };
+  }
+
+  function renderPies() {
+    [
+      { panel: 'tab-hot-and-new',   id: 'pie-hot',    key: 'hot'    },
+      { panel: 'tab-daily-growth',  id: 'pie-daily',  key: 'daily'  },
+      { panel: 'tab-weekly-growth', id: 'pie-weekly', key: 'weekly' },
+    ].forEach(function(cfg) {
+      var d = buildPieData(cfg.panel);
+      if (d.data.length === 0) return;
+
+      drawPie(cfg.id, d.data, PIE_COLORS[cfg.key]);
+
+      var pcts   = calcPercentages(d.data);
+      var legend = document.getElementById(cfg.id + '-legend');
+      if (!legend) return;
+
+      legend.innerHTML = '';
+      d.labels.forEach(function(lbl, i) {
+        legend.innerHTML +=
+          '<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">' +
+            '<span style="width:10px;height:10px;border-radius:50%;flex-shrink:0;background:' + PIE_COLORS[cfg.key][i] + ';"></span>' +
+            '<span style="font-size:0.68rem;color:#aaa;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;">' + lbl + '</span>' +
+            '<span style="font-size:0.68rem;color:#777;flex-shrink:0;margin-left:6px;">' + pcts[i] + '%</span>' +
+          '</div>';
+      });
+    });
+  }
+
+  setTimeout(renderPies, 300);
 </script>
 
 {% include 'sonyApp/inc/footer.html' %}

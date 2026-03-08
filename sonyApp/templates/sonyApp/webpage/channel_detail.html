@@ -16,8 +16,8 @@
         <div class="channel-header bg-dark py-4 mt-5">
             <div class="container-fluid px-4">
                 <div class="row align-items-center">
-                    <div class="col-12">
-                        <div class="d-flex align-items-center justify-content-center gap-3">
+                    <div class="col-12 px-0">
+                        <div class="d-flex align-items-center justify-content-center gap-1">
                             {% if channel.thumbnail_url %}
                             <img src="{{ channel.thumbnail_url }}" alt="{{ channel.name }}" class="channel-avatar rounded-circle" style="width: 60px; height: 60px; object-fit: cover;">
                             {% else %}
@@ -26,8 +26,8 @@
                             </div>
                             {% endif %}
                             <div>
-                                <h1 class="h3 text-white mb-1 fw-bold">{{ channel.name }}</h1>
-                                <div class="text-light small d-flex align-items-center flex-wrap gap-2">
+                                <h1 class="h5 text-white mb-1 fw-bold">{{ channel.name }}</h1>
+                                <div class="text-light small d-flex align-items-center flex-wrap gap-1">
                                     <span 
                                         class="abbr-num"
                                         data-bs-toggle="tooltip" 
@@ -165,7 +165,7 @@
                                 {% endif %}
 
                                 <!-- Live View Count Badge on thumbnail -->
-                                {% if video.view_count %}
+                                <!-- {% if video.view_count %}
                                 <div class="view-count-badge position-absolute"
                                      style="bottom: 30px; left: 6px; background: rgba(0,0,0,0.75); color: #fff; font-size: 0.65rem; padding: 1px 5px; border-radius: 4px; backdrop-filter: blur(2px);"
                                      data-bs-toggle="tooltip"
@@ -174,13 +174,13 @@
                                     <i class="bi bi-eye me-1"></i>
                                     <span class="num-display" data-value="{{ video.view_count }}"></span>
                                 </div>
-                                {% endif %}
+                                {% endif %} -->
                             </div>
                             
                             <!-- Video Info -->
                             <div class="video-info mt-2">
-                                <h5 class="video-title text-white mb-1">{{ video.title|truncatechars:60 }}</h5>
-                                <div class="d-flex video-meta text-light small justify-content-start gap-4">
+                                <h5 class="video-title text-white mb-1">{{ video.title|truncatechars:50 }}</h5>
+                                <div class="d-flex video-meta text-secondary small justify-content-around">
                                     <div class="d-none d-md-flex gap-1">
                                         <i class="bi bi-calendar3"></i>
                                         {{ video.published_at|date:"M d, Y" }}
@@ -220,7 +220,7 @@
 
             <!-- Video Count -->
             <div class="mt-4 text-center">
-                <h5 class="text-secondary">
+                <p class="text-secondary">
                     Showing {{ page_obj.start_index }} – {{ page_obj.end_index }} of 
                     <span 
                         class="abbr-num"
@@ -229,7 +229,7 @@
                         title="{{ page_obj.paginator.count }} videos">
                         <span class="num-display" data-value="{{ page_obj.paginator.count }}"></span>
                     </span> videos
-                </h5>
+                </p>
             </div>
 
             <!-- Pagination -->

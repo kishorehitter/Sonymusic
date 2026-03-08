@@ -905,6 +905,9 @@ def auto_update_stats(request):
     except ValueError:
         days = 31
 
+    # Set timestamp IMMEDIATELY — before thread starts
+    cache.set('last_stats_update', datetime.now().isoformat(), 86400)
+
     import threading
     def run():
         try:
@@ -932,6 +935,8 @@ def auto_update_stats_full(request):
     provided_token = request.GET.get('token')
     if SECRET_TOKEN and provided_token != SECRET_TOKEN:
         return JsonResponse({'error': 'Unauthorized'}, status=401)
+    # Set timestamp IMMEDIATELY — before thread starts
+    cache.set('last_stats_update', datetime.now().isoformat(), 86400)
 
     import threading
     def run():
