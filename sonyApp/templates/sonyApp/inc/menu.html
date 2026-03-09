@@ -1,6 +1,5 @@
-
 <nav class="container-fluid navbar navbar-expand-lg navbar-dark fixed-top custom-navbar py-0">
-    <div class="container-fluid bg-black position-relative px-2">
+    <div class="container-fluid px-2" style="background: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.9) 70%, transparent 100%) !important;  border-radius: 0 0 20px 20px;">
         <a class="navbar-brand logo" href="{% url 'home' %}">
             <svg width="200" height="50" viewBox="0 0 1454 340" xmlns="http://www.w3.org/2000/svg">
                 <g fill="#F90000">
@@ -20,7 +19,7 @@
         </a>
 
         <button class="navbar-toggler p-0" 
-                style="border: 1px solid red !important; border-radius: 6px;" 
+                style="border: 2px solid red !important; border-radius: 6px;" 
                 type="button" 
                 data-bs-toggle="collapse" 
                 data-bs-target="#navbarNav">
@@ -32,13 +31,13 @@
             
             <ul class="navbar-nav ms-auto gap-5 align-items-lg-center">
 
-                <!-- Channels dropdown (unchanged) -->
+                <!-- Channels dropdown -->
                 <li class="nav-item dropdown" id="channelsNavItem">
                     <a class="nav-link mt-4 mt-md-0 dropdown-toggle" href="#" id="channelsDropdown"
                     role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Channels
                     </a>
-                    <ul class="dropdown-menu sny-dropdown position-absolute" id="channelsDropdownMenu">
+                    <ul class="dropdown-menu sny-dropdown" id="channelsDropdownMenu">
                         <li class="sny-dd-loading">
                             <span class="sny-spinner"></span>
                             Loading channels…
@@ -46,8 +45,8 @@
                     </ul>
                 </li>
 
-                <!-- Growth dropdown  (replaces Genres) -->
-                <li class="nav-item dropdown">
+                <!-- Growth dropdown -->
+                <li class="nav-item dropdown" id="growthNavItem">
                     <a class="nav-link dropdown-toggle" href="#" id="growthDropdown"
                     role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         📊 Growth
@@ -73,7 +72,6 @@
                                 <small class="d-block text-secondary" style="font-size:0.75rem;">Rolling 7-day views</small>
                             </a>
                         </li>
-                       
                     </ul>
                 </li>
 
@@ -166,49 +164,145 @@
 </div>
 
 <style>
+/* ========================================
+   TRANSPARENT NAVBAR - FIXED AT TOP
+   ======================================== */
+
 .navbar-toggler:focus {
     box-shadow: 0 0 0 2px rgba(255, 0, 0, 0.3) !important;
 }
 
 .custom-navbar {
-    background:          rgba(8,8,8,.97);
-    backdrop-filter:     blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    border-bottom:       1px solid rgba(255,255,255,.07);
-    height:              64px;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.9) 70%, transparent 100%) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-bottom: none !important;
+    height: 64px;
+    transition: background 0.3s ease;
+    transform: translateY(0) !important; /* Force no movement */
 }
-.navbar-brand svg {
-    display: block;
+
+/* When scrolled - becomes slightly darker but still transparent */
+.custom-navbar.scrolled {
+    background: rgba(15, 15, 15, 0.9) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    border-bottom: 1px solid rgba(255,255,255,0.08) !important;
 }
+
+/* Brand/logo styling */
+.navbar-brand {
+    opacity: 1;
+}
+
+.navbar-brand svg text {
+    fill: #FFFFFF;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+}
+
+/* Nav link styling for transparent navbar */
 .nav-link {
-    font-size:       12.5px;
-    font-weight:     500;
-    letter-spacing:  .09em;
-    text-transform:  uppercase;
-    color:           rgba(255,255,255,.6) !important;
-    transition:      color .2s;
-  
-    
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.95) !important;
+    text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    padding: 8px 12px !important;
+    transition: color 0.2s, border 0.2s;
 }
+
 .nav-link:hover {
     color: #fff !important;
-    border:        1px solid rgba(249,0,0,.5);
+    border: 1px solid rgba(249,0,0,0.8);
     border-radius: 20px;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.8);
 }
 
+/* Dropdown toggle arrow */
+.dropdown-toggle::after {
+    color: rgba(255,255,255,0.8);
+    text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+}
 
-
-/* ════════════════════════════════════════
-   CHANNELS DROPDOWN
-════════════════════════════════════════ */
-.sny-dropdown {
-    background:   #111 !important;
-    border:       1px solid rgba(255,255,255,.1) !important;
+/* Dropdown menu styling */
+.dropdown-menu {
+    background: #111 !important;
+    border: 1px solid rgba(255,255,255,.1) !important;
     border-radius: 10px !important;
-    padding:      6px 0 !important;
-    min-width:    240px;
-    box-shadow:   0 20px 50px rgba(0,0,0,.8) !important;
+    padding: 6px 0 !important;
+    min-width: 240px;
+    box-shadow: 0 20px 50px rgba(0,0,0,.8) !important;
+    margin-top: 0.5rem !important;
 }
+
+/* Desktop hover effect */
+@media (min-width: 992px) {
+    .dropdown-menu {
+        transition: opacity 0.2s ease, visibility 0.2s ease;
+        opacity: 0;
+        display: block !important;
+        visibility: hidden;
+    }
+    
+    .dropdown:hover .dropdown-menu,
+    .dropdown-menu:hover {
+        opacity: 1;
+        visibility: visible;
+    }
+}
+
+/* Mobile styles */
+@media (max-width: 991.98px) {
+    .dropdown-menu {
+        transition: none;
+        opacity: 1;
+        visibility: visible;
+        display: none !important;
+        background: rgba(20, 20, 20, 0.85) !important;
+        backdrop-filter: blur(10px) !important;
+        -webkit-backdrop-filter: blur(10px) !important;
+    }
+    
+    .dropdown-menu.show {
+        display: block !important;
+    }
+    
+    /* Mobile menu background when opened - TRANSPARENT VERSION */
+    .navbar-collapse {
+        background: linear-gradient(to bottom, rgba(0,0,0,0.85), rgba(0,0,0,0.9)) !important;
+        backdrop-filter: blur(12px) !important;
+        -webkit-backdrop-filter: blur(12px) !important;
+        padding: 20px;
+        /* border-radius: 0 0 20px 20px; */
+        /* margin-top: 10px; */
+        /* border: 1px solid rgba(255,255,255,0.1); */
+    }
+    
+    /* Make the nav links more visible on transparent background */
+    .nav-link {
+        text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+        padding: 12px !important;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .nav-link:hover {
+        background: rgba(249,0,0,0.2);
+        border: none;
+        border-radius: 10px;
+    }
+    
+    /* Style for the dropdown toggle in mobile */
+    .dropdown-toggle {
+        width: 100%;
+        text-align: left;
+    }
+}
+
+/* ========================================
+   CHANNELS DROPDOWN CONTENT
+   ======================================== */
+
 .sny-dd-loading {
     display:     flex;
     align-items: center;
@@ -217,6 +311,7 @@
     font-size:   13px;
     color:       rgba(255,255,255,.4);
 }
+
 .sny-spinner {
     width:         16px;
     height:        16px;
@@ -226,6 +321,7 @@
     animation:     spin .7s linear infinite;
     flex-shrink:   0;
 }
+
 @keyframes spin {
     to { transform: rotate(360deg); }
 }
@@ -241,14 +337,18 @@
     background:  none;
     width:       100%;
     text-align:  left;
+    color: rgba(255,255,255,.85);
 }
+
 .sny-ch-row:hover {
     background:   rgba(249,0,0,.08);
     padding-left: 20px;
 }
+
 .sny-ch-row:hover .sny-row-dot {
     opacity: 1;
 }
+
 .sny-row-dot {
     width:         6px;
     height:        6px;
@@ -258,6 +358,7 @@
     opacity:       0;
     transition:    opacity .12s;
 }
+
 .sny-row-thumb {
     width:         38px;
     height:        38px;
@@ -266,10 +367,12 @@
     background:    #222;
     flex-shrink:   0;
 }
+
 .sny-row-info {
     flex:      1;
     min-width: 0;
 }
+
 .sny-row-name {
     font-size:     13px;
     font-weight:   600;
@@ -278,11 +381,13 @@
     overflow:      hidden;
     text-overflow: ellipsis;
 }
+
 .sny-row-subs {
     font-size:  11px;
     color:      rgba(255,255,255,.35);
     margin-top: 2px;
 }
+
 .sny-row-badge {
     font-size:      10px;
     font-weight:    700;
@@ -294,19 +399,32 @@
     padding:        2px 7px;
     flex-shrink:    0;
 }
+
 .sny-user-item {
     color:     rgba(255,255,255,.7) !important;
     font-size: 13px !important;
 }
+
 .sny-user-item:hover {
     color:      #fff !important;
     background: rgba(255,255,255,.06) !important;
 }
 
+.dropdown-item {
+    transition: all 0.3s ease;
+    color: rgba(255,255,255,.7) !important;
+}
 
-/* ════════════════════════════════════════
-   OVERLAY
-════════════════════════════════════════ */
+.dropdown-item:hover {
+    background: rgba(249,0,0,.08);
+    padding-left: 20px;
+    color: #fff !important;
+}
+
+/* ========================================
+   MODAL/OVERLAY STYLES (unchanged)
+   ======================================== */
+
 .sny-overlay {
     display:          none;
     position:         fixed;
@@ -319,14 +437,11 @@
     justify-content:  center;
     padding:          20px;
 }
+
 .sny-overlay.open {
     display: flex;
 }
 
-
-/* ════════════════════════════════════════
-   MODAL
-════════════════════════════════════════ */
 .sny-modal {
     position:      relative;
     width:         100%;
@@ -338,18 +453,19 @@
     padding:       24px;
     animation:     snyIn .22s cubic-bezier(.22,1,.36,1);
 }
+
 @media (max-width: 520px) {
     .sny-modal {
         padding:       18px 14px;
         border-radius: 14px;
     }
 }
+
 @keyframes snyIn {
     from { opacity: 0; transform: scale(.94) translateY(12px); }
     to   { opacity: 1; transform: scale(1)   translateY(0);    }
 }
 
-/* Close button */
 .sny-x {
     position:      absolute;
     top:           12px;
@@ -367,22 +483,20 @@
     justify-content: center;
     transition:    background .15s, color .15s;
 }
+
 .sny-x:hover {
     background:   rgba(249,0,0,.35);
     color:        #fff;
     border-color: transparent;
 }
 
-
-/* ════════════════════════════════════════
-   SKELETON
-════════════════════════════════════════ */
 .sny-sk-wrap {
     display:     flex;
     align-items: center;
     gap:         16px;
     padding:     4px 0;
 }
+
 .sny-sk-avatar {
     width:         56px;
     height:        56px;
@@ -392,9 +506,11 @@
     background-size: 200% 100%;
     animation:     shimmer 1.3s infinite;
 }
+
 .sny-sk-lines {
     flex: 1;
 }
+
 .sny-sk-line {
     height:          13px;
     border-radius:   6px;
@@ -402,20 +518,18 @@
     background-size: 200% 100%;
     animation:       shimmer 1.3s infinite;
 }
+
 @keyframes shimmer {
     0%   { background-position: -200% 0; }
     100% { background-position:  200% 0; }
 }
 
-
-/* ════════════════════════════════════════
-   HEAD ROW  (avatar + meta + subscribe)
-════════════════════════════════════════ */
 .sny-head {
     display:     flex;
     align-items: center;
     gap:         14px;
 }
+
 .sny-avatar {
     width:         56px;
     height:        56px;
@@ -424,12 +538,14 @@
     background:    #222;
     flex-shrink:   0;
 }
+
 .sny-avatar img {
     width:       100%;
     height:      100%;
     object-fit:  cover;
     display:     block;
 }
+
 .sny-avatar-fb {
     display:         none;
     width:           100%;
@@ -441,10 +557,12 @@
     background:      linear-gradient(135deg, #3a0000, #1c0000);
     color:           #fff;
 }
+
 .sny-meta {
     flex:      1;
     min-width: 0;
 }
+
 .sny-ch-name {
     font-size:     16px;
     font-weight:   800;
@@ -456,6 +574,7 @@
     overflow:      hidden;
     text-overflow: ellipsis;
 }
+
 .sny-verified {
     width:           15px;
     height:          15px;
@@ -466,25 +585,24 @@
     align-items:     center;
     justify-content: center;
 }
+
 .sny-verified svg {
     width:  9px;
     height: 9px;
 }
+
 .sny-ch-handle {
     font-size:  11.5px;
     color:      rgba(255,255,255,.32);
     margin-top: 2px;
 }
+
 .sny-ch-stats {
     font-size:  11px;
     color:      rgba(255,255,255,.22);
     margin-top: 2px;
 }
 
-
-/* ════════════════════════════════════════
-   SUBSCRIBE BUTTON
-════════════════════════════════════════ */
 .sny-sub-btn {
     height:        34px;
     padding:       0 16px;
@@ -499,19 +617,23 @@
     transition:    background .15s, transform .1s;
     white-space:   nowrap;
 }
+
 .sny-sub-btn:hover {
     background: #e8e8e8;
     transform:  scale(1.04);
 }
+
 .sny-sub-btn.is-subscribed {
     background: rgba(34,197,94,.12);
     color:      #4ade80;
     border:     1px solid rgba(34,197,94,.3);
 }
+
 .sny-sub-btn.is-subscribed:hover {
     background: rgba(34,197,94,.2);
     transform:  none;
 }
+
 .sny-sub-btn.is-waiting {
     background: rgba(255,255,255,.06);
     color:      rgba(255,255,255,.35);
@@ -520,15 +642,12 @@
     transform:  none !important;
 }
 
-
-/* ════════════════════════════════════════
-   SEPARATOR + DESCRIPTION
-════════════════════════════════════════ */
 .sny-sep {
     height:     1px;
     background: rgba(255,255,255,.06);
     margin:     18px 0 14px;
 }
+
 .sny-desc {
     font-size:   12.5px;
     line-height: 1.75;
@@ -536,6 +655,7 @@
     white-space: pre-line;
     margin:      0;
 }
+
 .sny-more {
     font-size:   12px;
     color:       rgba(255,255,255,.3);
@@ -546,14 +666,11 @@
     font-family: inherit;
     transition:  color .15s;
 }
+
 .sny-more:hover {
     color: rgba(255,255,255,.7);
 }
 
-
-/* ════════════════════════════════════════
-   COUNTDOWN CARD
-════════════════════════════════════════ */
 .sny-cd-card {
     margin-top:    16px;
     background:    rgba(255,255,255,.03);
@@ -561,16 +678,19 @@
     border-radius: 12px;
     padding:       14px 16px;
 }
+
 .sny-cd-row {
     display:       flex;
     align-items:   center;
     gap:           8px;
     margin-bottom: 10px;
 }
+
 .sny-cd-label {
     font-size: 12.5px;
     color:     rgba(255,255,255,.6);
 }
+
 .sny-cd-bar-wrap {
     height:        2px;
     background:    rgba(255,255,255,.08);
@@ -578,6 +698,7 @@
     overflow:      hidden;
     margin-bottom: 12px;
 }
+
 .sny-cd-bar {
     height:        100%;
     background:    #F90000;
@@ -585,10 +706,12 @@
     width:         100%;
     transition:    width 1s linear;
 }
+
 .sny-cd-btns {
     display: flex;
     gap:     8px;
 }
+
 .sny-cd-btn {
     height:        28px;
     padding:       0 14px;
@@ -601,23 +724,22 @@
     font-family:   inherit;
     transition:    background .15s, color .15s;
 }
+
 .sny-cd-btn:hover {
     background:   rgba(249,0,0,.2);
     color:        #fff;
     border-color: rgba(249,0,0,.3);
 }
+
 .sny-cd-btn--ghost {
     background: none;
 }
+
 .sny-cd-btn--ghost:hover {
     background:   rgba(255,255,255,.06);
     border-color: rgba(255,255,255,.15);
 }
 
-
-/* ════════════════════════════════════════
-   ASK CARD
-════════════════════════════════════════ */
 .sny-ask-card {
     margin-top:    16px;
     background:    rgba(255,255,255,.03);
@@ -626,16 +748,19 @@
     padding:       14px 16px;
     animation:     snyUp .2s ease;
 }
+
 @keyframes snyUp {
     from { opacity: 0; transform: translateY(6px); }
     to   { opacity: 1; transform: translateY(0);   }
 }
+
 .sny-ask-row {
     display:       flex;
     align-items:   center;
     gap:           10px;
     margin-bottom: 12px;
 }
+
 .sny-ask-icon {
     width:           28px;
     height:          28px;
@@ -650,25 +775,30 @@
     font-weight:     700;
     color:           #F90000;
 }
+
 .sny-ask-text {
     flex:           1;
     display:        flex;
     flex-direction: column;
     gap:            2px;
 }
+
 .sny-ask-text strong {
     font-size:   13px;
     font-weight: 700;
     color:       rgba(255,255,255,.88);
 }
+
 .sny-ask-text span {
     font-size: 11.5px;
     color:     rgba(255,255,255,.33);
 }
+
 .sny-ask-btns {
     display: flex;
     gap:     8px;
 }
+
 .sny-ask-yes,
 .sny-ask-no {
     flex:            1;
@@ -685,29 +815,29 @@
     gap:             5px;
     transition:      background .15s, transform .1s;
 }
+
 .sny-ask-yes {
     background:   rgba(34,197,94,.1);
     border-color: rgba(34,197,94,.28);
     color:        #4ade80;
 }
+
 .sny-ask-yes:hover {
     background: rgba(34,197,94,.18);
     transform:  scale(1.02);
 }
+
 .sny-ask-no {
     background:   rgba(255,255,255,.04);
     border-color: rgba(255,255,255,.1);
     color:        rgba(255,255,255,.45);
 }
+
 .sny-ask-no:hover {
     background: rgba(255,255,255,.08);
     color:      #fff;
 }
 
-
-/* ════════════════════════════════════════
-   MOBILE SHEET
-════════════════════════════════════════ */
 .sny-mobile-sheet {
     display:         flex;
     flex-direction:  column;
@@ -715,6 +845,7 @@
     text-align:      center;
     gap:             10px;
 }
+
 .sny-ms-icon {
     width:           46px;
     height:          46px;
@@ -725,18 +856,21 @@
     align-items:     center;
     justify-content: center;
 }
+
 .sny-ms-title {
     font-size:   14px;
     font-weight: 700;
     color:       rgba(255,255,255,.88);
     margin:      0;
 }
+
 .sny-ms-msg {
     font-size:   12.5px;
     color:       rgba(255,255,255,.4);
     line-height: 1.6;
     margin:      0;
 }
+
 .sny-ms-btn {
     display:         flex;
     align-items:     center;
@@ -751,20 +885,11 @@
     text-decoration: none;
     transition:      background .15s;
 }
+
 .sny-ms-btn:hover {
     background: #d90000;
     color:      #fff;
 }
-
-.dropdown-item {
-    transition: all 0.3s ease;
-}
-
-.dropdown-item:hover {
-    background: rgba(249,0,0,.08);
-    padding-left: 20px;
-}
-
 </style>
 
 <script>
@@ -973,7 +1098,25 @@ window.snyToggleDesc = function() { _descFull=!_descFull; renderDesc(_activeCh?(
 function fmtNum(n){if(!n)return'0';n=parseInt(n,10);if(n>=1e9)return(n/1e9).toFixed(1)+'B';if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return(n/1e3).toFixed(1)+'K';return String(n);}
 function escHtml(s){return String(s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 
+/* ========================================
+   SIMPLE SCROLL EFFECT - ONLY CHANGES BACKGROUND
+   ======================================== */
+
 document.addEventListener('DOMContentLoaded', function() {
+    const navbar = document.querySelector('.custom-navbar');
+    
+    window.addEventListener('scroll', function() {
+        let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        
+        // Only change background, never hide the navbar
+        if (scrollTop > 50) {
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
+        }
+    });
+    
+    // Handle navbar toggler
     const navbarToggler = document.querySelector('.navbar-toggler');
     const navbarCollapse = document.getElementById('navbarNav');
     
@@ -991,7 +1134,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
-
 
 })();
 </script>

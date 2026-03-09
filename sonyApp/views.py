@@ -1,6 +1,3 @@
-"""
-sonyApp/views.py
-"""
 
 import json
 from datetime import timedelta
@@ -82,89 +79,6 @@ def format_number(num):
     else:
         return str(int(num))
 
-
-# def get_recent_artists_simple(limit=15):
-#     """
-#     Count artists - ONLY exact matches, no dangerous part searches
-#     """
-#     cache_key = f'recent_artists_exact_{limit}'
-#     cached = cache.get(cache_key)
-#     if cached:
-#         return cached
-    
-#     ninety_days_ago = timezone.now() - timedelta(days=90)
-    
-#     # 🎵 CURATED LIST OF REAL MUSIC ARTISTS
-#     REAL_ARTISTS = [
-#         # Music Directors / Composers
-#         'A.R. Rahman', 'Anirudh Ravichander', 'Yuvan Shankar Raja', 'Ilaiyaraaja',
-#         'Harris Jayaraj', 'G.V. Prakash', 'D. Imman', 'Santhosh Narayanan',
-#         'Sean Roldan', 'Hiphop Tamizha', 'Devi Sri Prasad', 'M.M. Keeravani',
-#         'Thaman S', 'Pritam', 'Vishal Dadlani', 'Shekhar Ravjiani',
-#         'Sam C.S.', 'Leon James', 'Siddhu Kumar', 'Justin Prabhakaran',
-#         'Ron Ethan Yohann', 'Jakes Bejoy', 'Sushin Shyam', 'Dharan Kumar',
-        
-#         # Playback Singers - Male
-#         'S.P. Balasubrahmanyam', 'K.J. Yesudas', 'Sid Sriram', 'Benny Dayal',
-#         'Haricharan', 'Vijay Yesudas', 'Sathyaprakash', 'Pradeep Kumar',
-#         'Armaan Malik', 'Arijit Singh', 'Mohit Chauhan', 'Javed Ali',
-#         'Sonu Nigam', 'Shankar Mahadevan', 'Udit Narayan', 'Karthik',
-#         'Rahul Nambiar', 'Ranjith', 'Vineeth Sreenivasan', 'Anand Aravindakshan',
-#         'Shenbagaraj', 'Narayanan',
-        
-#         # Playback Singers - Female
-#         'Shreya Ghoshal', 'Chinmayi', 'Jonita Gandhi', 'Neha Kakkar',
-#         'Sunidhi Chauhan', 'K.S. Chithra', 'Sadhana Sargam', 'Alka Yagnik',
-#         'Anuradha Sriram', 'Swetha Mohan', 'Madhushree', 'Bombay Jayashri',
-#         'Vaikom Vijayalakshmi', 'Sithara', 'Shweta Mohan',
-        
-#         # Independent Artists / Bands
-#         'Sivaangi Krishnakumar', 'Dhee', 'OfRo', 'The Indian Choral Ensemble',
-#         'Agam', 'Thaikkudam Bridge', 'Avial', 'Masala Coffee',
-#     ]
-    
-#     artist_data = []
-    
-#     for artist in REAL_ARTISTS:
-#         # ONLY search for exact artist name - NO PART SEARCH
-#         video_count = Video.objects.filter(
-#             Q(title__icontains=artist) | Q(description__icontains=artist),
-#             published_at__gte=ninety_days_ago,
-#             is_active=True,
-#             is_embeddable=True
-#         ).distinct().count()
-        
-#         # Only include if count > 0
-#         if video_count > 0:
-#             # Get dates
-#             videos = Video.objects.filter(
-#                 Q(title__icontains=artist) | Q(description__icontains=artist),
-#                 published_at__gte=ninety_days_ago,
-#                 is_active=True,
-#                 is_embeddable=True
-#             ).order_by('-published_at').values_list('published_at', flat=True)[:50]
-            
-#             dates = [v.strftime('%b %d, %Y') for v in videos]
-            
-#             artist_data.append({
-#                 'name': artist,
-#                 'count': video_count,
-#                 'dates': dates,
-#                 'tooltip': (
-#                     f"🎤 {artist}\n"
-#                     f"📊 Total: {video_count} videos\n"
-#                     f"📅 All dates:\n"
-#                     f"{' • '.join(dates[:15])}{' …' if len(dates) > 15 else ''}\n"
-#                     f"⏱️ {ninety_days_ago.strftime('%b %d')} – {timezone.now().strftime('%b %d, %Y')}"
-#                 )
-#             })
-    
-#     # Sort and limit
-#     artist_data.sort(key=lambda x: x['count'], reverse=True)
-#     top_artists = artist_data[:limit]
-    
-#     cache.set(cache_key, top_artists, 3600)
-#     return top_artists
 
 # ═══════════════════════════════════════════════════════════════
 # ARTISTS PAGE  — optimized: 1 DB query instead of ~70
@@ -905,8 +819,7 @@ def auto_update_stats(request):
     except ValueError:
         days = 31
 
-    # Set timestamp IMMEDIATELY — before thread starts
-    cache.set('last_stats_update', datetime.now().isoformat(), 86400)
+    # ❌ REMOVED immediate cache.set — cold start failures won't fake a timestamp
 
     import threading
     def run():
@@ -914,7 +827,7 @@ def auto_update_stats(request):
             out = StringIO()
             call_command('update_video_stats', '--days', str(days), stdout=out)
             cache.delete('growth_sections_v2')
-            cache.set('last_stats_update', datetime.now().isoformat(), 86400)
+            cache.set('last_stats_update', datetime.now().isoformat(), 86400)  # ✅ only on success
             logger.info(f"Stats update done: last {days} days")
         except Exception as e:
             logger.error(f"auto_update_stats error: {e}")
@@ -922,8 +835,8 @@ def auto_update_stats(request):
     threading.Thread(target=run, daemon=True).start()
 
     return JsonResponse({
-        'success':   True,
-        'message':   f'Stats update started for last {days} days',
+        'success': True,
+        'message': f'Stats update started for last {days} days',
         'timestamp': datetime.now().isoformat(),
     })
 
@@ -935,8 +848,8 @@ def auto_update_stats_full(request):
     provided_token = request.GET.get('token')
     if SECRET_TOKEN and provided_token != SECRET_TOKEN:
         return JsonResponse({'error': 'Unauthorized'}, status=401)
-    # Set timestamp IMMEDIATELY — before thread starts
-    cache.set('last_stats_update', datetime.now().isoformat(), 86400)
+
+    # ❌ REMOVED — full fetch should NOT touch last_stats_update
 
     import threading
     def run():
@@ -944,7 +857,7 @@ def auto_update_stats_full(request):
             out = StringIO()
             call_command('update_video_stats', '--days', '36500', stdout=out)
             cache.delete('growth_sections_v2')
-            cache.set('last_stats_update', datetime.now().isoformat(), 86400)
+            # ❌ REMOVED cache.set here too
             logger.info("Full stats update complete")
         except Exception as e:
             logger.error(f"auto_update_stats_full error: {e}")
@@ -952,8 +865,8 @@ def auto_update_stats_full(request):
     threading.Thread(target=run, daemon=True).start()
 
     return JsonResponse({
-        'success':   True,
-        'message':   'Full stats update started in background',
+        'success': True,
+        'message': 'Full stats update started in background',
         'timestamp': datetime.now().isoformat(),
     })
 
@@ -968,76 +881,3 @@ def health_check(request):
     Just confirms the server process is awake.
     """
     return JsonResponse({'status': 'ok'})
-
-
-# ────────────────────────────────────────────────────────────────
-# full fetch all channel videos
-# ────────────────────────────────────────────────────────────────
-
-# @csrf_exempt
-# @require_http_methods(["GET", "POST"])
-# def fetch_all_videos(request):
-#     SECRET_TOKEN = settings.AUTO_SYNC_SECRET_TOKEN
-#     provided_token = request.GET.get('token')
-    
-#     if SECRET_TOKEN and provided_token != SECRET_TOKEN:
-#         return JsonResponse({'error': 'Unauthorized'}, status=401)
-    
-#     try:
-#         out = StringIO()
-        
-#         # Fetch ALL videos for ALL channels
-#         call_command('fetch_youtube_videos', '--max-videos', '999999', stdout=out)
-        
-#         return JsonResponse({
-#             'success': True,
-#             'message': 'Fetched all videos for all channels',
-#             'output': out.getvalue()
-#         })
-#     except Exception as e:
-#         return JsonResponse({'success': False, 'error': str(e)}, status=500)
-        
-#     except Exception as e:
-#         return JsonResponse({
-#             'success': False,
-#             'error': str(e)
-#         }, status=500)
-
-
-  # ────────────────────────────────────────────────────────────────
-#  fetch by channel videos
-# ────────────────────────────────────────────────────────────────
-  
-
-# @csrf_exempt
-# @require_http_methods(["GET", "POST"])
-# def fetch_all_channel_videos(request):
-#     SECRET_TOKEN = settings.AUTO_SYNC_SECRET_TOKEN
-#     provided_token = request.GET.get('token')
-    
-#     if SECRET_TOKEN and provided_token != SECRET_TOKEN:
-#         return JsonResponse({'error': 'Unauthorized'}, status=401)
-    
-#     channel_id = request.GET.get('channel')
-    
-#     if not channel_id:
-#         return JsonResponse({'error': 'channel parameter required'}, status=400)
-    
-#     try:
-#         out = StringIO()
-        
-#         # Fetch ALL videos for this specific channel
-#         call_command(
-#             'fetch_youtube_videos',
-#             '--channel', channel_id,
-#             '--max-videos', '999999',  # ALL videos
-#             stdout=out
-#         )
-        
-#         return JsonResponse({
-#             'success': True,
-#             'message': f'Fetched all videos for channel {channel_id}',
-#             'output': out.getvalue()
-#         })
-#     except Exception as e:
-#         return JsonResponse({'success': False, 'error': str(e)}, status=500)

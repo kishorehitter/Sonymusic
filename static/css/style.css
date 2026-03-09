@@ -2691,7 +2691,7 @@ html {
     }
     
     .carousel-label-badge {
-        top: 0px;
+        top: 6px;
         padding: 4px 12px;
         font-size: 0.75rem;
     }
