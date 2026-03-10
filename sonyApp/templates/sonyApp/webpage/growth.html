@@ -3,6 +3,67 @@
 
 {% block content %}
 
+<style>
+/* ── Scrolling Ticker ─────────────────────────────────────── */
+.ticker-wrap {
+  overflow: hidden;
+  width: 100%;
+  background: rgba(255,0,0,0.06);
+  border-top: 1px solid rgba(255,0,0,0.2);
+  border-bottom: 1px solid rgba(255,0,0,0.2);
+  padding: 4px 0;
+  position: relative;
+}
+.ticker-wrap::before,
+.ticker-wrap::after {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 40px;
+  z-index: 2;
+  pointer-events: none;
+}
+.ticker-wrap::before {
+  left: 0;
+  background: linear-gradient(to right, #0d0d0d, transparent);
+}
+.ticker-wrap::after {
+  right: 0;
+  background: linear-gradient(to left, #0d0d0d, transparent);
+}
+.ticker-track {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: ticker-scroll 18s linear infinite;
+}
+.ticker-track:hover { animation-play-state: paused; }
+.ticker-item {
+  display: inline-block;
+  padding: 0 32px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #ff3333;
+  text-shadow:
+    0 0 6px rgba(255,50,50,0.8),
+    0 0 14px rgba(255,50,50,0.4);
+}
+.ticker-dot {
+  display: inline-block;
+  width: 5px; height: 5px;
+  background: #ff3333;
+  border-radius: 50%;
+  margin: 0 8px;
+  vertical-align: middle;
+  box-shadow: 0 0 6px #ff3333;
+  opacity: 0.7;
+}
+@keyframes ticker-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+</style>
+
     <div class="container-fluid bg-black position-relative px-4">
         <div class="d-flex justify-content-between align-items-center w-100">
             <a class="navbar-brand logo" href="{% url 'home' %}">
@@ -33,17 +94,10 @@
   <h1 class="fw-bold text-white mb-1" style="font-size: clamp(2rem, 5vw, 3.5rem);">
     📊 Growth Analytics
   </h1>
-  <p class="text-secondary mb-1">Real-time view growth tracking</p>
-
-  <!-- ── Last updated label — always shows something useful, never "Waiting for first cron run" ── -->
-  <p class="d-inline-block mb-0" id="lastStatsLabel"
-     style="font-size:0.72rem; color:#ff9500; background:rgba(255,149,0,0.1);
-            padding:3px 10px; border-radius:20px; border:1px solid rgba(255,0,0,0.9);">
-    ⟳ Growth data updated every 6 hours
-  </p>
+  <p class="text-secondary mb-2">Real-time view growth tracking</p>
 
   <!-- ── Tab Buttons ── -->
-  <div class="d-flex justify-content-center gap-2 mt-2 flex-wrap" id="growth-tabs">
+  <div class="d-flex justify-content-center gap-2 mt-1 flex-wrap" id="growth-tabs">
     <button class="growth-tab-btn active" data-tab="hot-and-new"
             style="background:#2d1a00; color:#ff9500; border:1px solid #ff9500;
                    padding:8px 20px; border-radius:50px; cursor:pointer; font-size:0.9rem; transition:all 0.2s;">
@@ -86,6 +140,20 @@
             <span class="info-icon ms-1" data-tooltip="hot"
                   style="cursor:pointer; color:#ff9500; font-size:0.8rem; opacity:0.7;">ⓘ</span>
           </p>
+
+          <!-- ── Ticker for Hot & New ── -->
+          <div class="ticker-wrap mb-2" id="ticker-hot">
+            <div class="ticker-track" id="ticker-track-hot">
+              <span class="ticker-item">⟳ We will update soon</span>
+              <span class="ticker-dot"></span>
+              <span class="ticker-item">⟳ We will update soon</span>
+              <span class="ticker-dot"></span>
+              <span class="ticker-item">⟳ We will update soon</span>
+              <span class="ticker-dot"></span>
+              <span class="ticker-item">⟳ We will update soon</span>
+              <span class="ticker-dot"></span>
+            </div>
+          </div>
 
           <!-- pie chart -->
           <div class="p-2 rounded-2" style="background:#111;">
@@ -167,6 +235,20 @@
                   style="cursor:pointer; color:#f472b6; font-size:0.8rem; opacity:0.7;">ⓘ</span>
           </p>
 
+          <!-- ── Ticker for Daily ── -->
+          <div class="ticker-wrap mb-2" id="ticker-daily">
+            <div class="ticker-track" id="ticker-track-daily">
+              <span class="ticker-item">⟳ We will update soon</span>
+              <span class="ticker-dot"></span>
+              <span class="ticker-item">⟳ We will update soon</span>
+              <span class="ticker-dot"></span>
+              <span class="ticker-item">⟳ We will update soon</span>
+              <span class="ticker-dot"></span>
+              <span class="ticker-item">⟳ We will update soon</span>
+              <span class="ticker-dot"></span>
+            </div>
+          </div>
+
           <div class="p-2 rounded-2" style="background:#111;">
             <p class="text-center mb-0 pb-0 text-light">Top 3 Growth</p>
             <div class="d-flex align-items-center gap-3 mb-3 p-2 rounded-2" style="background:#111;">
@@ -246,6 +328,20 @@
             <span class="info-icon ms-1" data-tooltip="weekly"
                   style="cursor:pointer; color:#38bdf8; font-size:0.8rem; opacity:0.7;">ⓘ</span>
           </p>
+
+          <!-- ── Ticker for Weekly ── -->
+          <div class="ticker-wrap mb-2" id="ticker-weekly">
+            <div class="ticker-track" id="ticker-track-weekly">
+              <span class="ticker-item">⟳ We will update soon</span>
+              <span class="ticker-dot"></span>
+              <span class="ticker-item">⟳ We will update soon</span>
+              <span class="ticker-dot"></span>
+              <span class="ticker-item">⟳ We will update soon</span>
+              <span class="ticker-dot"></span>
+              <span class="ticker-item">⟳ We will update soon</span>
+              <span class="ticker-dot"></span>
+            </div>
+          </div>
 
           <div class="p-2 rounded-2" style="background:#111;">
             <p class="text-center mb-0 pb-0 text-light">Top 3 Growth</p>
@@ -394,31 +490,64 @@ document.querySelectorAll('.load-more-btn').forEach(function(btn) {
 })();
 
 // ═══════════════════════════════════════════════
-// LAST STATS UPDATE LABEL
-// — Default: "Growth data updated every 6 hours" (always visible)
-// — If data available: updates to "Growth updated X min/hrs ago"
-// — Never shows "Waiting for first cron run"
+// TICKER — build scrolling text for all 3 sections
+// Each section shows its own update time
 // ═══════════════════════════════════════════════
+var SECTION_LABELS = {
+  'hot':    { id: 'ticker-track-hot',    label: '🔥 Hot & New'     },
+  'daily':  { id: 'ticker-track-daily',  label: '📈 Daily Growth'  },
+  'weekly': { id: 'ticker-track-weekly', label: '📊 Weekly Growth' },
+};
+
+function buildTickerContent(sectionLabel, agoText) {
+  // Repeat 4 times for seamless infinite loop (track is duplicated = 8 segments)
+  var msg = '⟳ ' + sectionLabel + ' · Growth updated ' + agoText;
+  var segments = '';
+  for (var i = 0; i < 8; i++) {
+    segments += '<span class="ticker-item">' + msg + '</span>';
+    segments += '<span class="ticker-dot"></span>';
+  }
+  return segments;
+}
+
+function buildTickerEmpty(sectionLabel) {
+  var msg = '⟳ ' + sectionLabel + ' · We will update soon — next refresh in ~6 hrs';
+  var segments = '';
+  for (var i = 0; i < 8; i++) {
+    segments += '<span class="ticker-item">' + msg + '</span>';
+    segments += '<span class="ticker-dot"></span>';
+  }
+  return segments;
+}
+
+function calcAgo(isoString) {
+  var d    = new Date(isoString);
+  var now  = new Date();
+  var diff = Math.floor((now - d) / 60000);
+  if (diff < 1)    return 'just now';
+  if (diff < 60)   return diff + ' min ago';
+  if (diff < 1440) return Math.floor(diff / 60) + ' hrs ago';
+  return Math.floor(diff / 1440) + ' days ago';
+}
+
 fetch('/api/last-stats/')
   .then(function(r) { return r.json(); })
   .then(function(data) {
-    var el = document.getElementById('lastStatsLabel');
-    if (!el) return;
-    if (data.last_updated) {
-      var d    = new Date(data.last_updated);
-      var now  = new Date();
-      var diff = Math.floor((now - d) / 60000); // minutes
-      var ago  = diff < 1    ? 'just now'
-               : diff < 60   ? diff + ' min ago'
-               : diff < 1440 ? Math.floor(diff / 60) + ' hrs ago'
-               : Math.floor(diff / 1440) + ' days ago';
-      el.innerHTML = '⟳ Growth updated ' + ago;
-      el.style.color = '#ff9500';
-    }
-    // If null — keep the default static message unchanged
+    var sections = ['hot', 'daily', 'weekly'];
+    sections.forEach(function(key) {
+      var cfg   = SECTION_LABELS[key];
+      var track = document.getElementById(cfg.id);
+      if (!track) return;
+      if (data.last_updated) {
+        var ago = calcAgo(data.last_updated);
+        track.innerHTML = buildTickerContent(cfg.label, ago);
+      } else {
+        track.innerHTML = buildTickerEmpty(cfg.label);
+      }
+    });
   })
   .catch(function() {
-    // On network error — keep default static message, show nothing broken
+    // On error keep default "We will update soon"
   });
 
 // ═══════════════════════════════════════════════
@@ -465,21 +594,13 @@ document.querySelectorAll('.info-icon').forEach(function(icon) {
     tooltipEl.style.left = left + 'px';
     tooltipEl.style.top  = top + 'px';
   }
-
   icon.addEventListener('mouseenter', showTooltip);
   icon.addEventListener('mouseleave', function() { tooltipEl.style.display = 'none'; });
-
-  // Mobile tap toggle
   icon.addEventListener('click', function(e) {
     e.stopPropagation();
-    if (tooltipEl.style.display === 'block') {
-      tooltipEl.style.display = 'none';
-    } else {
-      showTooltip();
-    }
+    tooltipEl.style.display === 'block' ? tooltipEl.style.display = 'none' : showTooltip();
   });
 });
-
 document.addEventListener('click', function() { tooltipEl.style.display = 'none'; });
 
 // ═══════════════════════════════════════════════
