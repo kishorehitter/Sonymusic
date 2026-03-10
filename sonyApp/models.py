@@ -102,22 +102,19 @@ class Video(models.Model):
 
     @staticmethod
     def _snap_key(dt):
-        """
-        Normalise a datetime to the nearest 6h slot key.
-        Slots: 00:00, 06:00, 12:00, 18:00
-        Returns string like "2025-03-05 18:00"
-        """
-        slot = (dt.hour // 6) * 6
-        return dt.strftime(f'%Y-%m-%d {slot:02d}:00')
+        import pytz
+        IST = pytz.timezone('Asia/Kolkata')
+        # Convert to IST if timezone-aware, else assume UTC
+        if dt.tzinfo is not None:
+            dt_ist = dt.astimezone(IST)
+        else:
+            import datetime
+            dt_ist = dt.replace(tzinfo=datetime.timezone.utc).astimezone(IST)
+        slot = (dt_ist.hour // 6) * 6
+        return dt_ist.strftime(f'%Y-%m-%d {slot:02d}:00')
 
     def save_6h_snapshot(self, current_views):
-        """
-        Store a 6h snapshot of the current view count.
 
-        - Uses slot-normalised timestamp key ("YYYY-MM-DD HH:00")
-        - Sets base_snapshot_timestamp on the FIRST snapshot ever
-        - Auto-deletes snapshots older than 30 days (720h) from base
-        """
         import logging
         logger = logging.getLogger(__name__)
 
@@ -227,7 +224,9 @@ class Video(models.Model):
 
         for key in history:
             try:
-                key_dt = dt_cls.strptime(key, '%Y-%m-%d %H:%M').replace(tzinfo=dt_timezone.utc)
+                import pytz
+                IST = pytz.timezone('Asia/Kolkata')
+                key_dt = IST.localize(dt_cls.strptime(key, '%Y-%m-%d %H:%M'))
                 diff = abs((key_dt - target_dt).total_seconds())
                 if diff < best_diff and diff <= 21600:  # within 6h
                     best_diff = diff
