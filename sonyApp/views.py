@@ -374,8 +374,15 @@ def api_trending(request):
 @require_GET
 def last_stats_time(request):
     last = cache.get('last_stats_update')
+    if last:
+        from datetime import datetime, timezone
+        from zoneinfo import ZoneInfo
+        IST = ZoneInfo('Asia/Kolkata')
+        dt = datetime.fromisoformat(last)
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        last = dt.astimezone(IST).isoformat()
     return JsonResponse({'last_updated': last})
-
 
 # ═══════════════════════════════════════════════════════════════
 # CHANNEL DETAIL

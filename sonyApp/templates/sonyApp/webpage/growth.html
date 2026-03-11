@@ -44,9 +44,9 @@
   font-weight: 600;
   letter-spacing: 0.04em;
   color: #ff3333;
-  text-shadow:
+  /* text-shadow:
     0 0 6px rgba(255,50,50,0.8),
-    0 0 14px rgba(255,50,50,0.4);
+    0 0 14px rgba(255,50,50,0.4); */
 }
 .ticker-dot {
   display: inline-block;
@@ -91,7 +91,7 @@
 
 <!-- ── Page Header ─────────────────────────────────────────── -->
 <div class="container-fluid text-center py-2" style="background: linear-gradient(180deg, #1a0000 0%, #000 100%);">
-  <h1 class="fw-bold text-white mb-1" style="font-size: clamp(2rem, 5vw, 3.5rem);">
+  <h1 class="fw-bold text-white mb-1" style="font-size: clamp(1.8rem, 4.5vw, 3.2rem);">
     📊 Growth Analytics
   </h1>
   <p class="text-secondary mb-2">Real-time view growth tracking</p>
@@ -136,9 +136,9 @@
           </div>
 
           <p class="text-secondary small mb-2">
-            Videos released today · ranked by 6-hour growth
+            Video released in the last 24 Hours. Views gained in 6 hours.
             <span class="info-icon ms-1" data-tooltip="hot"
-                  style="cursor:pointer; color:#ff9500; font-size:0.8rem; opacity:0.7;">ⓘ</span>
+                  style="cursor:pointer; color:#ff9500; font-size:1rem;"><i class="bi bi-info-circle"></i></span>
           </p>
 
           <!-- ── Ticker for Hot & New ── -->
@@ -230,9 +230,9 @@
           </div>
 
           <p class="text-secondary small mb-3">
-            1–7 days old · views gained in last 24 hours
+           Video released in the last 1 - 7 days · views gained in last 24 hours
             <span class="info-icon ms-1" data-tooltip="daily"
-                  style="cursor:pointer; color:#f472b6; font-size:0.8rem; opacity:0.7;">ⓘ</span>
+                  style="cursor:pointer; color:#f472b6; font-size:1rem;"><i class="bi bi-info-circle"></i></span>
           </p>
 
           <!-- ── Ticker for Daily ── -->
@@ -326,7 +326,7 @@
           <p class="text-secondary small mb-3">
             7–30 days old · views gained in last 7 days
             <span class="info-icon ms-1" data-tooltip="weekly"
-                  style="cursor:pointer; color:#38bdf8; font-size:0.8rem; opacity:0.7;">ⓘ</span>
+                  style="cursor:pointer; color:#38bdf8; font-size:1rem;"><i class="bi bi-info-circle"></i></span>
           </p>
 
           <!-- ── Ticker for Weekly ── -->
@@ -402,9 +402,9 @@
 
 </div>
 
-<div class="text-center py-3">
+{% comment %} <div class="text-center py-3">
   <p class="text-secondary small mb-0">📡 Data refreshed every 6 hours</p>
-</div>
+</div> {% endcomment %}
 
 <!-- ── Global Tooltip Element ── -->
 <div id="growth-tooltip"
@@ -533,12 +533,17 @@ function calcAgo(isoString) {
 fetch('/api/last-stats/')
   .then(function(r) { return r.json(); })
   .then(function(data) {
+    var VIDEO_COUNTS = {
+      'hot':    {{ hot_and_new|length }},
+      'daily':  {{ daily_growth|length }},
+      'weekly': {{ weekly_growth|length }},
+    };
     var sections = ['hot', 'daily', 'weekly'];
     sections.forEach(function(key) {
       var cfg   = SECTION_LABELS[key];
       var track = document.getElementById(cfg.id);
       if (!track) return;
-      if (data.last_updated) {
+      if (data.last_updated && VIDEO_COUNTS[key] > 0) {
         var ago = calcAgo(data.last_updated);
         track.innerHTML = buildTickerContent(cfg.label, ago);
       } else {
